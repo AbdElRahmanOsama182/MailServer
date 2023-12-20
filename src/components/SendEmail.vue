@@ -1,9 +1,10 @@
 <template>
 
-    <button class="SendEmail" onclick="document.getElementById('SendE').style.display='block'">Send Email</button>
-    <div id="SendE" class="formC">
+    <button class="SendEmail" @click="openWindow">Send Email</button>
+    <div id="SendE" class="formC" ref="formC">
     <form class="formC-content animate">
         <div class="container">
+        <button class="closebtn" @click="closeWindow">X</button>
         <p>Send Email</p>
         <div class="SendInfo">
             <label for="subject">Subject</label>
@@ -40,22 +41,24 @@
         };
     },
     mounted() {
-        var formC = document.getElementById('SendE');
-        window.onclick = function(event) {
-            if (event.target == formC) {
-                formC.style.display = "none";
-            }
 
-        } 
     },
     methods: {
-        
-    },
+        openWindow(){
+            this.$refs.formC.style.display = 'block';
+
+        },
+        closeWindow(e){
+            this.$refs.formC.style.display = 'none';
+            e.preventDefault();
+        },
+},
     
 }
 </script>
 
 <style scoped>
+
     input[type=text], input[type=email], textarea{
     padding: 12px 15px;
     margin: 8px 0;
@@ -64,6 +67,12 @@
     border-radius: 4px;
 }
 
+.closebtn{
+    text-align: center;
+    margin-left: 97%;
+    margin-right: 0;
+    width: auto;
+}
 .container {
     padding: 16px;
 
@@ -107,8 +116,10 @@ label {
 }
 
 .ebtns, .abtns{
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+    grid-auto-flow: row;
     height: 42px;
     font-size: 16px;
     font-weight: 300;
@@ -141,12 +152,6 @@ label {
 }
 
 
-.sendInfo{
-    display: grid;
-    column-gap: 50px;
-    row-gap: 50px;
-
-}
 .formC {
     display: none; 
     position: fixed;

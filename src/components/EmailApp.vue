@@ -1,20 +1,25 @@
 <template>
     <div>
         <SendEmail/>
+        <ViewEmail/>
     </div>
 </template>
 
 <script>
     import SendEmail from './SendEmail.vue';
+    import ViewEmail from './ViewEmail.vue';
+
 
     export default {
     name: 'EmailApp',
-    components: { SendEmail }
+    components: { 
+        SendEmail,
+       ViewEmail,
+    },
     
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
 </style>
