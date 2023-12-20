@@ -98,6 +98,9 @@ label {
     width: 100%;
     min-height: 250px;
     max-height: 250px;
+    min-width: 100%;
+    max-width: 100%;
+    
     border-radius: 5px;
     /*box-shadow: 0 2px 0px rgba(0, 0, 0, 0.7);*/
     background-color: #D1D4C9;
