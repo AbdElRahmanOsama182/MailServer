@@ -1,7 +1,13 @@
-package com.mail.backend.Models.Folder;
+package com.mail.backend.Managers;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.mail.backend.Models.Folder.DraftFolder;
+import com.mail.backend.Models.Folder.Folder;
+import com.mail.backend.Models.Folder.InboxFolder;
+import com.mail.backend.Models.Folder.SentFolder;
+import com.mail.backend.Models.Folder.TrashFolder;
 
 public class FolderManager {
     Map<Integer, Folder> folders;
