@@ -7,6 +7,11 @@ import java.util.Map;
 import org.springframework.ws.mime.Attachment;
 
 import com.mail.backend.Models.Contact.Contact;
+import com.mail.backend.Models.Filter.AndEmailCriteria;
+import com.mail.backend.Models.Filter.EmailCriteria;
+import com.mail.backend.Models.Filter.EmailPriorityCriteria;
+import com.mail.backend.Models.Filter.EmailSubjectCriteria;
+import com.mail.backend.Models.Filter.OrEmailCriteria;
 
 public class Email {
     private int id;
@@ -128,6 +133,11 @@ public class Email {
         this.sendDate = sendDate;
     }
 
+    // public void print() {
+    // System.out.println("Email: " + this.id + " " + this.subject + " " +
+    // this.priority);
+    // }
+
     public void updateEmail(Map<String, Object> email) {
         for (String key : email.keySet()) {
             switch (key) {
@@ -164,4 +174,58 @@ public class Email {
         }
     }
 
+    // public static void main(String[] args) {
+    // ArrayList<Email> emails = new ArrayList<Email>();
+    // // test criteria
+    // emails.add(new EmailBuilder().build(Map.of("id", 1, "subject", "subject1",
+    // "priority", 1)));
+    // emails.add(new EmailBuilder().build(Map.of("id", 2, "subject", "subject2",
+    // "priority", 2)));
+    // emails.add(new EmailBuilder().build(Map.of("id", 3, "subject", "subject1",
+    // "priority", 2)));
+    // emails.add(new EmailBuilder().build(Map.of("id", 4, "subject", "subject2",
+    // "priority", 1)));
+    // emails.add(new EmailBuilder().build(Map.of("id", 5, "subject", "subject1",
+    // "priority", 1)));
+    // Email testUpdate = new EmailBuilder().build(Map.of("id", 6, "subject",
+    // "subject1", "priority", 1));
+    // testUpdate.print();
+    // testUpdate.updateEmail(Map.of("subject", "subject2", "priority", 2));
+    // testUpdate.print();
+    // EmailCriteria criteria1 = new EmailSubjectCriteria("subject1");
+    // EmailCriteria criteria2 = new EmailPriorityCriteria(1);
+    // ArrayList<Email> result1 = criteria1.meetCriteria(emails);
+    // ArrayList<Email> result2 = criteria2.meetCriteria(emails);
+    // ArrayList<Email> result3 = new AndEmailCriteria(new
+    // ArrayList<EmailCriteria>() {
+    // {
+    // add(criteria1);
+    // add(criteria2);
+    // }
+    // }).meetCriteria(emails);
+    // ArrayList<Email> result4 = new OrEmailCriteria(new ArrayList<EmailCriteria>()
+    // {
+    // {
+    // add(criteria2);
+    // add(criteria1);
+    // }
+    // }).meetCriteria(emails);
+    // System.out.println("result1: ");
+    // for (Email email : result1) {
+    // email.print();
+    // }
+    // System.out.println("result2: ");
+    // for (Email email : result2) {
+    // email.print();
+    // }
+    // System.out.println("result3: ");
+    // for (Email email : result3) {
+    // email.print();
+    // }
+    // System.out.println("result4: ");
+    // for (Email email : result4) {
+    // email.print();
+    // }
+
+    // }
 }
