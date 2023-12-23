@@ -344,7 +344,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 
 .theme--light.v-input input{
   color:#BBE1FA;

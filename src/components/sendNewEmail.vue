@@ -236,7 +236,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .align-center {
   display: flex;
   align-items: center;
