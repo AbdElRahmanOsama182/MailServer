@@ -1,11 +1,14 @@
 package com.mail.backend.Models.Email;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.ws.mime.Attachment;
 
+import com.mail.backend.Managers.EmailManager;
 import com.mail.backend.Models.Contact.Contact;
 import com.mail.backend.Models.Filter.AndEmailCriteria;
 import com.mail.backend.Models.Filter.EmailCriteria;
@@ -133,10 +136,21 @@ public class Email {
         this.sendDate = sendDate;
     }
 
-    // public void print() {
-    // System.out.println("Email: " + this.id + " " + this.subject + " " +
-    // this.priority);
-    // }
+    public Map<String, Object> readEmail() {
+        Map<String, Object> email = new HashMap<String, Object>();
+        email.put("id", this.getId());
+        email.put("fromUserId", this.getFromUserId());
+        email.put("to", this.getTo());
+        email.put("attachments", this.getAttachments());
+        email.put("priority", this.getPriority());
+        email.put("subject", this.getSubject());
+        email.put("body", this.getBody());
+        email.put("isDeleted", this.isDeleted());
+        email.put("isDraft", this.isDraft());
+        email.put("deleteDate", this.getDeleteDate());
+        email.put("sendDate", this.getSendDate());
+        return email;
+    }
 
     public void updateEmail(Map<String, Object> email) {
         for (String key : email.keySet()) {
@@ -174,58 +188,38 @@ public class Email {
         }
     }
 
-    // public static void main(String[] args) {
-    // ArrayList<Email> emails = new ArrayList<Email>();
-    // // test criteria
-    // emails.add(new EmailBuilder().build(Map.of("id", 1, "subject", "subject1",
-    // "priority", 1)));
-    // emails.add(new EmailBuilder().build(Map.of("id", 2, "subject", "subject2",
-    // "priority", 2)));
-    // emails.add(new EmailBuilder().build(Map.of("id", 3, "subject", "subject1",
-    // "priority", 2)));
-    // emails.add(new EmailBuilder().build(Map.of("id", 4, "subject", "subject2",
-    // "priority", 1)));
-    // emails.add(new EmailBuilder().build(Map.of("id", 5, "subject", "subject1",
-    // "priority", 1)));
-    // Email testUpdate = new EmailBuilder().build(Map.of("id", 6, "subject",
-    // "subject1", "priority", 1));
-    // testUpdate.print();
-    // testUpdate.updateEmail(Map.of("subject", "subject2", "priority", 2));
-    // testUpdate.print();
-    // EmailCriteria criteria1 = new EmailSubjectCriteria("subject1");
-    // EmailCriteria criteria2 = new EmailPriorityCriteria(1);
-    // ArrayList<Email> result1 = criteria1.meetCriteria(emails);
-    // ArrayList<Email> result2 = criteria2.meetCriteria(emails);
-    // ArrayList<Email> result3 = new AndEmailCriteria(new
-    // ArrayList<EmailCriteria>() {
-    // {
-    // add(criteria1);
-    // add(criteria2);
-    // }
-    // }).meetCriteria(emails);
-    // ArrayList<Email> result4 = new OrEmailCriteria(new ArrayList<EmailCriteria>()
-    // {
-    // {
-    // add(criteria2);
-    // add(criteria1);
-    // }
-    // }).meetCriteria(emails);
-    // System.out.println("result1: ");
-    // for (Email email : result1) {
-    // email.print();
-    // }
-    // System.out.println("result2: ");
-    // for (Email email : result2) {
-    // email.print();
-    // }
-    // System.out.println("result3: ");
-    // for (Email email : result3) {
-    // email.print();
-    // }
-    // System.out.println("result4: ");
-    // for (Email email : result4) {
-    // email.print();
-    // }
-
-    // }
+    public static void main(String[] args) {
+        // Date date = Date.from(Instant.now());
+        // Instant instant = Instant.parse("2021-05-04T10:15:30.00Z");
+        // Date date2 = Date.from(instant);
+        // System.out.println(date);
+        // System.out.println(date2);
+        // System.out.println(EmailManager.getInstance().emails.size());
+        // EmailManager.getInstance().loadEmails();
+        // EmailManager.getInstance().createEmail(Map.of(
+        // "fromUserId", 1,
+        // "priority", 1,
+        // "subject", "subject1",
+        // "body", "body1",
+        // "isDeleted", false,
+        // "isDraft", true,
+        // "deleteDate", date));
+        // EmailManager.getInstance().createEmail(Map.of(
+        // "fromUserId", 2,
+        // "priority", 2,
+        // "subject", "subject2",
+        // "body", "body2",
+        // "isDeleted", false,
+        // "isDraft", false));
+        // EmailManager.getInstance().createEmail(Map.of(
+        // "fromUserId", 3,
+        // "priority", 3,
+        // "subject", "subject3",
+        // "body", "body3",
+        // "isDeleted", true,
+        // "isDraft", false));
+        // // EmailManager.getInstance().saveEmails();
+        // System.out.println(EmailManager.getInstance().getEmail(0).readEmail());
+        // System.out.println(EmailManager.getInstance().emails.size());
+    }
 }
