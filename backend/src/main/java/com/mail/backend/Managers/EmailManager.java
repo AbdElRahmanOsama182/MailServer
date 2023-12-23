@@ -18,6 +18,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mail.backend.Models.Contact.Contact;
 import com.mail.backend.Models.Email.Email;
 import com.mail.backend.Models.Email.EmailBuilder;
+import com.mail.backend.Models.Sort.BodySort;
+import com.mail.backend.Models.Sort.DateSort;
+import com.mail.backend.Models.Sort.PrioritySort;
+import com.mail.backend.Models.Sort.SubjectSort;
 
 public class EmailManager {
     private static final String EMAILS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\emails.json";
@@ -80,7 +84,7 @@ public class EmailManager {
     public void saveEmails() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(this.emails);
+            String json = mapper.writeValueAsString(this.getAllEmails());
             Path path = Paths.get(EMAILS_FILE_PATH);
             System.out.println(json);
             Files.writeString(path, json);
@@ -125,18 +129,29 @@ public class EmailManager {
         return builder.build();
     }
 
+    public ArrayList<Email> sort(ArrayList<Email> emails, String sortStrategy) {
+        if (sortStrategy.equals("subject")) {
+            return new SubjectSort().sort(emails);
+        } else if (sortStrategy.equals("body")) {
+            return new BodySort().sort(emails);
+        } else if (sortStrategy.equals("priority")) {
+            return new PrioritySort().sort(emails);
+        } else if (sortStrategy.equals("date")) {
+            return new DateSort().sort(emails);
+        } else {
+            return emails;
+        }
+    }
+
     public void loadEmails() {
         try {
             Path path = Paths.get(EMAILS_FILE_PATH);
-            String json = Files.readString(path);
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(json);
-            Map<Integer, Email> newEmails = new HashMap<Integer, Email>();
-            for (JsonNode node : jsonNode) {
-                Email email = jsonToEmail(node);
-                newEmails.put(email.getId(), email);
+            ArrayList<Email> emails = mapper.readValue(new File(EMAILS_FILE_PATH),
+                    mapper.getTypeFactory().constructCollectionType(ArrayList.class, Email.class));
+            for (Email email : emails) {
+                this.emails.put(email.getId(), email);
             }
-            this.emails = newEmails;
             this.nextId = this.emails.size();
         } catch (Exception e) {
             System.out.println(e);
