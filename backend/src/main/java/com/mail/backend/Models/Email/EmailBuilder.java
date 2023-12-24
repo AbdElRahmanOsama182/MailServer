@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.ws.mime.Attachment;
 
-
 import com.mail.backend.Managers.EmailManager;
 
 import com.mail.backend.Models.Contact.Contact;
@@ -23,7 +22,7 @@ public class EmailBuilder {
         return this;
     }
 
-    public EmailBuilder fromUserId(int fromUserId) {
+    public EmailBuilder fromUserId(String fromUserId) {
         this.email.setFromUserId(fromUserId);
         return this;
     }
@@ -85,7 +84,7 @@ public class EmailBuilder {
                     builder.id((int) email.get(key));
                     break;
                 case "fromUserId":
-                    builder.fromUserId((int) email.get(key));
+                    builder.fromUserId((String) email.get(key));
                     break;
                 case "to":
                     builder.to((ArrayList<Contact>) email.get(key));

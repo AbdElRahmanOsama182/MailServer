@@ -48,8 +48,7 @@ public class FolderManager {
         this.folders.remove(folderId);
     }
 
-
-    public void createDefaultFolders(int userId) {
+    public void createDefaultFolders(String userId) {
         this.folders.put(this.nextId, new InboxFolder(this.nextId, userId));
         this.nextId++;
         this.folders.put(this.nextId, new DraftFolder(this.nextId, userId));
@@ -60,7 +59,7 @@ public class FolderManager {
         this.nextId++;
     }
 
-    public void createFolder(String name, int userId) {
+    public void createFolder(String name, String userId) {
         this.folders.put(this.nextId, new Folder(name, this.nextId, userId));
         this.nextId++;
     }
@@ -102,29 +101,29 @@ public class FolderManager {
         }
     }
 
-    public void restoreEmail(int emailId, int userId) {
+    public void restoreEmail(int emailId, String userId) {
         for (Folder folder : this.folders.values()) {
-            if (folder.getName().equals("Inbox") && folder.getUserId() == userId
+            if (folder.getName().equals("Inbox") && folder.getUserId().equals(userId)
                     && EmailManager.getInstance().getEmail(emailId).isDraft() == false) {
                 folder.addEmail(emailId);
                 return;
             }
-            if (folder.getName().equals("Draft") && folder.getUserId() == userId
+            if (folder.getName().equals("Draft") && folder.getUserId().equals(userId)
                     && EmailManager.getInstance().getEmail(emailId).isDraft() == true) {
                 folder.addEmail(emailId);
                 return;
             }
-            if (folder.getName().equals("Trash") && folder.getUserId() == userId) {
+            if (folder.getName().equals("Trash") && folder.getUserId().equals(userId)) {
                 folder.removeEmail(emailId);
                 return;
             }
         }
     }
 
-    public ArrayList<Folder> getUserFolders(int userId) {
+    public ArrayList<Folder> getUserFolders(String userId) {
         ArrayList<Folder> userFolders = new ArrayList<Folder>();
         for (Folder folder : this.folders.values()) {
-            if (folder.getUserId() == userId) {
+            if (folder.getUserId().equals(userId)) {
                 userFolders.add(folder);
             }
         }
