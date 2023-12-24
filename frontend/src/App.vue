@@ -16,7 +16,7 @@ export default {
 
 <style>
   #app{
-    background-color: #5b5b60;
+    background-color: whitesmoke;
   }
   .theme--light.v-tabs-items {
   background-color: #ff0e0e;

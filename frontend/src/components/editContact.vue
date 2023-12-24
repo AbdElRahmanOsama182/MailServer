@@ -8,13 +8,17 @@
       
     >
       <template v-slot:activator="{ on, attrs }">
+        <!-- <v-btn icon color="primary" @click="editContactDialog(contact)">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn> -->
         <v-btn
+            icon color="primary"
             class="mx-4"
             background-color="green"
             v-bind="attrs" 
             v-on="on"
         >
-            Edit Contact
+          <v-icon>mdi-pencil</v-icon>
         </v-btn>
 
       </template>

@@ -126,6 +126,51 @@
           console.error('Error fetching inbox emails', error);
         }
       },
+    async getSentEmails() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/SetEmailsToShow', {
+          params: {
+            FolderIndex: 4,
+          },
+        });
+        this.sentMails = response.data;
+
+        const numPagesResponse = await axios.get('http://localhost:8080/api/EmailsNumberOfPages');
+        this.sentNumPages = numPagesResponse.data;
+      } catch (error) {
+        console.error('Error fetching sent emails', error);
+      }
+    },
+    async getTrashEmails() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/SetEmailsToShow', {
+          params: {
+            FolderIndex: 2,
+          },
+        });
+        this.trashMails = response.data;
+
+        const numPagesResponse = await axios.get('http://localhost:8080/api/EmailsNumberOfPages');
+        this.trashNumPages = numPagesResponse.data;
+      } catch (error) {
+        console.error('Error fetching trash emails', error);
+      }
+    },
+    async getDraftEmails() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/SetEmailsToShow', {
+          params: {
+            FolderIndex: 3,
+          },
+        });
+        this.DraftMails = response.data;
+
+        const numPagesResponse = await axios.get('http://localhost:8080/api/EmailsNumberOfPages');
+        this.DraftNumPages = numPagesResponse.data;
+      } catch (error) {
+        console.error('Error fetching draft emails', error);
+      }
+    },
       async refresh(indexFolder) {
         await this.sleep(60);
   
@@ -165,7 +210,7 @@
     height: 100%;
   }
 .main-container {
-  background-color: #6d6f7b;
+  background-color: whitesmoke;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -189,7 +234,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: white;
+  color: #071551;
 }
 
 .user-info {
@@ -230,6 +275,4 @@
 .icon {
   margin-right: 0.5rem;
 }
-
-/* Add more styles as needed */
 </style>

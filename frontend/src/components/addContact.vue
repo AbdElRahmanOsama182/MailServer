@@ -8,13 +8,16 @@
             <v-spacer></v-spacer>
             <v-btn class="addnewcontact"
                 right
-                color="primary"
+                color="#071551"
+                fab
                 elevation="2"
                 x-large
                 dark
                 v-bind="attrs"
                 v-on="on"
-            >Add New Contact</v-btn>
+            >
+            <v-icon>mdi-account-plus</v-icon>
+        </v-btn>
         </template>
             <v-card>
 
