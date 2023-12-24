@@ -4,14 +4,13 @@ import java.util.ArrayList;
 
 import java.util.Map;
 
-
 public class Folder {
     private String name;
     private int id;
-    private int userId;
+    private String userId;
     private ArrayList<Integer> emails;
 
-    public Folder(String name, int id, int userId) {
+    public Folder(String name, int id, String userId) {
         this.name = name;
         this.id = id;
         this.userId = userId;
@@ -37,12 +36,11 @@ public class Folder {
         return;
     }
 
-
-    public int getUserId() {
+    public String getUserId() {
         return this.userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
         return;
     }
