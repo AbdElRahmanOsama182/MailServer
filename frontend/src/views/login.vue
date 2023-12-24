@@ -78,6 +78,7 @@ export default {
   }),
   methods: {
     CheckLogin: function () {
+      this.gomainpage();
       if (this.$v.$invalid) {
         // If the form is invalid, display an error message
         this.message = 'Please fix the above errors.';
