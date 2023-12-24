@@ -1,7 +1,9 @@
 package com.mail.backend.Models.Folder;
 
 import java.util.ArrayList;
+
 import java.util.Map;
+
 
 public class Folder {
     private String name;
@@ -34,6 +36,7 @@ public class Folder {
         this.id = id;
         return;
     }
+
 
     public int getUserId() {
         return this.userId;

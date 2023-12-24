@@ -1,6 +1,5 @@
 package com.mail.backend.Managers;
 
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,6 +30,7 @@ public class FolderManager {
             instance = new FolderManager();
         }
         return instance;
+
     }
 
     public Folder getFolder(int folderId) {
@@ -47,6 +47,7 @@ public class FolderManager {
     public void removeFolder(int folderId) {
         this.folders.remove(folderId);
     }
+
 
     public void createDefaultFolders(int userId) {
         this.folders.put(this.nextId, new InboxFolder(this.nextId, userId));

@@ -1,6 +1,7 @@
 package com.mail.backend.Models.Email;
 
 
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,6 +18,7 @@ import com.mail.backend.Models.Filter.EmailCriteria;
 import com.mail.backend.Models.Filter.EmailPriorityCriteria;
 import com.mail.backend.Models.Filter.EmailSubjectCriteria;
 import com.mail.backend.Models.Filter.OrEmailCriteria;
+
 
 
 public class Email {
@@ -191,6 +193,7 @@ public class Email {
         }
     }
 
+
     public static void main(String[] args) {
         Date date = Date.from(Instant.now());
         Instant instant = Instant.parse("2021-05-04T10:15:30.00Z");
@@ -227,5 +230,6 @@ public class Email {
         }
         System.out.println(EmailManager.getInstance().emails.size());
     }
+
 
 }
