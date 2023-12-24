@@ -1,9 +1,11 @@
 package com.mail.backend.Models.Email;
 
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+
 import java.util.Map;
 
 import org.springframework.ws.mime.Attachment;
@@ -15,6 +17,7 @@ import com.mail.backend.Models.Filter.EmailCriteria;
 import com.mail.backend.Models.Filter.EmailPriorityCriteria;
 import com.mail.backend.Models.Filter.EmailSubjectCriteria;
 import com.mail.backend.Models.Filter.OrEmailCriteria;
+
 
 public class Email {
     private int id;
@@ -224,4 +227,5 @@ public class Email {
         }
         System.out.println(EmailManager.getInstance().emails.size());
     }
+
 }
