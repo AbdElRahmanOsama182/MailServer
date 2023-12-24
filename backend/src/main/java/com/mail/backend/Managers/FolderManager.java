@@ -1,5 +1,6 @@
 package com.mail.backend.Managers;
 
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.mail.backend.Models.Folder.DraftFolder;
 import com.mail.backend.Models.Folder.Folder;
 import com.mail.backend.Models.Folder.InboxFolder;
@@ -15,6 +17,7 @@ import com.mail.backend.Models.Folder.SentFolder;
 import com.mail.backend.Models.Folder.TrashFolder;
 
 public class FolderManager {
+
     private static final String FOLDERS_FLIE_PATH = "src/main/java/com/mail/backend/data/folders.json";
     private static FolderManager instance = null;
     Map<Integer, Folder> folders = new HashMap<Integer, Folder>();

@@ -1,12 +1,23 @@
 package com.mail.backend.Models.Email;
 
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+
 import java.util.Map;
 
 import org.springframework.ws.mime.Attachment;
 
+import com.mail.backend.Managers.EmailManager;
 import com.mail.backend.Models.Contact.Contact;
+import com.mail.backend.Models.Filter.AndEmailCriteria;
+import com.mail.backend.Models.Filter.EmailCriteria;
+import com.mail.backend.Models.Filter.EmailPriorityCriteria;
+import com.mail.backend.Models.Filter.EmailSubjectCriteria;
+import com.mail.backend.Models.Filter.OrEmailCriteria;
+
 
 public class Email {
     private int id;
@@ -128,6 +139,22 @@ public class Email {
         this.sendDate = sendDate;
     }
 
+    public Map<String, Object> readEmail() {
+        Map<String, Object> email = new HashMap<String, Object>();
+        email.put("id", this.getId());
+        email.put("fromUserId", this.getFromUserId());
+        email.put("to", this.getTo());
+        email.put("attachments", this.getAttachments());
+        email.put("priority", this.getPriority());
+        email.put("subject", this.getSubject());
+        email.put("body", this.getBody());
+        email.put("isDeleted", this.isDeleted());
+        email.put("isDraft", this.isDraft());
+        email.put("deleteDate", this.getDeleteDate());
+        email.put("sendDate", this.getSendDate());
+        return email;
+    }
+
     public void updateEmail(Map<String, Object> email) {
         for (String key : email.keySet()) {
             switch (key) {
@@ -162,6 +189,43 @@ public class Email {
                     break;
             }
         }
+    }
+
+    public static void main(String[] args) {
+        Date date = Date.from(Instant.now());
+        Instant instant = Instant.parse("2021-05-04T10:15:30.00Z");
+        Date date2 = Date.from(instant);
+        System.out.println(date);
+        System.out.println(date2);
+        System.out.println(EmailManager.getInstance().emails.size());
+        EmailManager.getInstance().loadEmails();
+        // EmailManager.getInstance().createEmail(Map.of(
+        // "fromUserId", 1,
+        // "priority", 1,
+        // "subject", "subject1",
+        // "body", "body1",
+        // "isDeleted", false,
+        // "isDraft", true,
+        // "deleteDate", date));
+        // EmailManager.getInstance().createEmail(Map.of(
+        // "fromUserId", 2,
+        // "priority", 2,
+        // "subject", "subject2",
+        // "body", "body2",
+        // "isDeleted", false,
+        // "isDraft", false));
+        // EmailManager.getInstance().createEmail(Map.of(
+        // "fromUserId", 3,
+        // "priority", 3,
+        // "subject", "subject3",
+        // "body", "body3",
+        // "isDeleted", true,
+        // "isDraft", false));
+        // EmailManager.getInstance().saveEmails();
+        for (Email email : EmailManager.getInstance().getAllEmails()) {
+            System.out.println(email.readEmail());
+        }
+        System.out.println(EmailManager.getInstance().emails.size());
     }
 
 }
