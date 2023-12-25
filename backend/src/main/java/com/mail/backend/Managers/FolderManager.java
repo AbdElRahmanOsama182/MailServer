@@ -48,6 +48,7 @@ public class FolderManager {
         this.folders.remove(folderId);
     }
 
+
     public void createDefaultFolders(String userId) {
         this.folders.put(this.nextId, new InboxFolder(this.nextId, userId));
         this.nextId++;
