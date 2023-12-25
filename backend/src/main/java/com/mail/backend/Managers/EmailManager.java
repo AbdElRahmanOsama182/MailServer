@@ -93,41 +93,41 @@ public class EmailManager {
         }
     }
 
-    public Email jsonToEmail(JsonNode jsonNode) {
-        EmailBuilder builder = new EmailBuilder();
-        // check if null for each field
-        if (jsonNode.get("id") != null)
-            builder.id(jsonNode.get("id").asInt());
-        if (jsonNode.get("fromUserId") != null)
-            builder.fromUserId(jsonNode.get("fromUserId").asInt());
-        JsonNode to = jsonNode.get("to");
-        ArrayList<Contact> toContacts = new ArrayList<Contact>();
-        if (to.isArray()) {
-            // Contact parsing function
-        }
-        builder.to(toContacts);
-        JsonNode attachments = jsonNode.get("attachments");
-        ArrayList<Attachment> attachmentsList = new ArrayList<Attachment>();
-        if (attachments.isArray()) {
-            // Attachment parsing function
-        }
-        builder.attachments(attachmentsList);
-        if (jsonNode.get("priority") != null)
-            builder.priority(jsonNode.get("priority").asInt());
-        if (jsonNode.get("subject") != null)
-            builder.subject(jsonNode.get("subject").asText());
-        if (jsonNode.get("body") != null)
-            builder.body(jsonNode.get("body").asText());
-        if (jsonNode.get("isDeleted") != null)
-            builder.isDeleted(jsonNode.get("isDeleted").asBoolean());
-        if (jsonNode.get("isDraft") != null)
-            builder.isDraft(jsonNode.get("isDraft").asBoolean());
-        if (jsonNode.get("deleteDate") != null)
-            builder.deleteDate(new Date(jsonNode.get("deleteDate").asLong()));
-        if (jsonNode.get("sendDate") != null)
-            builder.sendDate(new Date(jsonNode.get("sendDate").asLong()));
-        return builder.build();
-    }
+    // public Email jsonToEmail(JsonNode jsonNode) {
+    // EmailBuilder builder = new EmailBuilder();
+    // // check if null for each field
+    // if (jsonNode.get("id") != null)
+    // builder.id(jsonNode.get("id").asInt());
+    // if (jsonNode.get("fromUserId") != null)
+    // builder.fromUserId(jsonNode.get("fromUserId").asInt());
+    // JsonNode to = jsonNode.get("to");
+    // ArrayList<Contact> toContacts = new ArrayList<Contact>();
+    // if (to.isArray()) {
+    // // Contact parsing function
+    // }
+    // builder.to(toContacts);
+    // JsonNode attachments = jsonNode.get("attachments");
+    // ArrayList<Attachment> attachmentsList = new ArrayList<Attachment>();
+    // if (attachments.isArray()) {
+    // // Attachment parsing function
+    // }
+    // builder.attachments(attachmentsList);
+    // if (jsonNode.get("priority") != null)
+    // builder.priority(jsonNode.get("priority").asInt());
+    // if (jsonNode.get("subject") != null)
+    // builder.subject(jsonNode.get("subject").asText());
+    // if (jsonNode.get("body") != null)
+    // builder.body(jsonNode.get("body").asText());
+    // if (jsonNode.get("isDeleted") != null)
+    // builder.isDeleted(jsonNode.get("isDeleted").asBoolean());
+    // if (jsonNode.get("isDraft") != null)
+    // builder.isDraft(jsonNode.get("isDraft").asBoolean());
+    // if (jsonNode.get("deleteDate") != null)
+    // builder.deleteDate(new Date(jsonNode.get("deleteDate").asLong()));
+    // if (jsonNode.get("sendDate") != null)
+    // builder.sendDate(new Date(jsonNode.get("sendDate").asLong()));
+    // return builder.build();
+    // }
 
     public ArrayList<Email> sort(ArrayList<Email> emails, String sortStrategy) {
         if (sortStrategy.equals("subject")) {

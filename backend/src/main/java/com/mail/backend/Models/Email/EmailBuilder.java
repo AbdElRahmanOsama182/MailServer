@@ -23,7 +23,7 @@ public class EmailBuilder {
         return this;
     }
 
-    public EmailBuilder fromUserId(int fromUserId) {
+    public EmailBuilder fromUserId(String fromUserId) {
         this.email.setFromUserId(fromUserId);
         return this;
     }
@@ -85,7 +85,7 @@ public class EmailBuilder {
                     builder.id((int) email.get(key));
                     break;
                 case "fromUserId":
-                    builder.fromUserId((int) email.get(key));
+                    builder.fromUserId((String) email.get(key));
                     break;
                 case "to":
                     builder.to((ArrayList<Contact>) email.get(key));

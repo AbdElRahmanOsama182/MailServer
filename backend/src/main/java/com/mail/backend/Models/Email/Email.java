@@ -1,7 +1,6 @@
 package com.mail.backend.Models.Email;
 
 
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,10 +19,9 @@ import com.mail.backend.Models.Filter.EmailSubjectCriteria;
 import com.mail.backend.Models.Filter.OrEmailCriteria;
 
 
-
 public class Email {
     private int id;
-    private int fromUserId;
+    private String fromUserId;
     private ArrayList<Contact> to;
     private ArrayList<Attachment> attachments;
     private int priority;
@@ -45,11 +43,11 @@ public class Email {
         this.id = id;
     }
 
-    public int getFromUserId() {
+    public String getFromUserId() {
         return fromUserId;
     }
 
-    public void setFromUserId(int fromUserId) {
+    public void setFromUserId(String fromUserId) {
         this.fromUserId = fromUserId;
     }
 
