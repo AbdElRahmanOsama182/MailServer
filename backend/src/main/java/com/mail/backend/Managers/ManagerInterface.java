@@ -6,6 +6,6 @@ import java.util.Map;
 public interface ManagerInterface<T> {
     public T get(Object id);
     public Map<Object,T> getAll();
-    public void add(T t);
+    public T add(T t);
     public void remove(Object id);
 }

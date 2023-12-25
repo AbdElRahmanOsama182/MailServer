@@ -43,15 +43,20 @@ public class FolderManager implements ManagerInterface<Folder>{
         return this.folders.get(folderId);
     }
 
-    public void add(Folder folder) {
-        this.addFolder(folder);
+    public Folder add(Folder folder) {
+        return this.addFolder(folder);
     }
-    private void addFolder(Folder folder) {
+    private Folder addFolder(Folder folder) {
         if (folder == null) {
-            return;
+            return null;
+        }
+        if(folder.getId() == 0){
+            folder.setId(this.nextId);
+            this.nextId++;
         }
         this.folders.put(folder.getId(), folder);
         this.saveFolders();
+        return folder;
     }
 
     public void remove(Object id) {
@@ -154,6 +159,16 @@ public class FolderManager implements ManagerInterface<Folder>{
         }
         return userFolders;
     }
+
+    public Folder getUserFolderByName(String userId, String name) {
+        for (Folder folder : this.folders.values()) {
+            if (folder.getUserId().equals(userId) && folder.getName().equals(name)) {
+                return folder;
+            }
+        }
+        return null;
+    }
+
 
     public Map<Object, Folder> getAll() {
         return new HashMap<Object, Folder>(this.folders);

@@ -52,18 +52,19 @@ public class EmailManager implements ManagerInterface<Email>{
         return this.emails.get(id);
     }
 
-    public void add(Email email) {
-        this.addEmail(email);
+    public Email add(Email email) {
+        return this.addEmail(email);
     }
 
-    private void addEmail(Email email) {
+    private Email addEmail(Email email) {
         if (email == null) {
-            return;
+            return null;
         }
         email.setId(this.nextId);
         this.emails.put(this.nextId, email);
         this.nextId++;
         saveEmails();
+        return email;
     }
 
     public void remove(Object id) {

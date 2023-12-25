@@ -34,13 +34,14 @@ public class UserManager implements ManagerInterface<User>{
         return users.get(username);
     }
 
-    public void add(User user) {
-        this.addUser(user);
+    public User add(User user) {
+        return this.addUser(user);
     }
 
-    private void addUser(User user) {
+    private User addUser(User user) {
         users.put(user.getUsername(), user);
         FileManager.saveObjectToFile(users, "users.dat");
+        return user;
     }
 
     public void remove(Object id) {
