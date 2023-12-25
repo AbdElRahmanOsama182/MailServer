@@ -9,8 +9,16 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.ws.mime.Attachment;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,7 +30,10 @@ import com.mail.backend.Models.Sort.BodySort;
 import com.mail.backend.Models.Sort.DateSort;
 import com.mail.backend.Models.Sort.PrioritySort;
 import com.mail.backend.Models.Sort.SubjectSort;
+import com.mail.backend.Utils.AttachmentUtils;
 
+@RestController
+@RequestMapping("/")
 public class EmailManager {
     private static final String EMAILS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\emails.json";
     private static EmailManager instance;
@@ -92,6 +103,28 @@ public class EmailManager {
             System.out.println(e);
         }
     }
+    
+    @Autowired
+    private AttachmentUtils AttachmentUtils;
+    
+    @PostMapping("/attachment/upload")
+    public ResponseEntity<Object> uploadFile(@RequestParam("id") Long id, @RequestParam("path") String path, @RequestParam("files") MultipartFile[] files){
+        ArrayList<String> fileNames = new ArrayList<>();
+
+        for(MultipartFile file  : files){
+            String fileName = AttachmentUtils.storeFile(AttachmentUtils.convertMFtoFile(file), id, path);
+            fileNames.add(fileName);
+            //Add file names to attachment in email
+            /*
+             * 
+             */
+        }
+    
+        return ResponseEntity.ok(fileNames);
+
+    }
+
+    
 
     // public Email jsonToEmail(JsonNode jsonNode) {
     // EmailBuilder builder = new EmailBuilder();
