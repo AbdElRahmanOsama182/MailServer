@@ -27,7 +27,7 @@ public class AttachmentManager {
         ArrayList<String> fileNames = new ArrayList<>();
         ArrayList<Attachment> attachments = new ArrayList<>();
         EmailManager emails = EmailManager.getInstance();
-        Email email = emails.getEmail(id);
+        Email email = emails.get(id);
         int i = 0;
         for(MultipartFile file  : files){
             String fileName = AttachmentUtils.storeFile(AttachmentUtils.convertMFtoFile(file), id, path);
