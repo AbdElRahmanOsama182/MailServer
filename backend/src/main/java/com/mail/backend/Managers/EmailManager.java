@@ -105,33 +105,7 @@ public class EmailManager {
         }
     }
     
-    @Autowired
-    private AttachmentUtils AttachmentUtils;
     
-    @PostMapping("/attachment/upload")
-    public ResponseEntity<Object> uploadFile(@RequestParam("id") int id, @RequestParam("path") String path, @RequestParam("files") MultipartFile[] files){
-        ArrayList<String> fileNames = new ArrayList<>();
-        ArrayList<Attachment> attachments = new ArrayList<>();
-        Email email = getEmail(id);
-        int i = 0;
-        for(MultipartFile file  : files){
-            String fileName = AttachmentUtils.storeFile(AttachmentUtils.convertMFtoFile(file), id, path);
-            fileNames.add(fileName);
-        //Adding file names to attachment in email
-            if(i<attachments.size()){
-                attachments.get(i).setPathLocation(fileName);
-                i++;
-            }
-        }
-        if(email != null){
-            email.setAttachments(attachments);
-            saveEmails();
-        }
-    
-        return ResponseEntity.ok(fileNames);
-
-    }
-
     
 
     // public Email jsonToEmail(JsonNode jsonNode) {
