@@ -22,7 +22,7 @@ public class AttachmentManager {
     @Autowired
     private AttachmentUtils AttachmentUtils;
     
-    @PostMapping("/attachment/upload")
+    @PostMapping("/upload")
     public ResponseEntity<Object> uploadFile(@RequestParam("id") int id, @RequestParam("path") String path, @RequestParam("files") MultipartFile[] files){
         ArrayList<String> fileNames = new ArrayList<>();
         ArrayList<Attachment> attachments = new ArrayList<>();
