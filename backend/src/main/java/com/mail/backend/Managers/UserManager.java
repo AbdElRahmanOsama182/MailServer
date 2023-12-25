@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import com.mail.backend.Models.User.User;
 import com.mail.backend.Utils.FileManager;
-public class UserManager {
+import com.mail.backend.Managers.ManagerInterface;
+public class UserManager implements ManagerInterface<User>{
     private static UserManager instance = null;
     private Map<String, User> users = new HashMap<String, User>();
 
@@ -25,21 +26,35 @@ public class UserManager {
         return instance;
     }
 
+    public User get(Object id) {
+        return this.getUser((String) id);
+    }
     
-    public User getUser(String username) {
+    private User getUser(String username) {
         return users.get(username);
     }
 
-    public void addUser(User user) {
+    public void add(User user) {
+        this.addUser(user);
+    }
+
+    private void addUser(User user) {
         users.put(user.getUsername(), user);
         FileManager.saveObjectToFile(users, "users.dat");
     }
 
-    public void removeUser(String username) {
+    public void remove(Object id) {
+        this.removeUser((String) id);
+    }
+
+    private void removeUser(String username) {
         users.remove(username);
         FileManager.saveObjectToFile(users, "users.dat");
     }
 
+    public Map<Object, User> getAll() {
+        return new HashMap<Object, User>(this.getUsers());
+    }
     public Map<String, User> getUsers() {
         return users;
     }

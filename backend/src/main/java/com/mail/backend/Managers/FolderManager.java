@@ -14,10 +14,11 @@ import com.mail.backend.Models.Folder.Folder;
 import com.mail.backend.Models.Folder.InboxFolder;
 import com.mail.backend.Models.Folder.SentFolder;
 import com.mail.backend.Models.Folder.TrashFolder;
+import com.mail.backend.Managers.ManagerInterface;
 
-public class FolderManager {
+public class FolderManager implements ManagerInterface<Folder>{
 
-    private static final String FOLDERS_FLIE_PATH = "src/main/java/com/mail/backend/data/folders.json";
+    private static final String FOLDERS_FILE_PATH = "src/main/java/com/mail/backend/data/folders.json";
     private static FolderManager instance = null;
     Map<Integer, Folder> folders = new HashMap<Integer, Folder>();
     private int nextId = 0;
@@ -33,18 +34,29 @@ public class FolderManager {
 
     }
 
-    public Folder getFolder(int folderId) {
+    public Folder get(Object id) {
+        return this.getFolder((int) id);
+    }
+
+    private Folder getFolder(int folderId) {
         return this.folders.get(folderId);
     }
 
-    public void addFolder(Folder folder) {
+    public void add(Folder folder) {
+        this.addFolder(folder);
+    }
+    private void addFolder(Folder folder) {
         if (folder == null) {
             return;
         }
         this.folders.put(folder.getId(), folder);
     }
 
-    public void removeFolder(int folderId) {
+    public void remove(Object id) {
+        this.removeFolder((int) id);
+    }
+
+    private void removeFolder(int folderId) {
         this.folders.remove(folderId);
     }
 
@@ -104,12 +116,12 @@ public class FolderManager {
     public void restoreEmail(int emailId, String userId) {
         for (Folder folder : this.folders.values()) {
             if (folder.getName().equals("Inbox") && folder.getUserId().equals(userId)
-                    && EmailManager.getInstance().getEmail(emailId).isDraft() == false) {
+                    && EmailManager.getInstance().get(emailId).isDraft() == false) {
                 folder.addEmail(emailId);
                 return;
             }
             if (folder.getName().equals("Draft") && folder.getUserId().equals(userId)
-                    && EmailManager.getInstance().getEmail(emailId).isDraft() == true) {
+                    && EmailManager.getInstance().get(emailId).isDraft() == true) {
                 folder.addEmail(emailId);
                 return;
             }
@@ -130,6 +142,10 @@ public class FolderManager {
         return userFolders;
     }
 
+    public Map<Object, Folder> getAll() {
+        return new HashMap<Object, Folder>(this.folders);
+    }
+    
     public ArrayList<Folder> getAllFolders() {
         return new ArrayList<Folder>(this.folders.values());
     }
@@ -142,7 +158,7 @@ public class FolderManager {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String json = mapper.writeValueAsString(getAllFolders());
-            Path path = Paths.get(FOLDERS_FLIE_PATH);
+            Path path = Paths.get(FOLDERS_FILE_PATH);
             Files.writeString(path, json);
         } catch (Exception e) {
             System.out.println(e);
@@ -151,7 +167,7 @@ public class FolderManager {
 
     public void loadFolders() {
         try {
-            Path path = Paths.get(FOLDERS_FLIE_PATH);
+            Path path = Paths.get(FOLDERS_FILE_PATH);
             String json = Files.readString(path);
             ObjectMapper mapper = new ObjectMapper();
             ArrayList<Folder> folders = mapper.readValue(json,

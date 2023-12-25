@@ -22,8 +22,9 @@ import com.mail.backend.Models.Sort.BodySort;
 import com.mail.backend.Models.Sort.DateSort;
 import com.mail.backend.Models.Sort.PrioritySort;
 import com.mail.backend.Models.Sort.SubjectSort;
+import com.mail.backend.Managers.ManagerInterface;
 
-public class EmailManager {
+public class EmailManager implements ManagerInterface<Email>{
     private static final String EMAILS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\emails.json";
     private static EmailManager instance;
     public Map<Integer, Email> emails = new HashMap<Integer, Email>();
@@ -43,11 +44,19 @@ public class EmailManager {
         return this.nextId;
     }
 
-    public Email getEmail(int id) {
+    public Email get(Object id) {
+        return this.getEmail((int) id);
+    }
+
+    private Email getEmail(int id) {
         return this.emails.get(id);
     }
 
-    public void addEmail(Email email) {
+    public void add(Email email) {
+        this.addEmail(email);
+    }
+
+    private void addEmail(Email email) {
         if (email == null) {
             return;
         }
@@ -57,7 +66,11 @@ public class EmailManager {
         saveEmails();
     }
 
-    public void removeEmail(int id) {
+    public void remove(Object id) {
+        this.removeEmail((int) id);
+    }
+
+    private void removeEmail(int id) {
         this.emails.remove(id);
         saveEmails();
     }
@@ -69,6 +82,10 @@ public class EmailManager {
 
     public void createEmail(Map<String, Object> email) {
         addEmail(EmailBuilder.build(email));
+    }
+
+    public Map<Object, Email> getAll() {
+        return new HashMap<Object, Email>(this.emails);
     }
 
     public ArrayList<Email> getAllEmails() {

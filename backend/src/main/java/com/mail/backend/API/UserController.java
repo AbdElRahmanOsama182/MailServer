@@ -17,6 +17,7 @@ import java.util.Date;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.mail.backend.Managers.ManagerFactory;
 
 @RestController
 @CrossOrigin(origins = { "http://localhost:8081" })
@@ -27,8 +28,8 @@ public class UserController {
                 System.out.println("login");
                 System.out.println(requser.getUsername());
                 System.out.println(requser.getPassword());
-
-        User user = UserManager.getInstance().getUser(requser.getUsername());
+        UserManager manager = (UserManager) ManagerFactory.getManager("UserManager");
+        User user = manager.get(requser.getUsername());
         if (user != null && user.getPassword().equals(requser.getPassword())) {
             // generate jwt from user.getUsername()
             String jwtToken = Auth.getToken(requser.getUsername());
@@ -46,7 +47,8 @@ public class UserController {
             return null;
         System.out.println("registered");
         user = new User(user.getUsername(), user.getPassword(), user.getName());
-        UserManager.getInstance().addUser(user);
+        UserManager manager = (UserManager) ManagerFactory.getManager("UserManager");
+        manager.add(user);
         return user;
     }
 
