@@ -25,7 +25,7 @@ public class AttachmentUtils {
     private String basePath = "";
     
     public File convertMFtoFile(final MultipartFile multipartFile){
-
+        
         final File file = new File(multipartFile.getOriginalFilename());
 
         try(final FileOutputStream outputStream = new FileOutputStream(file)){
@@ -57,6 +57,7 @@ public class AttachmentUtils {
             }*/
 
             Path location = this.fileLocation.resolve(fileName);
+            Files.move(Paths.get(file.getPath()), location, StandardCopyOption.REPLACE_EXISTING);
             InputStream fileStream = new FileInputStream(file);
             Files.copy(fileStream, location, StandardCopyOption.REPLACE_EXISTING);
             
