@@ -2,14 +2,19 @@ package com.mail.backend.Models.Folder;
 
 import java.util.ArrayList;
 
+import java.util.Map;
+
+
 public class Folder {
     private String name;
     private int id;
+    private int userId;
     private ArrayList<Integer> emails;
 
-    public Folder(String name, int id) {
+    public Folder(String name, int id, int userId) {
         this.name = name;
         this.id = id;
+        this.userId = userId;
         this.emails = new ArrayList<Integer>();
         return;
     }
@@ -29,6 +34,16 @@ public class Folder {
 
     public void setId(int id) {
         this.id = id;
+        return;
+    }
+
+
+    public int getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
         return;
     }
 
@@ -59,5 +74,9 @@ public class Folder {
         }
         this.emails.remove(emails.indexOf(emailId));
         return;
+    }
+
+    public Map<String, Object> toMap() {
+        return Map.of("name", this.name, "id", this.id, "userId", this.userId, "emails", this.emails);
     }
 }

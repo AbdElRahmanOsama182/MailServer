@@ -1,8 +1,9 @@
 package com.mail.backend.Models.Folder;
 
 public class SentFolder extends Folder {
-    public SentFolder() {
-        super("Sent", 1);
+
+    public SentFolder(int id, int userId) {
+        super("Sent", id, userId);
         return;
     }
 }
