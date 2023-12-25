@@ -11,6 +11,10 @@ public class Folder {
     private String userId;
     private ArrayList<Integer> emails;
 
+    public Folder() {
+        return;
+    }
+    
     public Folder(String name, int id, String userId) {
         this.name = name;
         this.id = id;

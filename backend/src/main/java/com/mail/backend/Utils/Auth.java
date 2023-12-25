@@ -6,8 +6,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.catalina.Manager;
+
 import com.mail.backend.Managers.UserManager;
 import com.mail.backend.Models.User.User;
+import com.mail.backend.Managers.ManagerFactory;
 
 import java.security.Key;
 import java.util.Base64;
@@ -41,6 +44,7 @@ public class Auth {
 
 
         String username = getUserId(jwtString);
-        return UserManager.getInstance().getUser(username);
+        UserManager manager = (UserManager)ManagerFactory.getManager("UserManager");
+        return manager.get(username);
     }
 }
