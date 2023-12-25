@@ -53,18 +53,18 @@ public class EmailController {
 
         // add it to sent folder
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
-        Folder outBoxFolder = folderManager.getUserFolderByName("Sent", user.getUsername());
+        Folder outBoxFolder = folderManager.getUserFolderByName( user.getUsername(),"Sent");
         folderManager.addEmail(outBoxFolder.getId(), email.getId());
 
         return email;
     }
     
     @GetMapping("/emails/{id}")
-    public Email read(@RequestHeader String authorization,@PathVariable("id") String id){
+    public Email read(@RequestHeader String authorization,@PathVariable("id") Integer id){
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         Email email = emailManager.get(id);
         User user= Auth.getUser(authorization);
-        if(email.getFromUserId() == user.getUsername()){
+        if(email.getFromUserId().equals(user.getUsername())){
             return email;
         }
         // if in toList also return email

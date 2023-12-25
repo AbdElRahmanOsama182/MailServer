@@ -161,7 +161,9 @@ public class FolderManager implements ManagerInterface<Folder>{
     }
 
     public Folder getUserFolderByName(String userId, String name) {
+        System.out.println("Folders:");
         for (Folder folder : this.folders.values()) {
+            System.out.println(folder.getName());
             if (folder.getUserId().equals(userId) && folder.getName().equals(name)) {
                 return folder;
             }

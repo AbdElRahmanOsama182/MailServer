@@ -189,41 +189,41 @@ public class Email {
         }
     }
 
-    public static void main(String[] args) {
-        Date date = Date.from(Instant.now());
-        Instant instant = Instant.parse("2021-05-04T10:15:30.00Z");
-        Date date2 = Date.from(instant);
-        System.out.println(date);
-        System.out.println(date2);
-        System.out.println(EmailManager.getInstance().emails.size());
-        EmailManager.getInstance().loadEmails();
-        // EmailManager.getInstance().createEmail(Map.of(
-        // "fromUserId", 1,
-        // "priority", 1,
-        // "subject", "subject1",
-        // "body", "body1",
-        // "isDeleted", false,
-        // "isDraft", true,
-        // "deleteDate", date));
-        // EmailManager.getInstance().createEmail(Map.of(
-        // "fromUserId", 2,
-        // "priority", 2,
-        // "subject", "subject2",
-        // "body", "body2",
-        // "isDeleted", false,
-        // "isDraft", false));
-        // EmailManager.getInstance().createEmail(Map.of(
-        // "fromUserId", 3,
-        // "priority", 3,
-        // "subject", "subject3",
-        // "body", "body3",
-        // "isDeleted", true,
-        // "isDraft", false));
-        // EmailManager.getInstance().saveEmails();
-        for (Email email : EmailManager.getInstance().getAllEmails()) {
-            System.out.println(email.readEmail());
-        }
-        System.out.println(EmailManager.getInstance().emails.size());
-    }
+    // public static void main(String[] args) {
+    //     Date date = Date.from(Instant.now());
+    //     Instant instant = Instant.parse("2021-05-04T10:15:30.00Z");
+    //     Date date2 = Date.from(instant);
+    //     System.out.println(date);
+    //     System.out.println(date2);
+    //     System.out.println(EmailManager.getInstance().emails.size());
+    //     EmailManager.getInstance().loadEmails();
+    //     // EmailManager.getInstance().createEmail(Map.of(
+    //     // "fromUserId", 1,
+    //     // "priority", 1,
+    //     // "subject", "subject1",
+    //     // "body", "body1",
+    //     // "isDeleted", false,
+    //     // "isDraft", true,
+    //     // "deleteDate", date));
+    //     // EmailManager.getInstance().createEmail(Map.of(
+    //     // "fromUserId", 2,
+    //     // "priority", 2,
+    //     // "subject", "subject2",
+    //     // "body", "body2",
+    //     // "isDeleted", false,
+    //     // "isDraft", false));
+    //     // EmailManager.getInstance().createEmail(Map.of(
+    //     // "fromUserId", 3,
+    //     // "priority", 3,
+    //     // "subject", "subject3",
+    //     // "body", "body3",
+    //     // "isDeleted", true,
+    //     // "isDraft", false));
+    //     // EmailManager.getInstance().saveEmails();
+    //     for (Email email : EmailManager.getInstance().getAllEmails()) {
+    //         System.out.println(email.readEmail());
+    //     }
+    //     System.out.println(EmailManager.getInstance().emails.size());
+    // }
 
 }

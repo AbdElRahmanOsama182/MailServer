@@ -1,3 +1,5 @@
 .vscode/
 *.dat
 node_modules
+backend/src/main/java/com/mail/backend/data/emails.json
+backend/src/main/java/com/mail/backend/data/folders.json

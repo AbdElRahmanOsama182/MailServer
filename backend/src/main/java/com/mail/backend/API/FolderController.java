@@ -15,6 +15,8 @@ import com.mail.backend.Models.User.User;
 import com.mail.backend.Utils.Auth;
 
 import io.jsonwebtoken.Jwts;
+
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,13 +33,26 @@ import com.mail.backend.Managers.ManagerFactory;
 public class FolderController {
 
     @GetMapping("/folders/{id}")
-    public Folder read(@RequestHeader String authorization,@PathVariable("id") String id){
+    public Folder read(@RequestHeader String authorization,@PathVariable("id") Integer id){
         FolderManager folderManager =(FolderManager)ManagerFactory.getManager("FolderManager");
         User user= Auth.getUser(authorization);
         Folder folder = folderManager.get(id);
-        if(folder.getUserId() != user.getUsername()) return null;
+        System.out.println("folder.getUserId()");
+        System.out.println(folder.getUserId());
+        System.out.println("user.getUsername()");
+        System.out.println(user.getUsername());
+        if(!folder.getUserId().equals(user.getUsername())) return null;
 
         return folder;
+    }
+
+    @GetMapping("/folders")
+    public ArrayList<Folder> readAll(@RequestHeader String authorization){
+        FolderManager folderManager =(FolderManager)ManagerFactory.getManager("FolderManager");
+        User user= Auth.getUser(authorization);
+        ArrayList<Folder> folders = folderManager.getUserFolders(user.getUsername());
+
+        return folders;
     }
     
     @PostMapping("/folders")

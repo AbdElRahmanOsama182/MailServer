@@ -25,7 +25,7 @@ import com.mail.backend.Models.Sort.SubjectSort;
 import com.mail.backend.Managers.ManagerInterface;
 
 public class EmailManager implements ManagerInterface<Email>{
-    private static final String EMAILS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\emails.json";
+    private static final String EMAILS_FILE_PATH = "src/main/java/com/mail/backend/data/emails.json";
     private static EmailManager instance;
     public Map<Integer, Email> emails = new HashMap<Integer, Email>();
     private int nextId = 0;
@@ -36,6 +36,7 @@ public class EmailManager implements ManagerInterface<Email>{
     public static synchronized EmailManager getInstance() {
         if (instance == null) {
             instance = new EmailManager();
+            instance.loadEmails();
         }
         return instance;
     }
@@ -49,6 +50,7 @@ public class EmailManager implements ManagerInterface<Email>{
     }
 
     private Email getEmail(int id) {
+        System.out.println("All emails: " + this.emails);
         return this.emails.get(id);
     }
 
@@ -100,12 +102,14 @@ public class EmailManager implements ManagerInterface<Email>{
     }
 
     public void saveEmails() {
+        System.out.println("Saving emails");
         try {
             ObjectMapper mapper = new ObjectMapper();
             String json = mapper.writeValueAsString(this.getAllEmails());
             Path path = Paths.get(EMAILS_FILE_PATH);
             System.out.println(json);
             Files.writeString(path, json);
+            System.out.println("Saved emails");
         } catch (Exception e) {
             System.out.println(e);
         }
