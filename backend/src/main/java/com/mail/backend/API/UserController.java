@@ -17,6 +17,8 @@ import java.util.Date;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.mail.backend.Managers.FolderManager;
 import com.mail.backend.Managers.ManagerFactory;
 
 @RestController
@@ -43,12 +45,15 @@ public class UserController {
     @PostMapping("/register")
     public User register(@RequestBody User user) {
         System.out.println("register");
-        if (user.getUsername()== null || user.getPassword() == null || user.getName() == null)
+        if (user.getUsername()== null || user.getPassword() == null || user.getName() == null || user.getEmail()==null)
             return null;
         System.out.println("registered");
-        user = new User(user.getUsername(), user.getPassword(), user.getName());
+        user = new User(user.getUsername(), user.getPassword(), user.getName(), user.getEmail());
         UserManager manager = (UserManager) ManagerFactory.getManager("UserManager");
         manager.add(user);
+
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
+        folderManager.createDefaultFolders(user.getUsername());
         return user;
     }
 

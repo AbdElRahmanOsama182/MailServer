@@ -10,6 +10,7 @@ public class User implements Serializable {
     private String username;
     private String password;
     private String name;
+    private String email;
 
     
     
@@ -17,10 +18,11 @@ public class User implements Serializable {
 
     }
 
-    public User(String username, String password, String name) {
+    public User(String username, String password, String name, String email) {
         this.username = username;
         this.password = password;
         this.name = name;
+        this.email = email;
     }
 
 
@@ -50,9 +52,18 @@ public class User implements Serializable {
         this.name = name;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+
     @Override
     public String toString() {
-        return "UserModel [username=" + username + ", password=" + password + ", name=" + name + "]";
+        return "UserModel [username=" + username + ", email=" + email + ", name=" + name + "]";
     }
 
     public Map<String, Object> toMap() {
@@ -60,6 +71,7 @@ public class User implements Serializable {
         map.put("username", this.username);
         map.put("password", this.password);
         map.put("name", this.name);
+        map.put("email",this.email);
         return map;
     }
     

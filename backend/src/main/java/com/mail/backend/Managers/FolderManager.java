@@ -29,6 +29,7 @@ public class FolderManager implements ManagerInterface<Folder>{
     public static synchronized FolderManager getInstance() {
         if (instance == null) {
             instance = new FolderManager();
+            instance.loadFolders();
         }
         return instance;
 
@@ -50,6 +51,7 @@ public class FolderManager implements ManagerInterface<Folder>{
             return;
         }
         this.folders.put(folder.getId(), folder);
+        this.saveFolders();
     }
 
     public void remove(Object id) {
@@ -58,6 +60,7 @@ public class FolderManager implements ManagerInterface<Folder>{
 
     private void removeFolder(int folderId) {
         this.folders.remove(folderId);
+        this.saveFolders();
     }
 
     public void createDefaultFolders(String userId) {
@@ -69,38 +72,46 @@ public class FolderManager implements ManagerInterface<Folder>{
         this.nextId++;
         this.folders.put(this.nextId, new TrashFolder(this.nextId, userId));
         this.nextId++;
+        this.saveFolders();
     }
 
     public void createFolder(String name, String userId) {
         this.folders.put(this.nextId, new Folder(name, this.nextId, userId));
         this.nextId++;
+        this.saveFolders();
     }
 
     public void renameFolder(int folderId, String name) {
         this.folders.get(folderId).setName(name);
+        this.saveFolders();
     }
 
     public void addEmail(int folderId, int emailId) {
         this.folders.get(folderId).addEmail(emailId);
+        this.saveFolders();
     }
 
     public void addEmails(int folderId, int[] emailsId) {
         for (int emailId : emailsId) {
             this.folders.get(folderId).addEmail(emailId);
         }
+        this.saveFolders();
     }
 
     public void removeEmail(int folderId, int emailId) {
         this.folders.get(folderId).removeEmail(emailId);
+        this.saveFolders();
     }
 
     public void moveEmail(int emailId, int fromId, int toId) {
         this.folders.get(fromId).removeEmail(emailId);
         this.folders.get(toId).addEmail(emailId);
+        this.saveFolders();
     }
 
     public void copyEmail(int emailId, int folderId) {
         this.folders.get(folderId).addEmail(emailId);
+        this.saveFolders();
     }
 
     public void deleteEmail(int emailId, int folderId) {
@@ -111,6 +122,7 @@ public class FolderManager implements ManagerInterface<Folder>{
                 return;
             }
         }
+        this.saveFolders();
     }
 
     public void restoreEmail(int emailId, String userId) {
@@ -130,6 +142,7 @@ public class FolderManager implements ManagerInterface<Folder>{
                 return;
             }
         }
+        this.saveFolders();
     }
 
     public ArrayList<Folder> getUserFolders(String userId) {
@@ -152,9 +165,10 @@ public class FolderManager implements ManagerInterface<Folder>{
 
     public void setFolders(Map<Integer, Folder> folders) {
         this.folders = folders;
+        this.saveFolders();
     }
 
-    public void saveFolders() {
+    private void saveFolders() {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String json = mapper.writeValueAsString(getAllFolders());
@@ -165,7 +179,7 @@ public class FolderManager implements ManagerInterface<Folder>{
         }
     }
 
-    public void loadFolders() {
+    private void loadFolders() {
         try {
             Path path = Paths.get(FOLDERS_FILE_PATH);
             String json = Files.readString(path);
