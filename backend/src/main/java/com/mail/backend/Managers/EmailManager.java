@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.ws.mime.Attachment;
+//import org.springframework.ws.mime.Attachment;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +30,7 @@ import com.mail.backend.Models.Sort.BodySort;
 import com.mail.backend.Models.Sort.DateSort;
 import com.mail.backend.Models.Sort.PrioritySort;
 import com.mail.backend.Models.Sort.SubjectSort;
+import com.mail.backend.Models.Attachment.Attachment;
 import com.mail.backend.Utils.AttachmentUtils;
 
 @RestController
@@ -108,15 +109,23 @@ public class EmailManager {
     private AttachmentUtils AttachmentUtils;
     
     @PostMapping("/attachment/upload")
-    public ResponseEntity<Object> uploadFile(@RequestParam("id") Long id, @RequestParam("path") String path, @RequestParam("files") MultipartFile[] files){
+    public ResponseEntity<Object> uploadFile(@RequestParam("id") int id, @RequestParam("path") String path, @RequestParam("files") MultipartFile[] files){
         ArrayList<String> fileNames = new ArrayList<>();
-
+        ArrayList<Attachment> attachments = new ArrayList<>();
+        Email email = getEmail(id);
+        int i = 0;
         for(MultipartFile file  : files){
             String fileName = AttachmentUtils.storeFile(AttachmentUtils.convertMFtoFile(file), id, path);
             fileNames.add(fileName);
-            //Adding file names to attachment in email
-            
-            
+        //Adding file names to attachment in email
+            if(i<attachments.size()){
+                attachments.get(i).setPathLocation(fileName);
+                i++;
+            }
+        }
+        if(email != null){
+            email.setAttachments(attachments);
+            saveEmails();
         }
     
         return ResponseEntity.ok(fileNames);

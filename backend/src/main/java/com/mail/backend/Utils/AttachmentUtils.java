@@ -38,7 +38,7 @@ public class AttachmentUtils {
     }
 
 
-    public String storeFile(File file, Long id, String path){
+    public String storeFile(File file, int id, String path){
 
         this.fileLocation = Paths.get(basePath + path).toAbsolutePath().normalize();
 

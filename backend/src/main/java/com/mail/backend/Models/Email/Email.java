@@ -7,8 +7,8 @@ import java.util.HashMap;
 
 import java.util.Map;
 
-import org.springframework.ws.mime.Attachment;
-
+//import org.springframework.ws.mime.Attachment;
+import com.mail.backend.Models.Attachment.Attachment;
 import com.mail.backend.Managers.EmailManager;
 import com.mail.backend.Models.Contact.Contact;
 import com.mail.backend.Models.Filter.AndEmailCriteria;
