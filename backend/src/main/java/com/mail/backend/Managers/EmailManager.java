@@ -22,9 +22,10 @@ import com.mail.backend.Models.Sort.BodySort;
 import com.mail.backend.Models.Sort.DateSort;
 import com.mail.backend.Models.Sort.PrioritySort;
 import com.mail.backend.Models.Sort.SubjectSort;
+import com.mail.backend.Managers.ManagerInterface;
 
-public class EmailManager {
-    private static final String EMAILS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\emails.json";
+public class EmailManager implements ManagerInterface<Email>{
+    private static final String EMAILS_FILE_PATH = "src/main/java/com/mail/backend/data/emails.json";
     private static EmailManager instance;
     public Map<Integer, Email> emails = new HashMap<Integer, Email>();
     private int nextId = 0;
@@ -35,6 +36,7 @@ public class EmailManager {
     public static synchronized EmailManager getInstance() {
         if (instance == null) {
             instance = new EmailManager();
+            instance.loadEmails();
         }
         return instance;
     }
@@ -43,21 +45,35 @@ public class EmailManager {
         return this.nextId;
     }
 
-    public Email getEmail(int id) {
+    public Email get(Object id) {
+        return this.getEmail((int) id);
+    }
+
+    private Email getEmail(int id) {
+        System.out.println("All emails: " + this.emails);
         return this.emails.get(id);
     }
 
-    public void addEmail(Email email) {
+    public Email add(Email email) {
+        return this.addEmail(email);
+    }
+
+    private Email addEmail(Email email) {
         if (email == null) {
-            return;
+            return null;
         }
         email.setId(this.nextId);
         this.emails.put(this.nextId, email);
         this.nextId++;
         saveEmails();
+        return email;
     }
 
-    public void removeEmail(int id) {
+    public void remove(Object id) {
+        this.removeEmail((int) id);
+    }
+
+    private void removeEmail(int id) {
         this.emails.remove(id);
         saveEmails();
     }
@@ -71,6 +87,10 @@ public class EmailManager {
         addEmail(EmailBuilder.build(email));
     }
 
+    public Map<Object, Email> getAll() {
+        return new HashMap<Object, Email>(this.emails);
+    }
+
     public ArrayList<Email> getAllEmails() {
         return new ArrayList<Email>(this.emails.values());
     }
@@ -82,12 +102,14 @@ public class EmailManager {
     }
 
     public void saveEmails() {
+        System.out.println("Saving emails");
         try {
             ObjectMapper mapper = new ObjectMapper();
             String json = mapper.writeValueAsString(this.getAllEmails());
             Path path = Paths.get(EMAILS_FILE_PATH);
             System.out.println(json);
             Files.writeString(path, json);
+            System.out.println("Saved emails");
         } catch (Exception e) {
             System.out.println(e);
         }
