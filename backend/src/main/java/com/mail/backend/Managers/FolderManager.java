@@ -68,6 +68,7 @@ public class FolderManager implements ManagerInterface<Folder>{
         this.saveFolders();
     }
 
+
     public void createDefaultFolders(String userId) {
         this.folders.put(this.nextId, new InboxFolder(this.nextId, userId));
         this.nextId++;
