@@ -58,8 +58,6 @@ public class AttachmentUtils {
 
             Path location = this.fileLocation.resolve(fileName);
             Files.move(Paths.get(file.getPath()), location, StandardCopyOption.REPLACE_EXISTING);
-            InputStream fileStream = new FileInputStream(file);
-            Files.copy(fileStream, location, StandardCopyOption.REPLACE_EXISTING);
             
             return fileName;
 

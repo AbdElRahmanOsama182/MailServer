@@ -114,10 +114,9 @@ public class EmailManager {
         for(MultipartFile file  : files){
             String fileName = AttachmentUtils.storeFile(AttachmentUtils.convertMFtoFile(file), id, path);
             fileNames.add(fileName);
-            //Add file names to attachment in email
-            /*
-             * 
-             */
+            //Adding file names to attachment in email
+            
+            
         }
     
         return ResponseEntity.ok(fileNames);
