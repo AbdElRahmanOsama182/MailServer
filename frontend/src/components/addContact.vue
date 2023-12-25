@@ -8,10 +8,8 @@
             <v-spacer></v-spacer>
             <v-btn class="addnewcontact"
                 right
-                color="#071551"
-                fab
+                icon
                 elevation="2"
-                x-large
                 dark
                 v-bind="attrs"
                 v-on="on"

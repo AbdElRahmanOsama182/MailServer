@@ -1,14 +1,5 @@
 <template>
     <div class="main-container">
-      <div class="header">
-        <div class="header-content">
-          <h1 class="header-title">Welcome {{ username }}</h1>
-          <div class="user-info">
-            <img src="..\assets\user.png" alt="user_photo" class="user-photo" />
-            <div class="user-email">{{ emailAddress }}</div>
-          </div>
-        </div>
-      </div>
       <div class="tab-content">
         <div v-if="currentTab === 'sendNewEmail'">
           <SendNewEmail :senderEmailAddress="emailAddress"/>
@@ -261,7 +252,7 @@
   background-color: #071551;
   z-index: 1;
   justify-content: space-around;
-  border-radius: 2.5rem 2.5rem 0 0;
+  border-radius: 30px 30px 0 0;
   padding: 1rem 0.5rem 2rem 0.5rem;
 }
 

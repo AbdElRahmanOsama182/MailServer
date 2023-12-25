@@ -1,31 +1,31 @@
 <template>
   <v-container class="py-8 px-6" fluid>
     <v-row>
-      <v-row>
-        <v-btn  x-large @click="hidden = !hidden" color="#071551" fab dark>
-          <v-icon>mdi-account-search</v-icon>
-        </v-btn>
-        <v-col md="3">
-            <v-text-field
-              v-show="!hidden"
-              clearable
-              filled
-              outlined
-              hide-details
-              v-model="search"
-              label="Search for a contact"
-            ></v-text-field>
-        </v-col>
-        <v-btn
-          v-show="!hidden"
-          fab
-          dark
-          color='#071551'
-          @click="searchContact">
-          <v-icon>mdi-magnify</v-icon>
-        </v-btn>
-        <AddContact @addContact="addContact($event)" />
-      </v-row>
+      <v-app-bar app color="#071551" dark class="conBar">
+    <v-btn  @click="hidden = !hidden" dark icon>
+      <v-icon>mdi-account-search</v-icon>
+    </v-btn>
+    <v-col md="3">
+      <v-text-field
+        v-show="!hidden"
+        clearable
+        filled
+        outlined
+        hide-details
+        v-model="search"
+        label="Search for a contact"
+      ></v-text-field>
+    </v-col>
+    <v-btn
+      v-show="!hidden"
+      icon
+      dark
+      @click="searchContact"
+    >
+      <v-icon>mdi-magnify</v-icon>
+    </v-btn>
+    <AddContact @addContact="addContact($event)" />
+  </v-app-bar>
     </v-row>
     <v-row>
     <v-row>
@@ -342,6 +342,7 @@ export default {
 
 .contact-card:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
 }
 
 .avatar-image {
@@ -431,5 +432,11 @@ export default {
   padding: 5px 10px;
   cursor: pointer;
   font-size: 12px;
+}
+
+.conBar {
+  padding: 10px;
+  height: 80px !important;
+  border-radius: 0 0 30px 30px !important;
 }
 </style>
