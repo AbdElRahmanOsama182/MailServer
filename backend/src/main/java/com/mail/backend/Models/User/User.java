@@ -57,9 +57,9 @@ public class User implements Serializable {
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
-        map.put("username", this.username);
-        map.put("password", this.password);
-        map.put("name", this.name);
+        map.put("username", this.getUsername());
+        map.put("password", this.getPassword());
+        map.put("name", this.getName());
         return map;
     }
     
