@@ -5,13 +5,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mail.backend.Models.Contact.Contact;
-import com.mail.backend.Models.Sort.contactNameSort;
 
 public class ContactManager {
     private static final String CONTACTS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\contacts.json";
@@ -52,9 +53,10 @@ public class ContactManager {
         saveContacts();
     }
 
-    public void updateContact(Contact contact) {
+    public Contact updateContact(Contact contact) {
         this.contacts.get(contact.getId()).updateContact(contact);
         saveContacts();
+        return this.contacts.get(contact.getId());
     }
 
     public void addEmailToContact(int contactId, String email) {
@@ -88,8 +90,10 @@ public class ContactManager {
         return contact;
     }
 
-    public ArrayList<Contact> sort(ArrayList<Contact> contacts) {
-        return new contactNameSort().sort(contacts);
+    public List<Contact> sortContacts() {
+        List<Contact> sortedContacts = new ArrayList<Contact>(this.contacts.values());
+        sortedContacts.sort(Comparator.comparing(Contact::getName));
+        return sortedContacts;
     }
 
     public void loadContacts() {
