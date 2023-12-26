@@ -59,6 +59,8 @@ public class EmailController {
 
             // send it to inbox folder (hope to be asynchronous)
 
+
+
             // add it to sent folder
             Folder outBoxFolder = folderManager.getUserFolderByName(user.getUsername(), "Sent");
             folderManager.addEmail(outBoxFolder.getId(), email.getId());

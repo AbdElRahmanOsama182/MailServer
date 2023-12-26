@@ -9,9 +9,17 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.ws.mime.Attachment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+//import org.springframework.ws.mime.Attachment;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +31,8 @@ import com.mail.backend.Models.Sort.DateSort;
 import com.mail.backend.Models.Sort.PrioritySort;
 import com.mail.backend.Models.Sort.SubjectSort;
 import com.mail.backend.Managers.ManagerInterface;
+import com.mail.backend.Models.Attachment.Attachment;
+import com.mail.backend.Utils.AttachmentUtils;
 
 public class EmailManager implements ManagerInterface<Email>{
     private static final String EMAILS_FILE_PATH = "src/main/java/com/mail/backend/data/emails.json";
@@ -114,6 +124,9 @@ public class EmailManager implements ManagerInterface<Email>{
             System.out.println(e);
         }
     }
+    
+    
+    
 
     // public Email jsonToEmail(JsonNode jsonNode) {
     // EmailBuilder builder = new EmailBuilder();

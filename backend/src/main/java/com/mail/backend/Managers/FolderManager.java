@@ -68,6 +68,7 @@ public class FolderManager implements ManagerInterface<Folder>{
         this.saveFolders();
     }
 
+
     public void createDefaultFolders(String userId) {
         this.folders.put(this.nextId, new InboxFolder(this.nextId, userId));
         this.nextId++;
@@ -96,6 +97,7 @@ public class FolderManager implements ManagerInterface<Folder>{
         EmailManager emailManager = (EmailManager)ManagerFactory.getManager("EmailManager");
         
         emailManager.updateEmail(emailId, Map.of("folderId", folderId));
+
         this.saveFolders();
     }
 

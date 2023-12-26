@@ -53,6 +53,7 @@ public class UserController {
         
         if(manager.get(user.getUsername())!=null) return null;
 
+
         manager.add(user);
 
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");

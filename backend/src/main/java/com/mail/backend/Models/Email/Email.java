@@ -1,5 +1,6 @@
 package com.mail.backend.Models.Email;
 
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,8 +8,8 @@ import java.util.HashMap;
 
 import java.util.Map;
 
-import org.springframework.ws.mime.Attachment;
-
+//import org.springframework.ws.mime.Attachment;
+import com.mail.backend.Models.Attachment.Attachment;
 import com.mail.backend.Managers.EmailManager;
 import com.mail.backend.Models.Contact.Contact;
 import com.mail.backend.Models.Filter.AndEmailCriteria;
@@ -16,6 +17,7 @@ import com.mail.backend.Models.Filter.EmailCriteria;
 import com.mail.backend.Models.Filter.EmailPriorityCriteria;
 import com.mail.backend.Models.Filter.EmailSubjectCriteria;
 import com.mail.backend.Models.Filter.OrEmailCriteria;
+
 
 public class Email {
     private int id;
@@ -201,7 +203,7 @@ public class Email {
             }
         }
     }
-
+  
     // public static void main(String[] args) {
     //     Date date = Date.from(Instant.now());
     //     Instant instant = Instant.parse("2021-05-04T10:15:30.00Z");
@@ -238,5 +240,7 @@ public class Email {
     //     }
     //     System.out.println(EmailManager.getInstance().emails.size());
     // }
+
+
 
 }
