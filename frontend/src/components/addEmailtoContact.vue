@@ -19,27 +19,25 @@
 
       </template>
 
-      <v-card>
-        <v-list>
+      <v-card color="#BFD7ED" elevation="0">
+        <v-list color="#BFD7ED">
           <v-list-item>
             <v-col>
-                <h2>E-mail</h2>
                 <v-text-field
                     v-model="newEmail"
-                    placeholder="Enter New Email Here"
+                    label="New Email"
+                    solo
+                    filled
                     required
                 ></v-text-field>
             </v-col>
           </v-list-item>
-        </v-list>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-list-item>
+            <v-spacer></v-spacer>
           <v-btn text @click="menu = false">Cancel</v-btn>
-          <v-btn color="primary" @click="add()">Add</v-btn>
-        </v-card-actions>
+          <v-btn dark color="#071551" @click="add()" >Add</v-btn>
+          </v-list-item>
+        </v-list>
 
       </v-card>
     </v-menu>
