@@ -50,6 +50,10 @@ public class UserController {
         System.out.println("registered");
         user = new User(user.getUsername(), user.getPassword(), user.getName(), user.getEmail());
         UserManager manager = (UserManager) ManagerFactory.getManager("UserManager");
+        
+        if(manager.get(user.getUsername())!=null) return null;
+
+
         manager.add(user);
 
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
