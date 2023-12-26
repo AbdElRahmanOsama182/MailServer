@@ -180,9 +180,7 @@ export default {
       console.log(this.currentTab);
     },
     logout() {
-      axios.get('http://localhost:8080/api/logout', {}).then(() => {
         this.$router.push({ name: 'login' });
-      });
     },
     sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));

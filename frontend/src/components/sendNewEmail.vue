@@ -100,7 +100,10 @@
                   <v-icon large>mdi-cancel</v-icon>
               </v-btn>
               <v-spacer></v-spacer>
-              <v-btn color="#071551" text @click="send">
+              <v-btn @click="send(false)" icon>
+                  <v-icon large>mdi-content-save</v-icon>
+              </v-btn>
+              <v-btn color="#071551" text @click="send(true)">
                   <v-icon large>mdi-send</v-icon>
               </v-btn>
             </v-card-actions>
@@ -152,32 +155,36 @@ export default {
       //     this.file = newfile ;
       //     console.log(this.file);
       // },
-      send(){
-          var dt = new Date;
-          var dformat = `${
-              (dt.getMonth()+1).toString().padStart(2, '0')}/${
-              dt.getDate().toString().padStart(2, '0')}/${
-              dt.getFullYear().toString().padStart(4, '0')} ${
-              dt.getHours().toString().padStart(2, '0')}:${
-              dt.getMinutes().toString().padStart(2, '0')}:${
-              dt.getSeconds().toString().padStart(2, '0')}`;
-          console.log(this.importanceList2[this.importance])  ;
-          axios.post('http://localhost:8080/api/ComposeMail?send=true',{
-              id : 0,
-              sender : this.senderEmailAddress ,
-              recievers : this.receiverEmailAddress ,
-              seen : true ,
-              date : dformat ,
-              importance : this.importanceList2[this.importance] ,
-              subject : this.subject ,
-              body : this.body,
-              attachements : this.attachments ,
-
-          }).then(Response=>{
-              const Data = Response.data;
-              this.text = Data ;
-              this.snackbar = true ;
-          });  
+      send(isDraft){
+        console.log(`${localStorage.getItem('token')}`);
+        axios.post('http://localhost:8080/emails', {
+            // to: this.receiverEmailAddress,
+            to: [],
+            subject: this.subject,
+            body: this.body,
+            attachments: this.attachments,
+            priority: this.importance,
+            isDraft: isDraft
+          }, {
+            headers: {
+              authorization: `${localStorage.getItem('token')}`
+            }
+        }).then((response => response.data))
+          .then((data) => {
+            console.log(data);
+            if (data === '') {
+              this.snackbar = true;
+              this.text = 'Email not sent';
+            }
+            else {
+              this.snackbar = true;
+              if (!isDraft) {
+                this.text = 'Email saved as draft';
+              }
+              else
+                this.text = 'Email sent';
+            }
+          })
       },
       addReceiver() {
           this.receiverEmailAddress.push('');
@@ -199,6 +206,7 @@ export default {
 <style scoped>
 .sendEmail {
   margin-bottom: 80px;
+  width: 70% !important;
 }
 
 .col{

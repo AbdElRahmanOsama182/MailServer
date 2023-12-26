@@ -16,7 +16,7 @@ import com.mail.backend.Models.Folder.SentFolder;
 import com.mail.backend.Models.Folder.TrashFolder;
 import com.mail.backend.Managers.ManagerInterface;
 
-public class FolderManager implements ManagerInterface<Folder>{
+public class FolderManager implements ManagerInterface<Folder> {
 
     private static final String FOLDERS_FILE_PATH = "src/main/java/com/mail/backend/data/folders.json";
     private static FolderManager instance = null;
@@ -46,11 +46,12 @@ public class FolderManager implements ManagerInterface<Folder>{
     public Folder add(Folder folder) {
         return this.addFolder(folder);
     }
+
     private Folder addFolder(Folder folder) {
         if (folder == null) {
             return null;
         }
-        if(folder.getId() == 0){
+        if (folder.getId() == 0) {
             folder.setId(this.nextId);
             this.nextId++;
         }
@@ -67,7 +68,6 @@ public class FolderManager implements ManagerInterface<Folder>{
         this.folders.remove(folderId);
         this.saveFolders();
     }
-
 
     public void createDefaultFolders(String userId) {
         this.folders.put(this.nextId, new InboxFolder(this.nextId, userId));
@@ -94,8 +94,8 @@ public class FolderManager implements ManagerInterface<Folder>{
 
     public void addEmail(int folderId, int emailId) {
         this.folders.get(folderId).addEmail(emailId);
-        EmailManager emailManager = (EmailManager)ManagerFactory.getManager("EmailManager");
-        
+        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
+
         emailManager.updateEmail(emailId, Map.of("folderId", folderId));
 
         this.saveFolders();
@@ -176,11 +176,10 @@ public class FolderManager implements ManagerInterface<Folder>{
         return null;
     }
 
-
     public Map<Object, Folder> getAll() {
         return new HashMap<Object, Folder>(this.folders);
     }
-    
+
     public ArrayList<Folder> getAllFolders() {
         return new ArrayList<Folder>(this.folders.values());
     }

@@ -34,7 +34,7 @@ import com.mail.backend.Managers.ManagerInterface;
 import com.mail.backend.Models.Attachment.Attachment;
 import com.mail.backend.Utils.AttachmentUtils;
 
-public class EmailManager implements ManagerInterface<Email>{
+public class EmailManager implements ManagerInterface<Email> {
     private static final String EMAILS_FILE_PATH = "src/main/java/com/mail/backend/data/emails.json";
     private static EmailManager instance;
     public Map<Integer, Email> emails = new HashMap<Integer, Email>();
@@ -124,9 +124,6 @@ public class EmailManager implements ManagerInterface<Email>{
             System.out.println(e);
         }
     }
-    
-    
-    
 
     // public Email jsonToEmail(JsonNode jsonNode) {
     // EmailBuilder builder = new EmailBuilder();
