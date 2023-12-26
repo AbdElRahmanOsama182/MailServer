@@ -5,12 +5,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,6 +69,18 @@ public class AttachmentUtils {
             return "";
         }
 
+    }
+
+
+    public Resource getFile(String fileName){
+        Path path = Paths.get(basePath).resolve(fileName).normalize();
+        try{
+            return new UrlResource(path.toUri());
+        } catch(MalformedURLException e){
+            System.err.println(e.getMessage());
+        }
+
+        return null;
     }
 
 }
