@@ -115,7 +115,7 @@
       </v-dialog>
     </v-row>
     <v-row class="cont">
-      <div class="text-bottom">
+      <div class="text-center mb-15">
         <v-pagination v-model="page" :length="numberOfPages" :disabled="disable" @input="changeThePage"></v-pagination>
       </div>
     </v-row>

@@ -1,137 +1,108 @@
 <template>
-    <v-row justify="center">
-        <v-dialog
-        v-model="dialog"
-        max-width="600px"
-        >
+    <v-row justify="center" class="justify-center">
+      <v-dialog v-model="dialog" width="400px" color="#BFD7ED">
         <template v-slot:activator="{ on, attrs }">
-            <v-spacer></v-spacer>
-            <v-btn class="addnewcontact"
-                right
-                icon
-                elevation="2"
-                dark
-                v-bind="attrs"
-                v-on="on"
-            >
+          <v-spacer></v-spacer>
+          <v-btn
+            class="addnewcontact"
+            right
+            icon
+            elevation="2"
+            dark
+            v-bind="attrs"
+            v-on="on"
+          >
             <v-icon>mdi-account-plus</v-icon>
-        </v-btn>
+          </v-btn>
         </template>
-            <v-card>
-
-                <v-card-title>
-                    <span>{{ currentTitle }}</span>
-                </v-card-title>
-
-                <v-window v-model="step">
-                
-                <v-window-item :value="1">
-                    <v-card-text>
-                            <v-col cols="12">
-                            <v-text-field
-                                v-model=newUser.name
-                                label="Name of the New Contact*"
-                                required
-                                ></v-text-field>
-                            </v-col>
-
-                            <v-col cols="12">
-                                <v-text-field
-                                    v-model.number=numberOfEmails
-                                    type="number"
-                                    label="Number of Emails of this contact*"
-                                    min="1"
-                                    required>
-                                </v-text-field>
-                            </v-col>
-                    </v-card-text>
-                </v-window-item>
-
-                <v-window-item :value="2">
-                    <v-card-text>
-                        <v-col cols="12" v-for="i in numberOfEmails"
-                            :key="i">
-                                <v-text-field
-                                v-model="newUser.emailAddresses[i-1]"
-                                label="Email*"
-                                required
-                                ></v-text-field>
-                        </v-col>
-                    </v-card-text>
-                </v-window-item>
-                
-                </v-window>
-
-                <v-divider></v-divider>
-
-                <v-card-actions>
-                <v-btn
-                    :disabled="step === 1"
-                    text
-                    @click="step--"
-                >
-                    Back
-                </v-btn>
-                <v-spacer></v-spacer>
-                <v-btn
-                    color="primary"
-                    @click="nextaction"
-                >
-                    {{tittleButton}}
-                </v-btn>
-                </v-card-actions>
-            </v-card>
-    </v-dialog>
+        <v-card color="#BFD7ED">
+          <v-card-title>
+            <v-img
+                src="..\assets\user.png"
+                alt="user_photo"
+                class="avatar-image"
+              ></v-img>
+          </v-card-title>
+  
+          <v-card-text>
+            <v-col cols="12">
+              <v-text-field
+                v-model="newUser.name"
+                label="Name"
+                outlined
+                filled
+                required
+                dense
+                hide-details
+              ></v-text-field>
+            </v-col>
+  
+            <v-col cols="12">
+              <v-text-field
+                v-model.number="numberOfEmails"
+                label="Number of emails"
+                min="1"
+                type="number"
+                required
+                filled
+                outlined
+                dense
+                hide-details
+              ></v-text-field>
+            </v-col>
+  
+            <v-col cols="12">
+              <v-text-field
+                v-for="i in Math.max(numberOfEmails,1)"
+                :key="i"
+                v-model="newUser.emailAddresses[i - 1]"
+                type="email"
+                label="Email"
+                required
+                filled
+                outlined
+                dense
+                hide-details
+              ></v-text-field>
+            </v-col>
+            <v-col class="text-center" cols="12">
+            <v-btn dark color="#071551" @click="addContact" class="mt-2" center>Add Contact</v-btn>
+            </v-col>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </v-row>
-</template>
-
-<script>
-    import Contact from './contact.vue'
-
-    import Vue from 'vue'
-    import axios from 'axios'
-    import VueAxios from 'vue-axios'
-
+  </template>
+  
+  <script>
   export default {
-    data: function(){
-        return {
-            step : 1,
-            dialog: false,
-            numberOfEmails : 1,
-            newUser : {name : '' ,emailAddresses : []}
-        }
+    data() {
+      return {
+        dialog: false,
+        newUser: { name: '', emailAddresses: [] },
+        numberOfEmails: 1,
+      };
     },
-    computed: {
-      currentTitle () {
-        switch (this.step) {
-          case 1: return 'Adding New Contact'
-          default: return 'Adding New Contact Emails'
-        }
+    methods: {
+      addContact() {
+        this.$emit('addContact', this.newUser);
+        this.dialog = false;
+        // Optionally, you can reset the form here if needed
+        this.newUser = { name: '', emailAddresses: [] };
+        this.numberOfEmails = 1; // Reset the number of emails for the next use
       },
-      tittleButton (){
-          switch (this.step) {
-          case 1: return 'Next'
-          default: return 'Add New Contact'
-        }
-      }
     },
-    methods:{
-        nextaction : function(){
-            this.step++;
-            if(this.step === 3){
-                this.dialog = false ;
-                this.addContact();
-            }
-        },
-        addContact(){
-            this.$emit('addContact',this.newUser);
-        }
-    }
-}
-</script>
-
-<style scoped>
-.addnewcontact{
+  };
+  </script>
+  
+  <style scoped>
+  .addnewcontact {
     margin: 25px;
+  }
+
+  .avatar-image {
+  max-width: 60px;
+  border-radius: 50%;
 }
-</style>
+  </style>
+  
