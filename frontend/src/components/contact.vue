@@ -29,7 +29,7 @@
     </v-row>
     <v-row>
     <v-row>
-      <v-col v-for="(contact, i) in contacts" :key="i" cols="12" sm="6" md="4" lg="4">
+      <v-col v-for="(contact, i) in contacts" :key="i" cols="12" sm="6" md="4" lg="4" class="contact-gallery">
         <v-card class="contact-card">
           <div class="contact-header">
             <div class="avatar">
@@ -331,6 +331,9 @@ export default {
 </script>
 
 <style scoped>
+.contact-gallery {
+  margin-top: 80px;
+}
 .contact-card {
   max-width: 400px;
   border-radius: 10px;

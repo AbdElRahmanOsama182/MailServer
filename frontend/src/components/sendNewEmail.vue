@@ -1,169 +1,121 @@
 <template>
-     <v-container
-        class="py-8 px-10"
-        fluid
-        style="background-color: #D1D4C9"
-    >
-        <v-row>
-          <v-col
-            cols="12"
-          >
-            <v-card
-            color="#1B262C"
-            >
-                <v-card-title 
-                class="align-center"
-                >
-                    <h2>Send Email</h2>
-                </v-card-title>
-
-                <v-card-text>
-                    <v-row>
-                      <v-col md="10">
-                        <v-row v-for="(reciever,r) in receiverEmailAddress" :key=r>
-                            <v-col md="1">
-                                <span class="s">Send to:</span> 
-                            </v-col>
-                            <v-text-field
-                                background-color="#D1D4C9"
-                                v-model="receiverEmailAddress[r]"
-                                required
-                                >
-                            </v-text-field>
+    <v-container class="py-8 px-6 sendEmail" fluid>
+      <v-row align="center" justify="center">
+        <v-col cols="10">
+          <v-card color="#BFD7ED">
+            <v-card-text>
+              <v-row>
+                <v-col md="6">
+                  <v-row v-for="(receiver, r) in receiverEmailAddress" :key="r">
+                    <v-text-field
+                      v-model="receiverEmailAddress[r]"
+                      label="To"
+                      required
+                      prepend-icon="mdi-account"
+                      outlined
+                      dense
+                    ></v-text-field>
+                    <v-btn v-if="r === 0" icon @click="addReceiver" color="#071551">
+                        <v-icon>mdi-account-plus</v-icon>
+                    </v-btn>
+                    <v-btn v-if="r === 1" icon @click="removeReceiver" color="#071551">
+                        <v-icon>mdi-account-minus</v-icon>
+                    </v-btn>
+                    <v-col v-if="r > 1" md="1"></v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+  
+              <v-col md="8">
+                <v-text-field
+                  v-model="subject"
+                  label="Subject"
+                  required
+                  prepend-icon="mdi-text-short"
+                  outlined
+                  dense
+                ></v-text-field>
+              </v-col>
+  
+              <v-col>
+                <v-textarea
+                  filled
+                  name="input-7-4"
+                  label="Write your body of your email here"
+                  v-model="body"
+                  outlined
+                  dense
+                ></v-textarea>
+              </v-col>
+  
+              <v-row>
+                <v-col md="8">
+                    <v-row v-for="(attachment, a) in attachments" :key="a">
+                        <v-btn color="transparent">
+                        <v-file-input
+                            v-model="attachments[a]"
+                            truncate-length="100"
+                            label="Adding Attachment"
+                            dense
                             
-                        </v-row>
-                      </v-col>       
-                        <v-col >
-                            <v-btn
-                                color="#BBE1FA"
-                                icon
-                                @click="addReceiver"
                             >
-                                <v-icon>mdi-account-plus</v-icon>
-                            </v-btn>
-                            <v-btn v-if="receiverEmailAddress.length>1"
-                                color="#BBE1FA"
-                                icon
-                                @click="removeReceiver"
-                            >
-                                <v-icon>mdi-account-minus</v-icon>
-                                </v-btn>
-                        </v-col>
-                    </v-row>
-
-                    <v-row>
-                      <v-col md="10">
-                        <v-row>
-                            <v-col md="1">
-                                <span>Subject:</span> 
-                            </v-col>
-                            <v-text-field
-                                background-color="#D1D4C9"
-                                v-model="subject"
-                                required
-                                >
-                            </v-text-field>
-                        </v-row>
-                      </v-col>       
-                    </v-row>
-
-                    
-
-                    <v-col>
-                    <v-textarea
-                        background-color="#D1D4C9"
-                        variant="outlined"
-                        label="Email text"
-                        filled
-                        v-model="body"
-                        
-                    ></v-textarea>
-                    </v-col>
-
-                    <v-row>
-                    <v-col md="6">
-                    <v-btn color="#BBE1FA">
-                    <v-file-input
-                        v-model="file"
-                        @click="addToAttachmentList(file)"
-                        truncate-length="100"
-                    >Add attachment
-                    </v-file-input>
-                    </v-btn>
-                    </v-col>
-                 
-                    <v-col>
-                        <span class="Pr">Priority</span>
-                        <v-card-text>
-                            <v-slider
-                                color="green"
-                                v-model="importance"
-                                :tick-labels="importanceList"
-                                :max="3"
-                                step="1"
-                                ticks="always"
-                                tick-size="3"
-                            ></v-slider>
-                        </v-card-text>
-                    </v-col>
-                    </v-row>
-
-
-                    <!-- <v-col v-for="i in attachments"
-                    :key="i">
-                    <v-list>
-                        <v-list-item>{{i}}</v-list-item>
-                    </v-list>
-                    </v-col> -->
-
-
-                    <v-divider style="background-color: white">
-                    </v-divider>
-
-                    <v-card-actions>
-                        <v-btn
-                        @click="reset">
-                            Reset Email
+                        </v-file-input></v-btn>
+                        <v-btn v-if="a === 0" icon @click="addAttachment" color="#071551">
+                        <v-icon>mdi-file-plus</v-icon>
                         </v-btn>
-
-
-                        <v-spacer></v-spacer>
-                        <v-btn color="#0F4C75">
-                            <span>Cancel</span>
+                        <v-btn v-if="a === 1" icon @click="removeAttachment" color="#071551">
+                            <v-icon>mdi-file-minus</v-icon>
                         </v-btn>
-                    
-                    <v-btn color="#0F4C75"
-                        @click="send"
-                    >
-                        <span>Send</span>
-                    </v-btn>
-
-                    </v-card-actions>
-
-                    <v-snackbar
-                      v-model="snackbar"
-                    >
-                      {{ text }}
-
-                      <template v-slot:action="{ attrs }">
-                        <v-btn
-                          color="green"
-                          text
-                          v-bind="attrs"
-                          @click="snackbar = false"
-                        >
-                          Close
-                        </v-btn>
-                      </template>
-                    </v-snackbar>
-
-                    
-                </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-</template>
+                  </v-row>
+                </v-col>
+  
+                <v-col>
+                  <span class="subheading">Mail Importance</span>
+                  <v-card-text>
+                    <v-slider
+                      v-model="importance"
+                      append-icon="mdi-priority-high"
+                      prepend-icon="mdi-priority-low"
+                      :max="3"
+                      step="1"
+                      tick-size="4"
+                      dense
+                      outlined
+                      hide-details
+                      color="#071551"
+                      @click:append="importance++"
+                        @click:prepend="importance--"
+                    ></v-slider>
+                  </v-card-text>
+                </v-col>
+              </v-row>
+  
+              <v-card-actions>
+                <v-btn text @click="reset" color="#071551">
+                    <v-icon large>mdi-reload</v-icon>
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn text color="red">
+                    <v-icon large>mdi-cancel</v-icon>
+                </v-btn>
+                <v-btn color="#071551" text @click="send">
+                    <v-icon large>mdi-send</v-icon>
+                </v-btn>
+              </v-card-actions>
+  
+              <v-snackbar v-model="snackbar">
+                {{ text }}
+                <template v-slot:action="{ attrs }">
+                  <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
+                </template>
+              </v-snackbar>
+  
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </template>  
 
 <script>
 
@@ -179,9 +131,9 @@ export default {
         receiverEmailAddress : [''] ,
         subject : '',
         body : '',
-        attachments : [],
+        attachments : [''],
         file : null,
-        importanceList: ['Low','Medium','Important','Ergent'],
+        importanceList: ['low','medium','important','very important'],
         importanceList2: ['low','medium','Important','veryImportant'],
         importance: 1,
     }),
@@ -190,14 +142,14 @@ export default {
             this.receiverEmailAddress = [''] ;
             this.subject = '';
             this.body = '';
-            this.attachments = [];
+            this.attachments = [''];
             this.file = null;
         },
-        addToAttachmentList : function(newfile){
-            this.attachments.push(1);
-            this.file = newfile ;
-            console.log(this.file);
-        },
+        // addToAttachmentList : function(newfile){
+        //     this.attachments.push(1);
+        //     this.file = newfile ;
+        //     console.log(this.file);
+        // },
         send(){
             var dt = new Date;
             var dformat = `${
@@ -231,24 +183,23 @@ export default {
         removeReceiver(){
             this.receiverEmailAddress.pop();
         },
+        addAttachment(){
+            this.attachments.push('');
+        },
+        removeAttachment(){
+            this.attachments.pop();
+        }
      }
 
 }
 </script>
 
 <style scoped>
-.align-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #BBE1FA;
-  font-size: 30px;
+.sendEmail {
+    margin-bottom: 80px;
 }
 
-span{
-    font-size: 20px;
-    color: #BBE1FA;
+.col{
+    padding: 0 15px !important;
 }
-
-
 </style>

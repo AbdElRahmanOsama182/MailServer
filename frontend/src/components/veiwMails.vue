@@ -284,7 +284,7 @@ export default {
 
 <style scoped>
 .message-gallery {
-  margin-top: 20px;
+  margin-top: 80px;
 }
 
 .message-card {
