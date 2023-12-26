@@ -94,6 +94,10 @@ public class FolderManager implements ManagerInterface<Folder>{
 
     public void addEmail(int folderId, int emailId) {
         this.folders.get(folderId).addEmail(emailId);
+        EmailManager emailManager = (EmailManager)ManagerFactory.getManager("EmailManager");
+        
+        emailManager.updateEmail(emailId, Map.of("folderId", folderId));
+
         this.saveFolders();
     }
 
@@ -110,8 +114,8 @@ public class FolderManager implements ManagerInterface<Folder>{
     }
 
     public void moveEmail(int emailId, int fromId, int toId) {
-        this.folders.get(fromId).removeEmail(emailId);
-        this.folders.get(toId).addEmail(emailId);
+        this.removeEmail(fromId, emailId);
+        this.addEmail(toId, emailId);
         this.saveFolders();
     }
 

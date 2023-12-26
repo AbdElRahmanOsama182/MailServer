@@ -31,6 +31,7 @@ public class Email {
     private boolean isDraft;
     private Date deleteDate;
     private Date sendDate;
+    private int folderId;
 
     public Email() {
     }
@@ -106,6 +107,14 @@ public class Email {
     public void setBody(String body) {
         this.body = body;
     }
+    
+    public int getFolderId() {
+        return folderId;
+    }
+
+    public void setFolderId(int folderId) {
+        this.folderId = folderId;
+    }
 
     public boolean isDeleted() {
         return isDeleted;
@@ -152,6 +161,7 @@ public class Email {
         email.put("isDraft", this.isDraft());
         email.put("deleteDate", this.getDeleteDate());
         email.put("sendDate", this.getSendDate());
+        email.put("folderId", this.getFolderId());
         return email;
     }
 
@@ -184,6 +194,9 @@ public class Email {
                     break;
                 case "sendDate":
                     this.setSendDate((Date) email.get(key));
+                    break;
+                case "folderId":
+                    this.setFolderId((int) email.get(key));
                     break;
                 default:
                     break;
