@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import java.util.Map;
 
+
 public class Folder {
     private String name;
     private int id;
@@ -39,6 +40,7 @@ public class Folder {
         this.id = id;
         return;
     }
+
 
     public String getUserId() {
         return this.userId;

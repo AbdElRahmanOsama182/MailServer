@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
@@ -21,6 +22,7 @@ import io.jsonwebtoken.Jwts;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,13 +60,14 @@ public class FolderController {
         return folders;
     }
     
-    
+
     @PostMapping("/folders")
     public Folder create(@RequestHeader String authorization, @RequestBody Folder folder){
         User user=Auth.getUser(authorization);
 
         if(user==null|| folder.getName()==null) return null;
         folder= new Folder(folder.getName(), 0, user.getUsername());
+
 
         FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
         folderManager.add(folder);

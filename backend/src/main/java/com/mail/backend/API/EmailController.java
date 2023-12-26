@@ -46,6 +46,7 @@ public class EmailController {
         Folder inboxFolder = folderManager.getUserFolderByName( user.getUsername(),"Inbox");
         email.setFolderId(inboxFolder.getId());
 
+
         // create email
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         emailManager.add(email);
@@ -55,6 +56,7 @@ public class EmailController {
 
 
         // add it to sent folder
+
         Folder outBoxFolder = folderManager.getUserFolderByName( user.getUsername(),"Sent");
         folderManager.addEmail(outBoxFolder.getId(), email.getId());
 
