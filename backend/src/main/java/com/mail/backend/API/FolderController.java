@@ -40,6 +40,7 @@ public class FolderController {
 
     private int itemsPage = 5;
 
+
     @GetMapping("/folders/{id}")
     public Folder read(@RequestHeader String authorization, @PathVariable("id") Integer id) {
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
@@ -64,6 +65,7 @@ public class FolderController {
         return folders;
     }
 
+
     @PostMapping("/folders")
     public Folder create(@RequestHeader String authorization, @RequestBody Folder folder) {
         User user = Auth.getUser(authorization);
@@ -71,6 +73,7 @@ public class FolderController {
         if (user == null || folder.getName() == null)
             return null;
         folder = new Folder(folder.getName(), 0, user.getUsername());
+
 
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         folderManager.add(folder);
@@ -104,6 +107,7 @@ public class FolderController {
             return;
         if (!folder.getUserId().equals(user.getUsername()))
             return;
+
         folderManager.remove(id);
     }
 
@@ -119,6 +123,7 @@ public class FolderController {
             return null;
         if (!folder.getUserId().equals(user.getUsername()))
             return null;
+
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         Email email = emailManager.get(emailId);
         folderManager.moveEmail(emailId, email.getFolderId(), id);
@@ -134,6 +139,7 @@ public class FolderController {
         Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
         if (trashFolder == null)
             return null;
+
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         Email email = emailManager.get(emailId);
         // mark as deleted
@@ -151,6 +157,7 @@ public class FolderController {
         Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
         if (trashFolder == null)
             return null;
+
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         Email email = emailManager.get(emailId);
         // mark as deleted
@@ -198,6 +205,7 @@ public class FolderController {
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
+
         }
 
         return emails;
@@ -244,6 +252,7 @@ public class FolderController {
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
+
         }
         return emails;
     }
@@ -281,6 +290,7 @@ public class FolderController {
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
+
         }
         return emails;
     }
@@ -327,6 +337,7 @@ public class FolderController {
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
+
         }
         return emails;
     }
@@ -374,5 +385,6 @@ public class FolderController {
         }
         return emails;
     }
+
 
 }
