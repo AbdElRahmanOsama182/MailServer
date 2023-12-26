@@ -56,14 +56,15 @@ public class AttachmentManager {
     public ResponseEntity<Resource> downloadFile(@PathVariable String file){
 
         Resource resource = AttachmentUtils.getFile(file);
-        if(resource != null){
+        try{
             return ResponseEntity.ok()
-                                .header(HttpHeaders.CONTENT_DISPOSITION, "attachments: file name=\\" + resource.getFilename() + "\\")
+                                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; file name=\\" + resource.getFilename() +"\\")
                                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                                 .body(resource);
         
+        } catch(Exception e){
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.internalServerError().build();
 
     }
 
