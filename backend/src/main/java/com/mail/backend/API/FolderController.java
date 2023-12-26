@@ -20,10 +20,11 @@ import com.mail.backend.Utils.Auth;
 import io.jsonwebtoken.Jwts;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
+import java.util.PriorityQueue;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,83 +34,91 @@ import com.mail.backend.Managers.EmailManager;
 import com.mail.backend.Managers.FolderManager;
 import com.mail.backend.Managers.ManagerFactory;
 
-
 @RestController
 @CrossOrigin(origins = { "http://localhost:8081" })
 public class FolderController {
 
-    private int itemsPage=5;
+    private int itemsPage = 5;
 
     @GetMapping("/folders/{id}")
-    public Folder read(@RequestHeader String authorization,@PathVariable("id") Integer id){
-        FolderManager folderManager =(FolderManager)ManagerFactory.getManager("FolderManager");
-        User user= Auth.getUser(authorization);
+    public Folder read(@RequestHeader String authorization, @PathVariable("id") Integer id) {
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
+        User user = Auth.getUser(authorization);
         Folder folder = folderManager.get(id);
         System.out.println("folder.getUserId()");
         System.out.println(folder.getUserId());
         System.out.println("user.getUsername()");
         System.out.println(user.getUsername());
-        if(!folder.getUserId().equals(user.getUsername())) return null;
+        if (!folder.getUserId().equals(user.getUsername()))
+            return null;
 
         return folder;
     }
 
     @GetMapping("/folders")
-    public ArrayList<Folder> readAll(@RequestHeader String authorization){
-        FolderManager folderManager =(FolderManager)ManagerFactory.getManager("FolderManager");
-        User user= Auth.getUser(authorization);
+    public ArrayList<Folder> readAll(@RequestHeader String authorization) {
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
+        User user = Auth.getUser(authorization);
         ArrayList<Folder> folders = folderManager.getUserFolders(user.getUsername());
 
         return folders;
     }
-    
 
     @PostMapping("/folders")
-    public Folder create(@RequestHeader String authorization, @RequestBody Folder folder){
-        User user=Auth.getUser(authorization);
+    public Folder create(@RequestHeader String authorization, @RequestBody Folder folder) {
+        User user = Auth.getUser(authorization);
 
-        if(user==null|| folder.getName()==null) return null;
-        folder= new Folder(folder.getName(), 0, user.getUsername());
+        if (user == null || folder.getName() == null)
+            return null;
+        folder = new Folder(folder.getName(), 0, user.getUsername());
 
-
-        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         folderManager.add(folder);
 
         return folder;
     }
 
     @PutMapping("/folders/{id}")
-    public Folder rename(@RequestHeader String authorization,@PathVariable("id") Integer id, @RequestBody Folder folder){
-        User user=Auth.getUser(authorization);
-        if(user==null|| folder.getName()==null) return null;
-        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+    public Folder rename(@RequestHeader String authorization, @PathVariable("id") Integer id,
+            @RequestBody Folder folder) {
+        User user = Auth.getUser(authorization);
+        if (user == null || folder.getName() == null)
+            return null;
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder oldFolder = folderManager.get(id);
-        if(!oldFolder.getUserId().equals(user.getUsername())) return null;
+        if (!oldFolder.getUserId().equals(user.getUsername()))
+            return null;
         folderManager.renameFolder(id, folder.getName());
-        
+
         return folderManager.get(id);
     }
 
-
     @DeleteMapping("/folders/{id}")
-    public void delete(@RequestHeader String authorization,@PathVariable("id") Integer id){
-        User user=Auth.getUser(authorization);
-        if(user==null) return;
-        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+    public void delete(@RequestHeader String authorization, @PathVariable("id") Integer id) {
+        User user = Auth.getUser(authorization);
+        if (user == null)
+            return;
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder folder = folderManager.get(id);
-        if(folder==null) return;
-        if(!folder.getUserId().equals(user.getUsername())) return;
+        if (folder == null)
+            return;
+        if (!folder.getUserId().equals(user.getUsername()))
+            return;
         folderManager.remove(id);
     }
 
     @PutMapping("folders/{id}/emails/{emailId}")
-    public Folder moveEmail(@RequestHeader String authorization,@PathVariable("id") Integer id,@PathVariable("emailId") Integer emailId){
-        User user=Auth.getUser(authorization);
-        if(user==null) return null;
-        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+    public Folder moveEmail(@RequestHeader String authorization, @PathVariable("id") Integer id,
+            @PathVariable("emailId") Integer emailId) {
+        User user = Auth.getUser(authorization);
+        if (user == null)
+            return null;
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder folder = folderManager.get(id);
-        if(folder==null) return null;
-        if(!folder.getUserId().equals(user.getUsername())) return null;
+        if (folder == null)
+            return null;
+        if (!folder.getUserId().equals(user.getUsername()))
+            return null;
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         Email email = emailManager.get(emailId);
         folderManager.moveEmail(emailId, email.getFolderId(), id);
@@ -117,12 +126,14 @@ public class FolderController {
     }
 
     @PutMapping("folders/trash/emails/{emailId}")
-    public Folder trashEmail(@RequestHeader String authorization,@PathVariable("emailId") Integer emailId){
-        User user=Auth.getUser(authorization);
-        if(user==null) return null;
-        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+    public Folder trashEmail(@RequestHeader String authorization, @PathVariable("emailId") Integer emailId) {
+        User user = Auth.getUser(authorization);
+        if (user == null)
+            return null;
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
-        if(trashFolder==null) return null;
+        if (trashFolder == null)
+            return null;
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         Email email = emailManager.get(emailId);
         // mark as deleted
@@ -132,12 +143,14 @@ public class FolderController {
     }
 
     @PutMapping("folders/trash/emails/{emailId}/restore")
-    public Folder restoreEmail(@RequestHeader String authorization,@PathVariable("emailId") Integer emailId){
-        User user=Auth.getUser(authorization);
-        if(user==null) return null;
-        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+    public Folder restoreEmail(@RequestHeader String authorization, @PathVariable("emailId") Integer emailId) {
+        User user = Auth.getUser(authorization);
+        if (user == null)
+            return null;
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
-        if(trashFolder==null) return null;
+        if (trashFolder == null)
+            return null;
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         Email email = emailManager.get(emailId);
         // mark as deleted
@@ -147,121 +160,219 @@ public class FolderController {
     }
 
     @GetMapping("folders/trash/emails")
-    public ArrayList<Email> getTrashEmails(@RequestHeader String authorization, @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from, @RequestParam(required = false) Integer page){
-        User user=Auth.getUser(authorization);
-        if(user==null) return null;
-        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+    public ArrayList<Email> getTrashEmails(@RequestHeader String authorization,
+            @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from,
+            @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
+        User user = Auth.getUser(authorization);
+        if (user == null)
+            return null;
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
-        if(trashFolder==null) return null;
+        if (trashFolder == null)
+            return null;
+        Comparator<Email> comparator = new Comparator<Email>() {
+            @Override
+            public int compare(Email email1, Email email2) {
+                if (sort == null || !sort.equals("priority"))
+                    return email1.getSendDate().compareTo(email2.getSendDate());
+                else
+                    return Integer.valueOf(email2.getPriority()).compareTo(email1.getPriority());
+            }
+        };
+        PriorityQueue<Email> emailsPQ = new PriorityQueue<Email>(comparator);
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         ArrayList<Email> emails = new ArrayList<Email>();
-        for(int emailId: trashFolder.getEmails()){
+        for (int emailId : trashFolder.getEmails()) {
             Email email = emailManager.get(emailId);
-            if(email.isDeleted() && (subjectHas==null || email.getSubject().contains(subjectHas)) && (from==null||email.getFromUserId().equals(from))){
-                emails.add(email);
+            if (email.isDeleted() && (subjectHas == null || email.getSubject().contains(subjectHas))
+                    && (from == null || email.getFromUserId().equals(from))) {
+                emailsPQ.add(email);
             }
         }
+        while (!emailsPQ.isEmpty()) {
+            emails.add(emailsPQ.poll());
+        }
 
-    
-        if(page!=null && page*itemsPage<=emails.size()){
-            List<Email> pageList= emails.subList((page-1)*itemsPage,(page)*itemsPage);
-            emails= new ArrayList<Email>();
-            for(Email email : pageList) emails.add(email);
+        if (page != null && page * itemsPage <= emails.size()) {
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) * itemsPage);
+            emails = new ArrayList<Email>();
+            for (Email email : pageList)
+                emails.add(email);
         }
 
         return emails;
     }
 
     @GetMapping("folders/{id}/emails")
-    public ArrayList<Email> getFolderEmails(@RequestHeader String authorization,@PathVariable("id") Integer id, @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from, @RequestParam(required = false) Integer page){
-        User user=Auth.getUser(authorization);
-        if(user==null) return null;
-        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+    public ArrayList<Email> getFolderEmails(@RequestHeader String authorization, @PathVariable("id") Integer id,
+            @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from,
+            @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
+        User user = Auth.getUser(authorization);
+        if (user == null)
+            return null;
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder folder = folderManager.get(id);
-        if(folder==null) return null;
-        if(!folder.getUserId().equals(user.getUsername())) return null;
+        if (folder == null)
+            return null;
+        if (!folder.getUserId().equals(user.getUsername()))
+            return null;
+        Comparator<Email> comparator = new Comparator<Email>() {
+            @Override
+            public int compare(Email email1, Email email2) {
+                if (sort == null || !sort.equals("priority"))
+                    return email1.getSendDate().compareTo(email2.getSendDate());
+                else
+                    return Integer.valueOf(email2.getPriority()).compareTo(email1.getPriority());
+            }
+        };
+        PriorityQueue<Email> emailsPQ = new PriorityQueue<Email>(comparator);
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         ArrayList<Email> emails = new ArrayList<Email>();
-        for(int emailId: folder.getEmails()){
+        for (int emailId : folder.getEmails()) {
             Email email = emailManager.get(emailId);
-            if(!email.isDeleted() && (subjectHas==null || email.getSubject().contains(subjectHas)) && (from==null||email.getFromUserId().equals(from))){
-                emails.add(email);
+            if (!email.isDeleted() && (subjectHas == null || email.getSubject().contains(subjectHas))
+                    && (from == null || email.getFromUserId().equals(from))) {
+                emailsPQ.add(email);
             }
         }
-        
-        if(page!=null && page*itemsPage<=emails.size()){
-            List<Email> pageList= emails.subList((page-1)*itemsPage,(page)*itemsPage);
-            emails= new ArrayList<Email>();
-            for(Email email : pageList) emails.add(email);
+        while (!emailsPQ.isEmpty()) {
+            emails.add(emailsPQ.poll());
+        }
+
+        if (page != null && page * itemsPage <= emails.size()) {
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) * itemsPage);
+            emails = new ArrayList<Email>();
+            for (Email email : pageList)
+                emails.add(email);
         }
         return emails;
     }
 
     @GetMapping("folders/draft/emails")
-    public ArrayList<Email> getDraftEmails(@RequestHeader String authorization, @RequestParam(required = false) Integer page){
-        User user=Auth.getUser(authorization);
-        if(user==null) return null;
+    public ArrayList<Email> getDraftEmails(@RequestHeader String authorization,
+            @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
+        User user = Auth.getUser(authorization);
+        if (user == null)
+            return null;
+
+        Comparator<Email> comparator = new Comparator<Email>() {
+            @Override
+            public int compare(Email email1, Email email2) {
+                if (sort == null || !sort.equals("priority"))
+                    return email1.getSendDate().compareTo(email2.getSendDate());
+                else
+                    return Integer.valueOf(email2.getPriority()).compareTo(email1.getPriority());
+            }
+        };
+        PriorityQueue<Email> emailsPQ = new PriorityQueue<Email>(comparator);
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         ArrayList<Email> emails = new ArrayList<Email>();
-        for(Email email: emailManager.getAllEmails()){
-            if(email.isDraft() && email.getFromUserId().equals(user.getUsername()) && !email.isDeleted()){
-                emails.add(email);
+        for (Email email : emailManager.getAllEmails()) {
+            if (email.isDraft() && email.getFromUserId().equals(user.getUsername()) && !email.isDeleted()) {
+                emailsPQ.add(email);
             }
         }
-        
-        if(page!=null && page*itemsPage<=emails.size()){
-            List<Email> pageList= emails.subList((page-1)*itemsPage,(page)*itemsPage);
-            emails= new ArrayList<Email>();
-            for(Email email : pageList) emails.add(email);
+        while (!emailsPQ.isEmpty()) {
+            emails.add(emailsPQ.poll());
+        }
+
+        if (page != null && page * itemsPage <= emails.size()) {
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) * itemsPage);
+            emails = new ArrayList<Email>();
+            for (Email email : pageList)
+                emails.add(email);
         }
         return emails;
     }
 
     @GetMapping("folders/sent/emails")
-    public ArrayList<Email> getSentEmails(@RequestHeader String authorization, @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from, @RequestParam(required = false) Integer page){
-        User user=Auth.getUser(authorization);
-        if(user==null) return null;
-        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+    public ArrayList<Email> getSentEmails(@RequestHeader String authorization,
+            @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from,
+            @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
+        User user = Auth.getUser(authorization);
+        if (user == null)
+            return null;
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder sentFolder = folderManager.getUserFolderByName(user.getUsername(), "Sent");
-        if(sentFolder==null) return null;
+        if (sentFolder == null)
+            return null;
+
+        Comparator<Email> comparator = new Comparator<Email>() {
+            @Override
+            public int compare(Email email1, Email email2) {
+                if (sort == null || !sort.equals("priority"))
+                    return email1.getSendDate().compareTo(email2.getSendDate());
+                else{
+                    System.out.printf("Email1: %d, Email2: %d\n EmailId: %d\n", email1.getPriority(), email2.getPriority(), email1.getId());
+                    return Integer.valueOf(email2.getPriority()).compareTo(email1.getPriority());
+                }
+            }
+        };
+        PriorityQueue<Email> emailsPQ = new PriorityQueue<Email>(comparator);
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         ArrayList<Email> emails = new ArrayList<Email>();
-        for(int emailId: sentFolder.getEmails()){
+        for (int emailId : sentFolder.getEmails()) {
             Email email = emailManager.get(emailId);
-            if(!email.isDeleted() && (subjectHas==null || email.getSubject().contains(subjectHas)) && (from==null||email.getFromUserId().equals(from))){
-                emails.add(email);
+            if (!email.isDeleted() && (subjectHas == null || email.getSubject().contains(subjectHas))
+                    && (from == null || email.getFromUserId().equals(from))) {
+                emailsPQ.add(email);
             }
         }
-        
-        if(page!=null && page*itemsPage<=emails.size()){
-            List<Email> pageList= emails.subList((page-1)*itemsPage,(page)*itemsPage);
-            emails= new ArrayList<Email>();
-            for(Email email : pageList) emails.add(email);
+        while (!emailsPQ.isEmpty()) {
+            emails.add(emailsPQ.poll());
+        }
+
+        if (page != null && page * itemsPage <= emails.size()) {
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) * itemsPage);
+            emails = new ArrayList<Email>();
+            for (Email email : pageList)
+                emails.add(email);
         }
         return emails;
     }
 
     @GetMapping("folders/inbox/emails")
-    public ArrayList<Email> getInboxEmails(@RequestHeader String authorization, @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from, @RequestParam(required = false) Integer page){
-        User user=Auth.getUser(authorization);
-        if(user==null) return null;
-        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+    public ArrayList<Email> getInboxEmails(@RequestHeader String authorization,
+            @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from,
+            @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
+        User user = Auth.getUser(authorization);
+        if (user == null)
+            return null;
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder inboxFolder = folderManager.getUserFolderByName(user.getUsername(), "Inbox");
-        if(inboxFolder==null) return null;
+        if (inboxFolder == null)
+            return null;
+
+        Comparator<Email> comparator = new Comparator<Email>() {
+            @Override
+            public int compare(Email email1, Email email2) {
+                if (sort == null || !sort.equals("priority"))
+                    return email1.getSendDate().compareTo(email2.getSendDate());
+                else
+                    return Integer.valueOf(email2.getPriority()).compareTo(email1.getPriority());
+            }
+        };
+        PriorityQueue<Email> emailsPQ = new PriorityQueue<Email>(comparator);
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         ArrayList<Email> emails = new ArrayList<Email>();
-        for(int emailId: inboxFolder.getEmails()){
+        for (int emailId : inboxFolder.getEmails()) {
             Email email = emailManager.get(emailId);
-            if(!email.isDeleted() && (subjectHas==null || email.getSubject().contains(subjectHas)) && (from==null||email.getFromUserId().equals(from))){
-                emails.add(email);
+            if (!email.isDeleted() && (subjectHas == null || email.getSubject().contains(subjectHas))
+                    && (from == null || email.getFromUserId().equals(from))) {
+                emailsPQ.add(email);
             }
         }
-        if(page!=null && page*itemsPage<=emails.size()){
-            List<Email> pageList= emails.subList((page-1)*itemsPage,(page)*itemsPage);
-            emails= new ArrayList<Email>();
-            for(Email email : pageList) emails.add(email);
+        while (!emailsPQ.isEmpty()) {
+            emails.add(emailsPQ.poll());
+        }
+
+        if (page != null && page * itemsPage <= emails.size()) {
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) * itemsPage);
+            emails = new ArrayList<Email>();
+            for (Email email : pageList)
+                emails.add(email);
         }
         return emails;
     }
-    
+
 }
