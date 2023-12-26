@@ -26,7 +26,8 @@
                 <v-text-field
                     v-model="newEmail"
                     label="New Email"
-                    solo
+                    outlined
+                    hide-details
                     filled
                     required
                 ></v-text-field>

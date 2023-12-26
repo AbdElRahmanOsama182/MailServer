@@ -24,40 +24,41 @@
       </template>
 
       <v-card>
-        <v-list>
+        <!-- remove padding between list items -->
+        <v-list color="#BFD7ED" dense>
           <v-list-item>
             <v-col>
-                <h2>Name</h2>
                 <v-text-field
                     v-model="newContact.name"
+                    label="Name"
+                    outlined
+                    filled
+                    dense
+                    required
+                    hide-details
+                ></v-text-field>
+            </v-col>
+          </v-list-item>
+          <v-list-item v-for="(email,i) in newContact.emailAddresses"
+          :key = i >
+            <v-col>
+                <v-text-field
+                    v-model="newContact.emailAddresses[i]"
+                    :label="'Email ' + (i+1)"
+                    outlined
+                    filled
+                    dense
+                    hide-details
                     required
                 ></v-text-field>
             </v-col>
           </v-list-item>
-
-            <v-divider></v-divider>
-
-          <v-list-item v-for="(email,i) in newContact.emailAddresses"
-          :key = i>
-            <v-col>
-                <h2>E-mail no. {{i+1}}</h2>
-                <v-text-field
-                    v-model="newContact.emailAddresses[i]"
-                ></v-text-field>
-            </v-col>
-          </v-list-item>
-          
-
-        </v-list>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-list-item>
+            <v-spacer></v-spacer>
           <v-btn text @click="menu = false">Cancel</v-btn>
-          <v-btn color="primary" @click="edit()">Edit</v-btn>
-        </v-card-actions>
-
+          <v-btn color="#071551" @click="edit()" dark>Edit</v-btn>
+          </v-list-item>
+        </v-list>
       </v-card>
     </v-menu>
   </div>
