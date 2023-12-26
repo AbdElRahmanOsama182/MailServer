@@ -42,6 +42,9 @@ public class EmailController {
         // add default fields
         email.setFromUserId(user.getUsername());
         email.setSendDate(new Date());
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
+        Folder inboxFolder = folderManager.getUserFolderByName( user.getUsername(),"Inbox");
+        email.setFolderId(inboxFolder.getId());
 
         // create email
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
@@ -52,7 +55,6 @@ public class EmailController {
 
 
         // add it to sent folder
-        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder outBoxFolder = folderManager.getUserFolderByName( user.getUsername(),"Sent");
         folderManager.addEmail(outBoxFolder.getId(), email.getId());
 
