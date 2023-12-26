@@ -176,4 +176,55 @@ public class FolderController {
         }
         return emails;
     }
+
+    @GetMapping("folders/draft/emails")
+    public ArrayList<Email> getDraftEmails(@RequestHeader String authorization){
+        User user=Auth.getUser(authorization);
+        if(user==null) return null;
+        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
+        ArrayList<Email> emails = new ArrayList<Email>();
+        for(Email email: emailManager.getAllEmails()){
+            if(email.isDraft() && email.getFromUserId().equals(user.getUsername()) && !email.isDeleted()){
+                emails.add(email);
+            }
+        }
+        return emails;
+    }
+
+    @GetMapping("folders/sent/emails")
+    public ArrayList<Email> getSentEmails(@RequestHeader String authorization){
+        User user=Auth.getUser(authorization);
+        if(user==null) return null;
+        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+        Folder sentFolder = folderManager.getUserFolderByName(user.getUsername(), "Sent");
+        if(sentFolder==null) return null;
+        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
+        ArrayList<Email> emails = new ArrayList<Email>();
+        for(int emailId: sentFolder.getEmails()){
+            Email email = emailManager.get(emailId);
+            if(!email.isDeleted()){
+                emails.add(email);
+            }
+        }
+        return emails;
+    }
+
+    @GetMapping("folders/inbox/emails")
+    public ArrayList<Email> getInboxEmails(@RequestHeader String authorization){
+        User user=Auth.getUser(authorization);
+        if(user==null) return null;
+        FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
+        Folder inboxFolder = folderManager.getUserFolderByName(user.getUsername(), "Inbox");
+        if(inboxFolder==null) return null;
+        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
+        ArrayList<Email> emails = new ArrayList<Email>();
+        for(int emailId: inboxFolder.getEmails()){
+            Email email = emailManager.get(emailId);
+            if(!email.isDeleted()){
+                emails.add(email);
+            }
+        }
+        return emails;
+    }
+    
 }
