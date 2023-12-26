@@ -1,51 +1,71 @@
 <template>
   <v-container class="py-8 px-6" fluid>
     <v-row>
-      <v-app-bar app>
-        <v-btn color="white" @click="hidden = !hidden">
-          <v-icon left>
-            {{ hidden ? 'mdi-chevron-right' : 'mdi-chevron-left' }}
-          </v-icon>Sort
-        </v-btn>
-        <v-col md="2">
-          <v-fab-transition>
-            <v-combobox v-show="!hidden" v-model="sort" :items="items" label="Sort by" dense></v-combobox>
-          </v-fab-transition>
-        </v-col>
-        <v-fab-transition>
-          <v-btn v-show="!hidden" fab small dark color="#2d3142" @click="applySort">
-            <v-icon>mdi-checkbox-marked-circle</v-icon>
-          </v-btn>
-        </v-fab-transition>
-      
-        <v-col md="1"> <div></div></v-col>
-        <v-fab-transition> 
-          <v-btn color="white" @click="hidden2 = !hidden2">
-            <v-icon left>
+      <v-app-bar app color="#071551" dark class="MailsBar">
+        <v-btn @click="hidden3 = !hidden3" icon>
+            <!-- <v-icon left>
               {{ hidden2 ? 'mdi-chevron-right' : 'mdi-chevron-left' }}
-            </v-icon>Filter
+            </v-icon> -->
+            <v-icon>mdi-email-search-outline</v-icon>
           </v-btn>
-        </v-fab-transition>
       
-        <v-col md="2">
-          <v-fab-transition>
-            <v-combobox v-show="!hidden2" v-model="filter" :items="items" label="Filter by" dense></v-combobox>
-          </v-fab-transition>
+        <v-col md="1.5">
+            <v-combobox v-show="!hidden3" v-model="filter" :items="items" label="Search by" dense hide-details></v-combobox>
         </v-col>
       
         <v-col md="2">
-          <v-fab-transition>
-            <v-text-field v-show="!hidden2 && filter !== 'importance'" clearable dense v-model="filtername"></v-text-field>              
-          </v-fab-transition> 
-          <v-fab-transition> 
-            <v-slider span v-show="!hidden2 && filter === 'importance'" v-model="importance" :tick-labels="importanceList" :max="3" step="1" ticks="always" tick-size="4"></v-slider>
-          </v-fab-transition> 
-        </v-col> 
-        <v-fab-transition>
-          <v-btn v-show="!hidden2" fab small dark color="#2d3142" @click="applyFilter">
-            <v-icon>mdi-checkbox-marked-circle</v-icon>
+          <v-text-field
+            v-show="!hidden3"
+            clearable
+            filled
+            outlined
+            hide-details
+            v-model="search"
+            label="Email Search"
+          ></v-text-field>
+        </v-col>
+        <v-btn
+          v-show="!hidden3"
+          icon
+          dark
+          @click="searchEmail">
+          <v-icon>mdi-magnify</v-icon>
+        </v-btn>
+        <v-btn @click="hidden = !hidden" icon>
+          <v-icon>mdi-sort</v-icon>
+        </v-btn>
+        <v-col md="1.5">
+            <v-combobox v-show="!hidden" v-model="sort" :items="items" label="Sort by" dense hide-details></v-combobox>
+        </v-col>
+        <v-btn
+          v-show="!hidden"
+          icon
+          dark
+          @click="applySort">
+          <v-icon>mdi-sort-ascending</v-icon>
+        </v-btn>
+          <v-btn @click="hidden2 = !hidden2" icon>
+            <v-icon>mdi-filter</v-icon>
           </v-btn>
-        </v-fab-transition> 
+      
+        <v-col md="1.5">
+            <v-combobox v-show="!hidden2" v-model="filter" :items="items" label="Filter by" dense hide-details></v-combobox>
+        </v-col>
+      
+        <v-col md="2">
+            <v-text-field v-show="!hidden2 && filter !== 'importance'" clearable dense v-model="filtername" hide-details></v-text-field>              
+            <v-slider span v-show="!hidden2 && filter === 'importance'" v-model="importance" :tick-labels="importanceList" :max="3" step="1" ticks="always" tick-size="4"></v-slider> 
+        </v-col> 
+        <v-btn
+          v-show="!hidden2"
+          icon
+          dark
+          @click="searchEmail">
+          <v-icon>mdi-filter-check</v-icon>
+        </v-btn>
+          <!-- <v-btn v-show="!hidden2" fab small dark color="#2d3142" @click="applyFilter">
+            <v-icon>mdi-checkbox-marked-circle</v-icon>
+          </v-btn> -->
       </v-app-bar>
     </v-row>
     <v-row>
@@ -136,31 +156,35 @@ export default {
     }
   },
   mounted () {
-      console.log(this.f);
+      console.log(this.folder);
+      console.log("dd");
       console.log(this.messeages);
-      if(this.folder == "Inbox"){
-        this.indexFolder = 0 ;
-        this.delete_retrieve = "delete";
-      }
-      else if(this.folder == "Sent"){
-        this.indexFolder = 4;
-        this.delete_retrieve = "delete";
-
-      }
-      else if(this.folder == "Trash"){
-        this.indexFolder = 2;
-        this.delete_retrieve = "retrieve";
-      }
-      else {
-        this.indexFolder = 3;
-        this.delete_retrieve = "delete";
-      }
+      this.checkFolder();
       this.sortandFilter();
   },
   components : {
     ViewMail
   },
   methods : {
+      checkFolder(){
+        if(this.folder == "Inbox"){
+          this.indexFolder = 0 ;
+          this.delete_retrieve = "delete";
+        }
+        else if(this.folder == "Sent"){
+          this.indexFolder = 4;
+          this.delete_retrieve = "delete";
+
+        }
+        else if(this.folder == "Trash"){
+          this.indexFolder = 2;
+          this.delete_retrieve = "retrieve";
+        }
+        else {
+          this.indexFolder = 3;
+          this.delete_retrieve = "delete";
+        }
+      },
       deleteORretrieve(messeage) {
         console.log(messeage);
         console.log(this.indexFolder);
@@ -221,6 +245,8 @@ export default {
       
       applySort(){
         console.log(this.sort);
+        console.log(this.folder);
+        this.checkFolder();
         this.sortandFilter();
       },
 
@@ -241,6 +267,16 @@ export default {
               const Data = Response.data;
               this.messeages = Data ;
         });
+      },
+      searchEmail(){
+      //   axios.get('http://localhost:8080/api/search',{
+      //         params: {
+      //             search : this.search
+      //         }
+      //   }).then(Response=>{
+      //         const Data = Response.data;
+      //         this.messeages = Data ;
+      //   });
       },
   }
 }
@@ -294,5 +330,11 @@ export default {
   display: flex;
   justify-content: center !important;
   margin-top: 20px;
+}
+
+.MailsBar {
+  padding: 10px;
+  height: 80px !important;
+  border-radius: 0 0 30px 30px !important;
 }
 </style>
