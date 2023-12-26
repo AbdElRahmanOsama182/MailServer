@@ -18,7 +18,7 @@ import com.mail.backend.Managers.ManagerInterface;
 
 public class FolderManager implements ManagerInterface<Folder>{
 
-    private static final String FOLDERS_FILE_PATH = "folders.json";
+    private static final String FOLDERS_FILE_PATH = "data/folders.json";
     private static FolderManager instance = null;
     Map<Integer, Folder> folders = new HashMap<Integer, Folder>();
     private int nextId = 0;
