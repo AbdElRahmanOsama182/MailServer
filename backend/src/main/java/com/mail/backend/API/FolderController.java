@@ -21,6 +21,7 @@ import io.jsonwebtoken.Jwts;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 
@@ -36,6 +37,8 @@ import com.mail.backend.Managers.ManagerFactory;
 @RestController
 @CrossOrigin(origins = { "http://localhost:8081" })
 public class FolderController {
+
+    private int itemsPage=5;
 
     @GetMapping("/folders/{id}")
     public Folder read(@RequestHeader String authorization,@PathVariable("id") Integer id){
@@ -144,7 +147,7 @@ public class FolderController {
     }
 
     @GetMapping("folders/trash/emails")
-    public ArrayList<Email> getTrashEmails(@RequestHeader String authorization){
+    public ArrayList<Email> getTrashEmails(@RequestHeader String authorization, @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from, @RequestParam(required = false) Integer page){
         User user=Auth.getUser(authorization);
         if(user==null) return null;
         FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
@@ -154,15 +157,23 @@ public class FolderController {
         ArrayList<Email> emails = new ArrayList<Email>();
         for(int emailId: trashFolder.getEmails()){
             Email email = emailManager.get(emailId);
-            if(email.isDeleted()){
+            if(email.isDeleted() && (subjectHas==null || email.getSubject().contains(subjectHas)) && (from==null||email.getFromUserId().equals(from))){
                 emails.add(email);
             }
         }
+
+    
+        if(page!=null && page*itemsPage<=emails.size()){
+            List<Email> pageList= emails.subList((page-1)*itemsPage,(page)*itemsPage);
+            emails= new ArrayList<Email>();
+            for(Email email : pageList) emails.add(email);
+        }
+
         return emails;
     }
 
     @GetMapping("folders/{id}/emails")
-    public ArrayList<Email> getFolderEmails(@RequestHeader String authorization,@PathVariable("id") Integer id){
+    public ArrayList<Email> getFolderEmails(@RequestHeader String authorization,@PathVariable("id") Integer id, @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from, @RequestParam(required = false) Integer page){
         User user=Auth.getUser(authorization);
         if(user==null) return null;
         FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
@@ -173,15 +184,21 @@ public class FolderController {
         ArrayList<Email> emails = new ArrayList<Email>();
         for(int emailId: folder.getEmails()){
             Email email = emailManager.get(emailId);
-            if(!email.isDeleted()){
+            if(!email.isDeleted() && (subjectHas==null || email.getSubject().contains(subjectHas)) && (from==null||email.getFromUserId().equals(from))){
                 emails.add(email);
             }
+        }
+        
+        if(page!=null && page*itemsPage<=emails.size()){
+            List<Email> pageList= emails.subList((page-1)*itemsPage,(page)*itemsPage);
+            emails= new ArrayList<Email>();
+            for(Email email : pageList) emails.add(email);
         }
         return emails;
     }
 
     @GetMapping("folders/draft/emails")
-    public ArrayList<Email> getDraftEmails(@RequestHeader String authorization){
+    public ArrayList<Email> getDraftEmails(@RequestHeader String authorization, @RequestParam(required = false) Integer page){
         User user=Auth.getUser(authorization);
         if(user==null) return null;
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
@@ -191,11 +208,17 @@ public class FolderController {
                 emails.add(email);
             }
         }
+        
+        if(page!=null && page*itemsPage<=emails.size()){
+            List<Email> pageList= emails.subList((page-1)*itemsPage,(page)*itemsPage);
+            emails= new ArrayList<Email>();
+            for(Email email : pageList) emails.add(email);
+        }
         return emails;
     }
 
     @GetMapping("folders/sent/emails")
-    public ArrayList<Email> getSentEmails(@RequestHeader String authorization){
+    public ArrayList<Email> getSentEmails(@RequestHeader String authorization, @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from, @RequestParam(required = false) Integer page){
         User user=Auth.getUser(authorization);
         if(user==null) return null;
         FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
@@ -205,15 +228,21 @@ public class FolderController {
         ArrayList<Email> emails = new ArrayList<Email>();
         for(int emailId: sentFolder.getEmails()){
             Email email = emailManager.get(emailId);
-            if(!email.isDeleted()){
+            if(!email.isDeleted() && (subjectHas==null || email.getSubject().contains(subjectHas)) && (from==null||email.getFromUserId().equals(from))){
                 emails.add(email);
             }
+        }
+        
+        if(page!=null && page*itemsPage<=emails.size()){
+            List<Email> pageList= emails.subList((page-1)*itemsPage,(page)*itemsPage);
+            emails= new ArrayList<Email>();
+            for(Email email : pageList) emails.add(email);
         }
         return emails;
     }
 
     @GetMapping("folders/inbox/emails")
-    public ArrayList<Email> getInboxEmails(@RequestHeader String authorization){
+    public ArrayList<Email> getInboxEmails(@RequestHeader String authorization, @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from, @RequestParam(required = false) Integer page){
         User user=Auth.getUser(authorization);
         if(user==null) return null;
         FolderManager folderManager =(FolderManager) ManagerFactory.getManager("FolderManager");
@@ -223,9 +252,14 @@ public class FolderController {
         ArrayList<Email> emails = new ArrayList<Email>();
         for(int emailId: inboxFolder.getEmails()){
             Email email = emailManager.get(emailId);
-            if(!email.isDeleted()){
+            if(!email.isDeleted() && (subjectHas==null || email.getSubject().contains(subjectHas)) && (from==null||email.getFromUserId().equals(from))){
                 emails.add(email);
             }
+        }
+        if(page!=null && page*itemsPage<=emails.size()){
+            List<Email> pageList= emails.subList((page-1)*itemsPage,(page)*itemsPage);
+            emails= new ArrayList<Email>();
+            for(Email email : pageList) emails.add(email);
         }
         return emails;
     }
