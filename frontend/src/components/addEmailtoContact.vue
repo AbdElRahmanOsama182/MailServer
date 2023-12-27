@@ -56,13 +56,14 @@
         }
     },
     mounted () {
-        this.newContact = JSON.parse(JSON.stringify(this.contactobject));
+        // this.newContact = JSON.parse(JSON.stringify(this.contactobject));
+        this.newContact = this.contactobject;
     },
     methods : {
       add(){
-        this.newContact.emailAddresses.push(this.newEmail);
+        this.newContact.emails.push(this.newEmail);
         this.menu = false ;
-        this.$emit('addEmailtoContact',[this.contactobject.name,this.newContact]);
+        this.$emit('addEmailtoContact',this.newContact);
       }
     }
   }

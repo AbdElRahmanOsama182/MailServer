@@ -2,10 +2,13 @@
   <v-container class="py-8 px-6" fluid>
     <v-row>
       <v-app-bar app color="#071551" dark class="conBar">
+    <v-btn @click="sortContacts" dark icon>
+      <v-icon>mdi-sort</v-icon>
+    </v-btn>
     <v-btn  @click="hidden = !hidden" dark icon>
       <v-icon>mdi-account-search</v-icon>
     </v-btn>
-    <v-col md="3">
+    <v-col md="3" v-if="!hidden">
       <v-text-field
         v-show="!hidden"
         clearable
@@ -23,6 +26,10 @@
       @click="searchContact"
     >
       <v-icon>mdi-magnify</v-icon>
+    </v-btn>
+    <!-- cancel all sort and search -->
+    <v-btn @click="getContacts" dark icon>
+      <v-icon>mdi-close</v-icon>
     </v-btn>
     <AddContact @addContact="addContact($event)" />
   </v-app-bar>
@@ -48,7 +55,7 @@
                 icon
                 color="red"
                 :key="i"
-                @click="removeContact(contact.name)"
+                @click="removeContact(contact)"
               >
                 <v-icon>mdi-account-remove-outline</v-icon>
               </v-btn>
@@ -56,7 +63,7 @@
           </div>
           <!-- <v-divider></v-divider> -->
           <div class="email-list">
-            <div v-for="(email, j) in contact.emailAddresses" :key="j" class="email">
+            <div v-for="(email, j) in contact.emails" :key="j" class="email">
               <v-img src="..\assets\mail.png" class="email-icon"></v-img>
               <div class="email-details">
                 <!-- <div class="email-title">Email no.{{ j + 1 }}</div> -->
@@ -112,78 +119,53 @@ export default {
     EditContact,
   },
   mounted() {
-    axios
-      .get('http://localhost:8080/api/GetContactPage', {
-        params: {
-          PageNumber: this.page,
-        },
-      })
-      .then((Response1) => {
-        const Data1 = Response1.data;
-        this.contacts = Data1;
-      });
+    // axios
+    //   .get('http://localhost:8080/api/GetContactPage', {
+    //     params: {
+    //       PageNumber: this.page,
+    //     },
+    //   })
+    //   .then((Response1) => {
+    //     const Data1 = Response1.data;
+    //     this.contacts = Data1;
+    //   });
+    this.getContacts();
   },
   methods: {
-    removeEmail(i, j) {
-      var oldname = this.contacts[i].name,
-        newContact = JSON.parse(JSON.stringify(this.contacts[i]));
-      newContact.emailAddresses.splice(j, 1);
-
-      if (newContact.emailAddresses.length == 0) {
-        this.removeContact(newContact.name);
+    removeEmail(contactIndex, emailIndex) {
+      var newContact = this.contacts[contactIndex];
+      newContact.emails.splice(emailIndex, 1);
+      if (newContact.emails.length == 0) {
+        this.removeContact(newContact);
+        this.text = 'Contact has no emails, it will be deleted';
+        this.snackbar = true;
       } else {
-        axios
-          .post(
-            'http://localhost:8080/api/editContact?oldName=' +
-              newContact.name,
-            {
-              name: newContact.name,
-              emailAddresses: newContact.emailAddresses,
-            }
-          )
-          .then((Response) => {
-            const Data = Response.data;
-            this.text = Data;
-            this.snackbar = true;
-            axios
-              .get('http://localhost:8080/api/GetContactPage', {
-                params: {
-                  PageNumber: this.page,
-                },
-              })
-              .then((Response1) => {
-                const Data1 = Response1.data;
-                this.contacts = Data1;
-              });
-          });
-      }
+        this.editContact(newContact);
+        this.text = 'Email Successfully Deleted';
+        this.snackbar = true;
+      }      
     },
-
-    removeContact(name) {
+    getContacts() {
+      this.hidden = true;
+      // send token in headers
       axios
-        .get('http://localhost:8080/api/removeContact', {
-          params: {
-            Name: name,
+        .get('http://localhost:8080/contacts', {
+          headers: {
+            authorization: `${localStorage.getItem('token')}`,
           },
         })
         .then((Response) => {
           const Data = Response.data;
-          this.text = Data;
-          this.snackbar = true;
-          if (this.text == 'Contact Successfully Deleted') {
-            this.getNumberOfPages();
-            axios
-              .get('http://localhost:8080/api/GetContactPage', {
-                params: {
-                  PageNumber: this.page,
-                },
-              })
-              .then((Response1) => {
-                const Data1 = Response1.data;
-                this.contacts = Data1;
-              });
-          }
+          this.contacts = Data;
         });
+    },
+
+    removeContact(contact) {
+      axios.delete('http://localhost:8080/contacts/' + contact.id).then(() => {
+        this.text = 'Contact Successfully Deleted';
+        this.snackbar = true;
+        this.getContacts();
+      });
     },
 
     editEmail(n) {
@@ -221,51 +203,28 @@ export default {
 
     addContact(contact) {
       axios
-        .post('http://localhost:8080/api/addContact', {
-          name: contact.name,
-          emailAddresses: contact.emailAddresses,
+        .post('http://localhost:8080/contacts', contact, {
+          headers: {
+            authorization: `${localStorage.getItem('token')}`,
+          },
         })
         .then((Response) => {
           const Data = Response.data;
-          this.text = Data;
+          this.text = 'Contact Successfully Added';
           this.snackbar = true;
-          if (this.text == 'Successfully added contact') {
-            axios
-              .get('http://localhost:8080/api/GetContactPage', {
-                params: {
-                  PageNumber: this.page,
-                },
-              })
-              .then((Response1) => {
-                const Data1 = Response1.data;
-                this.contacts = Data1;
-              });
-            this.getNumberOfPages();
-          }
+          this.getContacts();
         });
     },
 
-    editContact(n) {
-      axios
-        .post('http://localhost:8080/api/editContact?oldName=' + n[0], {
-          name: n[1].name,
-          emailAddresses: n[1].emailAddresses,
-        })
-        .then((Response) => {
-          const Data = Response.data;
-          this.text = Data;
-          this.snackbar = true;
-          axios
-            .get('http://localhost:8080/api/GetContactPage', {
-              params: {
-                PageNumber: this.page,
-              },
-            })
-            .then((Response1) => {
-              const Data1 = Response1.data;
-              this.contacts = Data1;
-            });
-        });
+    editContact(contact) {
+      console.log(contact);
+      axios.put('http://localhost:8080/contacts/' + contact.id, contact).then((Response) => {
+        const Data = Response.data;
+        console.log(Data);
+        this.text = 'Contact Successfully Edited';
+        this.snackbar = true;
+        this.getContacts();
+      });
     },
 
     changeThePage() {
@@ -291,17 +250,25 @@ export default {
     },
 
     searchContact() {
-      axios
-        .post('http://localhost:8080/api/SearchContact?Name=' + this.search, {})
-        .then((Response) => {
-          const Data = Response.data;
-          // if data is empty clear the contacts array
-          if (Data.length == 0) 
-            this.contacts = [];
-          else
-            this.contacts = [Data];
-        });
-        this.hidden = true;
+      axios.get('http://localhost:8080/contacts/search/' + this.search, {
+        headers: {
+          authorization: `${localStorage.getItem('token')}`,
+        },
+      }).then((Response) => {
+        const Data = Response.data;
+        this.contacts = Data;
+      });
+    },
+
+    sortContacts() {
+      axios.get('http://localhost:8080/contacts/sort', {
+        headers: {
+          authorization: `${localStorage.getItem('token')}`,
+        },
+      }).then((Response) => {
+        const Data = Response.data;
+        this.contacts = Data;
+      });
     },
 
     editContactDialog(n){

@@ -39,11 +39,11 @@
                 ></v-text-field>
             </v-col>
           </v-list-item>
-          <v-list-item v-for="(email,i) in newContact.emailAddresses"
+          <v-list-item v-for="(email,i) in newContact.emails"
           :key = i >
             <v-col>
                 <v-text-field
-                    v-model="newContact.emailAddresses[i]"
+                    v-model="newContact.emails[i]"
                     :label="'Email ' + (i+1)"
                     outlined
                     filled
@@ -79,7 +79,7 @@
     methods : {
       edit(){
         this.menu = false ;
-        this.$emit('editContact',[this.Oldcontact.name,this.newContact]);
+        this.$emit('editContact',this.newContact);
       }
     }
   }

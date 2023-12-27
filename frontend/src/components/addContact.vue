@@ -55,7 +55,7 @@
               <v-text-field
                 v-for="i in Math.max(numberOfEmails,1)"
                 :key="i"
-                v-model="newUser.emailAddresses[i - 1]"
+                v-model="newUser.emails[i - 1]"
                 type="email"
                 label="Email"
                 required
@@ -79,7 +79,7 @@
     data() {
       return {
         dialog: false,
-        newUser: { name: '', emailAddresses: [] },
+        newUser: { name: '', emails: [] },
         numberOfEmails: 1,
       };
     },
@@ -88,7 +88,7 @@
         this.$emit('addContact', this.newUser);
         this.dialog = false;
         // Optionally, you can reset the form here if needed
-        this.newUser = { name: '', emailAddresses: [] };
+        this.newUser = { name: '', emails: [] };
         this.numberOfEmails = 1; // Reset the number of emails for the next use
       },
     },
