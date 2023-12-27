@@ -6,7 +6,23 @@
           <v-card-text>
             <v-row>
               <v-col md="6">
-                <v-row v-for="(receiver, r) in receiverEmailAddress" :key="r">
+                <v-row>
+                <template>
+                  <!-- style the chip -->
+                  <v-select
+                    v-model="receiversNames"
+                    :items="contacts"
+                    chips
+                    label="To"
+                    multiple
+                    prepend-icon="mdi-account"
+                    solo
+                    filled
+                    dense
+                    item-text="name"
+                  ></v-select>
+                </template></v-row>
+                <!-- <v-row v-for="(receiver, r) in receiverEmailAddress" :key="r">
                   <v-text-field
                     v-model="receiverEmailAddress[r]"
                     label="To"
@@ -23,7 +39,7 @@
                       <v-icon>mdi-account-minus</v-icon>
                   </v-btn>
                   <v-col v-if="r > 1" md="1"></v-col>
-                </v-row>
+                </v-row> -->
               </v-col>
               <v-col md="8">
                 <v-row>
@@ -141,7 +157,13 @@ export default {
       importanceList: ['low','medium','important','very important'],
       importanceList2: ['low','medium','Important','veryImportant'],
       importance: 1,
+      contacts: [],
+      receivers: [],
+      receiversNames: [],
   }),
+  mounted () {
+      this.getContacts();
+  },
   methods : {
       reset : function(){
           this.receiverEmailAddress = [''] ;
@@ -157,9 +179,27 @@ export default {
       // },
       send(isDraft){
         console.log(`${localStorage.getItem('token')}`);
+        // get contacts of receivers from contacts list without __ob__: Observer
+        this.receivers = [];
+        for (let i = 0; i < this.receiversNames.length; i++) {
+          for (let j = 0; j < this.contacts.length; j++) {
+            if (this.receiversNames[i] === this.contacts[j].name) {
+              const receiver = {
+                id: this.contacts[j].id,
+                name: this.contacts[j].name,
+                emails: this.contacts[j].emails,
+                username: this.contacts[j].username
+              }
+              this.receivers.push(receiver);
+            }
+          }
+        }
+
+
+        console.log(this.receivers);
         axios.post('http://localhost:8080/emails', {
             // to: this.receiverEmailAddress,
-            to: [],
+            to: this.receivers,
             subject: this.subject,
             body: this.body,
             attachments: this.attachments,
@@ -197,7 +237,19 @@ export default {
       },
       removeAttachment(){
           this.attachments.pop();
-      }
+      },
+      getContacts() {
+        axios.get('http://localhost:8080/contacts', {
+          headers: {
+            authorization: `${localStorage.getItem('token')}`
+          }
+        }).then((response => response.data))
+          .then((data) => {
+            this.contacts = data;
+            console.log(this.contacts);
+        })
+      },
+
    },
 
 }

@@ -17,7 +17,7 @@ import com.mail.backend.Models.Folder.TrashFolder;
 
 public class FolderManager implements ManagerInterface<Folder> {
 
-    private static final String FOLDERS_FILE_PATH = "../data/folders.json";
+    private static final String FOLDERS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\folders.json";
     private static FolderManager instance = null;
     Map<Integer, Folder> folders = new HashMap<Integer, Folder>();
     private int nextId = 0;

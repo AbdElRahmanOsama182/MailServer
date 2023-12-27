@@ -17,7 +17,7 @@ import com.mail.backend.Models.Sort.PrioritySort;
 import com.mail.backend.Models.Sort.SubjectSort;
 
 public class EmailManager implements ManagerInterface<Email> {
-    private static final String EMAILS_FILE_PATH = "..\\data\\emails.json";
+    private static final String EMAILS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\emails.json";
     private static EmailManager instance;
     public Map<Integer, Email> emails = new HashMap<Integer, Email>();
     private int nextId = 0;

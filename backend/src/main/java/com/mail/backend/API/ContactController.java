@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mail.backend.Managers.ContactManager;
+import com.mail.backend.Managers.ManagerFactory;
+import com.mail.backend.Managers.UserManager;
 import com.mail.backend.Models.Contact.Contact;
 import com.mail.backend.Models.User.User;
 import com.mail.backend.Utils.Auth;
@@ -38,14 +40,20 @@ public class ContactController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addContact(@RequestHeader String authorization, @RequestBody Contact contact) {
+    public String addContact(@RequestHeader String authorization, @RequestBody Contact contact) {
         User user = Auth.getUser(authorization);
         contact.setUsername(user.getUsername());
         System.out.println(contact);
         System.out.println(contact.getName());
         System.out.println(contact.getEmails());
+        UserManager userManager = (UserManager) ManagerFactory.getManager("UserManager");
+        for (String email : contact.getEmails()) {
+            if (userManager.getUserByEmail(email) == null) {
+                return "Email " + email + " does not exist";
+            }
+        }
         ContactManager.getInstance().addContact(contact);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return "Contact added successfully";
     }
 
     @DeleteMapping("/{id}")

@@ -78,6 +78,12 @@
       </v-col>
     </v-row>
     </v-row>
+    <v-snackbar v-model="snackbar">
+      {{ text }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
+      </template>
+    </v-snackbar>
     <div class="text-center mb-15">
       <v-pagination
         v-model="page"
@@ -210,7 +216,7 @@ export default {
         })
         .then((Response) => {
           const Data = Response.data;
-          this.text = 'Contact Successfully Added';
+          this.text = Data;
           this.snackbar = true;
           this.getContacts();
         });
