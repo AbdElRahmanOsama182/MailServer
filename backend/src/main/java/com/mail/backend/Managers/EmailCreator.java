@@ -47,8 +47,10 @@ public class EmailCreator {
             // clone
             Email sentEmail = emailManager.createEmail(email.readEmail());
 
+            UserManager userManager = (UserManager) ManagerFactory.getManager("UserManager");
+            User toUser = userManager.getUserByEmail(contact.getEmails().get(0));
             // send
-            Folder inboxFolder = folderManager.getUserFolderByName(contact.getUserId(), "Inbox");
+            Folder inboxFolder = folderManager.getUserFolderByName(toUser.getUsername(), "Inbox");
             sentEmail.setFolderId(inboxFolder.getId());
             folderManager.addEmail(inboxFolder.getId(),sentEmail.getId() );
 
