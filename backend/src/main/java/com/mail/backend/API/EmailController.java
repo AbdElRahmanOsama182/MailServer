@@ -45,11 +45,12 @@ public class EmailController {
         // TODO: handle draft
         if (email.isDraft()) {
             email.setFromUserId(user.getUsername());
+            email.setFolderId(folderManager.getUserFolderByName(user.getUsername(), "Drafts").getId());
             return emailManager.add(email);
 
         } else {
 
-            return EmailCreator.createAndSend(email,user);
+            return EmailCreator.createAndSend(email, user);
         }
 
     }
