@@ -63,12 +63,18 @@ public class ContactController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Contact> editContact(@PathVariable int id, @RequestBody Contact updatedContact) {
+    public String editContact(@PathVariable int id, @RequestBody Contact updatedContact) {
+        UserManager userManager = (UserManager) ManagerFactory.getManager("UserManager");
+        for (String email : updatedContact.getEmails()) {
+            if (userManager.getUserByEmail(email) == null) {
+                return "Email " + email + " does not exist";
+            }
+        }
         Contact contact = ContactManager.getInstance().updateContact(updatedContact);
         if (contact == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return "Contact not found";
         }
-        return new ResponseEntity<>(contact, HttpStatus.OK);
+        return "Contact updated successfully";
     }
 
     @GetMapping("/search/{name}")

@@ -227,7 +227,7 @@ export default {
       axios.put('http://localhost:8080/contacts/' + contact.id, contact).then((Response) => {
         const Data = Response.data;
         console.log(Data);
-        this.text = 'Contact Successfully Edited';
+        this.text = Data;
         this.snackbar = true;
         this.getContacts();
       });
