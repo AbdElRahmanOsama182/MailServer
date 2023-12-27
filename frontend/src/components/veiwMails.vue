@@ -137,12 +137,22 @@ export default {
       importance: '',
       search: null,
       searchQuery: null,
+      isSpam:{}
     }
   },
+  // checkspam befre mounted
+
   mounted () {
       console.log(this.folder);
       console.log("dd");
+      for(let message in this.messages){
+        console.log("messageeeeeeeeeeeeeeeee:");
+        console.log("message:",this.messages[message].body);
+        this.messages[message].spam=true;
+      }
       console.log(this.messages);
+      console.log("Number of pages: " +this.numberOfPages);
+      // this.checkSpam();
       // this.checkFolder();
       // this.sortandFilter();
   },
@@ -226,15 +236,16 @@ export default {
       },
        
       changeThePage(){
-        console.log("okokkoko")
-        axios.get('http://localhost:8080/api/getPage',{
-              params: {
-                  PageNumber : this.page
-              }
-        }).then(Response=>{
-              const Data = Response.data;
-              this.messeages = Data ;
-        });
+        // console.log("okokkoko")
+        // axios.get('http://localhost:8080/api/getPage',{
+        //       params: {
+        //           PageNumber : this.page
+        //       }
+        // }).then(Response=>{
+        //       const Data = Response.data;
+        //       this.messeages = Data ;
+        // });
+        this.$emit('changePage',this.page);
       },
       
       applySort(){
@@ -324,6 +335,11 @@ export default {
   right: 8px;
 }
 
+.message-spam {
+  position: absolute;
+  top: 8px;
+  right: 25px;
+}
 .cont {
   display: flex;
   justify-content: center;

@@ -169,7 +169,7 @@ public class FolderController {
     }
 
     @GetMapping("folders/trash/emails")
-    public ArrayList<Email> getTrashEmails(@RequestHeader String authorization,
+    public Map<String,Object> getTrashEmails(@RequestHeader String authorization,
             @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String filterSubject,
             @RequestParam(required = false) Integer filterPriority,
@@ -189,7 +189,7 @@ public class FolderController {
                 emails.add(email);
             }
         }
-        // return emails;
+        
         if (filterSubject != null) {
             EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
             emails = emailSubjectCriteria.meetCriteria(emails);
@@ -208,9 +208,9 @@ public class FolderController {
 
         if (sort != null)
             emails = emailManager.sort(emails, sort);
-        if (page != null && page * itemsPage <= emails.size()) {
-            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) *
-                    itemsPage);
+        int pages=(int)Math.ceil((double)emails.size()/itemsPage);
+        if (page != null && (int)Math.ceil((double)emails.size()/itemsPage) >= page) {
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, Math.min(itemsPage* page,emails.size()));
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
@@ -219,11 +219,11 @@ public class FolderController {
         for (Email email : emails) {
             System.out.println(email.readEmail());
         }
-        return emails;
+        return Map.of("emails",emails,"total",emails.size(),"pages",pages);
     }
 
     @GetMapping("folders/{id}/emails")
-    public ArrayList<Email> getFolderEmails(@RequestHeader String authorization, @PathVariable("id") Integer id,
+    public Map<String,Object> getFolderEmails(@RequestHeader String authorization, @PathVariable("id") Integer id,
             @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from,
             @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
         User user = Auth.getUser(authorization);
@@ -258,18 +258,19 @@ public class FolderController {
             emails.add(emailsPQ.poll());
         }
 
-        if (page != null && page * itemsPage <= emails.size()) {
-            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) * itemsPage);
+        int pages=(int)Math.ceil((double)emails.size()/itemsPage);
+        if (page != null && (int)Math.ceil((double)emails.size()/itemsPage) >= page) {
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, Math.min(itemsPage* page,emails.size()));
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
 
         }
-        return emails;
+        return Map.of("emails",emails,"total",emails.size(),"pages",pages);
     }
 
     @GetMapping("folders/draft/emails")
-    public ArrayList<Email> getDraftEmails(@RequestHeader String authorization,
+    public Map<String,Object> getDraftEmails(@RequestHeader String authorization,
             @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String filterSubject,
             @RequestParam(required = false) Integer filterPriority,
@@ -289,7 +290,7 @@ public class FolderController {
                 emails.add(email);
             }
         }
-        // return emails;
+        
         if (filterSubject != null) {
             EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
             emails = emailSubjectCriteria.meetCriteria(emails);
@@ -308,9 +309,9 @@ public class FolderController {
 
         if (sort != null)
             emails = emailManager.sort(emails, sort);
-        if (page != null && page * itemsPage <= emails.size()) {
-            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) *
-                    itemsPage);
+        int pages=(int)Math.ceil((double)emails.size()/itemsPage);
+        if (page != null && (int)Math.ceil((double)emails.size()/itemsPage) >= page) {
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, Math.min(itemsPage* page,emails.size()));
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
@@ -319,11 +320,11 @@ public class FolderController {
         for (Email email : emails) {
             System.out.println(email.readEmail());
         }
-        return emails;
+        return Map.of("emails",emails,"total",emails.size(),"pages",pages);
     }
 
     @GetMapping("folders/sent/emails")
-    public ArrayList<Email> getSentEmails(@RequestHeader String authorization,
+    public Map<String,Object> getSentEmails(@RequestHeader String authorization,
             @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String filterSubject,
             @RequestParam(required = false) Integer filterPriority,
@@ -343,7 +344,7 @@ public class FolderController {
                 emails.add(email);
             }
         }
-        // return emails;
+        
         if (filterSubject != null) {
             EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
             emails = emailSubjectCriteria.meetCriteria(emails);
@@ -362,9 +363,9 @@ public class FolderController {
 
         if (sort != null)
             emails = emailManager.sort(emails, sort);
-        if (page != null && page * itemsPage <= emails.size()) {
-            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) *
-                    itemsPage);
+        int pages=(int)Math.ceil((double)emails.size()/itemsPage);
+        if (page != null && (int)Math.ceil((double)emails.size()/itemsPage) >= page) {
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, Math.min(itemsPage* page,emails.size()));
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
@@ -373,11 +374,11 @@ public class FolderController {
         for (Email email : emails) {
             System.out.println(email.readEmail());
         }
-        return emails;
+        return Map.of("emails",emails,"total",emails.size(),"pages",pages);
     }
 
     @GetMapping("folders/inbox/emails")
-    public ArrayList<Email> getInboxEmails(@RequestHeader String authorization,
+    public Map<String,Object> getInboxEmails(@RequestHeader String authorization,
             @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String filterSubject,
             @RequestParam(required = false) Integer filterPriority,
@@ -397,7 +398,7 @@ public class FolderController {
                 emails.add(email);
             }
         }
-        // return emails;
+        
         if (filterSubject != null) {
             EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
             emails = emailSubjectCriteria.meetCriteria(emails);
@@ -413,12 +414,12 @@ public class FolderController {
             System.out.println("Search value: " + searchValue);
             emails = SearchContext.search(searchType, emails, searchValue);
         }
-
+        
         if (sort != null)
             emails = emailManager.sort(emails, sort);
-        if (page != null && page * itemsPage <= emails.size()) {
-            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) *
-                    itemsPage);
+        int pages=(int)Math.ceil((double)emails.size()/itemsPage);
+        if (page != null && (int)Math.ceil((double)emails.size()/itemsPage) >= page) {
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, Math.min(itemsPage* page,emails.size()));
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
@@ -427,7 +428,8 @@ public class FolderController {
         for (Email email : emails) {
             System.out.println(email.readEmail());
         }
-        return emails;
+        
+        return Map.of("emails",emails,"total",emails.size(),"pages",pages);
     }
 
 }

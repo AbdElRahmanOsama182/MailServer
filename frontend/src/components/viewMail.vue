@@ -57,6 +57,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   props: ['mail'],
   data: () => ({
@@ -66,9 +67,27 @@ export default {
     formattedRecievers() {
       return this.mail.to.map((reciever) => reciever.name).join(', ');
     },
+      async checkSpam(){
+        
+        console.log("messageeeeeeeeeeeeeeeee:");
+          console.log("message:",this.mail.body);
+          let message_id = this.mail.id;
+          // await axios.post('https://api-inference.huggingface.co/models/mshenoda/roberta-spam',
+          //     {
+          //       inputs: this.mail.body,
+          //     }
+          // ).then(Response=>{
+          //       const Data = Response.data;
+          //       console.log(Data,Data[0]);
+          // });
+        console.log(this.isSpam);
+      }
+  },
+  async beforeMount() {
+    await this.checkSpam();
   },
   mounted() {
-    console.log(this.mail);
+    console.log(this.mail,"maillllllllllllllllllll");
     this.receiversNames = this.formattedRecievers();
   },
 };
