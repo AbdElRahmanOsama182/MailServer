@@ -28,7 +28,8 @@ import com.mail.backend.Models.Email.Email;
 import com.mail.backend.Models.Folder.Folder;
 import com.mail.backend.Utils.AttachmentUtils;
 
-
+@RestController
+@RequestMapping("/attachment")
 public class AttachmentManager implements ManagerInterface<Afile>{
 
     private static final String AFILES_FILE_PATH = "src/main/java/com/mail/backend/data/Afiles.json";
