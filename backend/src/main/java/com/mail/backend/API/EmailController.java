@@ -82,6 +82,9 @@ public class EmailController {
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         User user = Auth.getUser(authorization);
         Email email = emailManager.get(id);
+        if (email == null) {
+            return;
+        }
         if (email.getFromUserId().equals(user.getUsername())) {
             // remove from its folder
             FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");

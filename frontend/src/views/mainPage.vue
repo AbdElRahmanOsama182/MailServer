@@ -5,16 +5,16 @@
         <SendNewEmail :senderEmailAddress="emailAddress"/>
       </div>
       <div v-else-if="currentTab === 'inbox'">
-        <ShowEmails :messages="inboxMails" folder="Inbox" :numberOfPages="inboxNumPages" @refresh="refresh" />
+        <ShowEmails :messages="inboxMails" folder="Inbox" :numberOfPages="inboxNumPages" @refresh="refresh" @applyFilters="applyFilters" />
       </div>
       <div v-else-if="currentTab === 'sent'">
         <ShowEmails :messages="sentMails" folder="Sent" :numberOfPages="sentNumPages" @refresh="refresh" @applyFilters="applyFilters" />
       </div>
       <div v-else-if="currentTab === 'trash'">
-        <ShowEmails :messages="trashMails" folder="Trash" :numberOfPages="trashNumPages" @refresh="refresh" />
+        <ShowEmails :messages="trashMails" folder="Trash" :numberOfPages="trashNumPages" @refresh="refresh" @applyFilters="applyFilters" />
       </div>
       <div v-else-if="currentTab === 'draft'">
-        <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" />
+        <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" @applyFilters="applyFilters" />
       </div>
       <div v-else-if="currentTab === 'contacts'">
         <contact :contacts="contacts" :numberOfPages="contactsNumPages" />
@@ -148,8 +148,6 @@ export default {
         }
       }
       );
-      console.log('Getting folder: ', this.currentTab);
-      console.log(this.Mails);
 
     },
     async getInboxEmails() {
@@ -225,7 +223,6 @@ export default {
     },
     async refresh(indexFolder) {
       console.log('refreshing');
-      await this.sleep(60);
       this.getEmailsByFolderName();
       // if (indexFolder === 0) {
       //   this.getInboxEmails();
@@ -239,6 +236,7 @@ export default {
     },
     changeTab(tab) {
       this.currentTab = tab;
+      if (this.currentTab !== 'sendNewEmail' && this.currentTab !== 'contacts')
       this.getEmailsByFolderName();
       console.log(this.currentTab);
     },

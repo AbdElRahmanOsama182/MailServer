@@ -83,8 +83,8 @@
                   <div class="message-info-item"><strong>Date:</strong> {{ message.sendDate.substring(0,10) }}</div>
                   <div class="message-info-item"><strong>Priority:</strong> {{ message.priority }}</div>
                 </v-card-text>
-                <v-btn class="message-action" icon @click="deleteEmail(message)" @click.stop="openMessage(i)">
-                  <v-icon>{{ delete_retrieve === 'delete' ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
+                <v-btn class="message-action" icon @click.stop="openMessage(i)" @click="deleteOrrestore(message)">
+                  <v-icon>{{ message.deleted === false ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
                 </v-btn>
               </v-card>
             </v-col>
@@ -169,52 +169,37 @@ export default {
           this.delete_retrieve = "delete";
         }
       },
+      deleteOrrestore(message){
+        if(message.deleted === false){
+          this.deleteEmail(message);
+        }
+        else {
+          this.restoreEmail(message);
+        }
+        this.refresh(this.indexFolder);
+      },
       deleteEmail(message) {
         console.log(message);
         console.log(this.indexFolder);
-        axios.put('http://localhost:8080/folders/trash/emails/'+message.id, {
-          headers: {
-            authorization: `${localStorage.getItem('token')}`
-          },
+        axios.put('http://localhost:8080/folders/trash/emails/'+`${message.id}`,{},{
+            headers: {
+                authorization: `${localStorage.getItem('token')}`
+            },
+        }).then(Response=>{
+            const Data = Response.data;
         });
         this.refresh(this.indexFolder);
       },
-      deleteORretrieve(messeage) {
-        console.log(messeage);
+      restoreEmail(message) {
+        console.log(message);
         console.log(this.indexFolder);
-        if (this.indexFolder === 2) {
-          axios.get('http://localhost:8080/api/retriveFromTrash',{
-              params: {
-                  id : messeage.id,
-              }
-          }).then(Response=>{
-              // axios.get('http://localhost:8080/api/getPage',{
-              // params: {
-              //     PageNumber : this.page,
-              // }
-              // }).then(Response=>{
-              //   const Data = Response.data;
-              //   this.messeages = Data ;
-              // });
-          });
-        }
-        else {
-          axios.get('http://localhost:8080/api/bulkDelete',{
-                params: {
-                    id : messeage.id,
-                    indexOfDefaultFolder : this.indexFolder
-                }
-            }).then(Response=>{
-              // axios.get('http://localhost:8080/api/getPage',{
-              // params: {
-              //     PageNumber : this.page,
-              // }
-              // }).then(Response=>{
-              //   const Data = Response.data;
-              //   this.messeages = Data ;
-              // });
-            });
-        }
+        axios.put('http://localhost:8080/folders/trash/emails/'+`${message.id}`+'/restore',{},{
+            headers: {
+                authorization: `${localStorage.getItem('token')}`
+            },
+        }).then(Response=>{
+            const Data = Response.data;
+        });
         this.refresh(this.indexFolder);
       },
       refresh(index) {
@@ -260,8 +245,7 @@ export default {
           search: this.search,
           searchQuery: this.searchQuery,
         });         
-        
-        // this.refresh(this.indexFolder);
+        this.refresh(this.indexFolder);
       },
 
       sortandFilter : function(){
@@ -271,16 +255,6 @@ export default {
               const Data = Response.data;
               this.messeages = Data ;
         });
-      },
-      searchEmail(){
-      //   axios.get('http://localhost:8080/api/search',{
-      //         params: {
-      //             search : this.search
-      //         }
-      //   }).then(Response=>{
-      //         const Data = Response.data;
-      //         this.messeages = Data ;
-      //   });
       },
   }
 }

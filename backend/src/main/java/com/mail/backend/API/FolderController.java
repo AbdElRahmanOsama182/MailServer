@@ -135,6 +135,7 @@ public class FolderController {
         User user = Auth.getUser(authorization);
         if (user == null)
             return null;
+        System.out.println("Trash email");
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
         if (trashFolder == null)
@@ -146,7 +147,7 @@ public class FolderController {
         email.setDeleted(true);
         email.setFolderId(trashFolder.getId());
         emailManager.updateEmail(emailId, Map.of("isDeleted", true));
-
+        folderManager.addEmail(trashFolder.getId(), emailId);
         return trashFolder;
     }
 
@@ -164,6 +165,26 @@ public class FolderController {
         Email email = emailManager.get(emailId);
         // mark as deleted
         emailManager.updateEmail(emailId, Map.of("isDeleted", false));
+        folderManager.removeEmail(trashFolder.getId(), emailId);
+        if (email.isDraft()) {
+            Folder draftFolder = folderManager.getUserFolderByName(user.getUsername(), "Draft");
+            if (draftFolder == null)
+                return null;
+            email.setFolderId(draftFolder.getId());
+            folderManager.addEmail(draftFolder.getId(), emailId);
+        } else if (email.getFromUserId().equals(user.getUsername())) {
+            Folder sentFolder = folderManager.getUserFolderByName(user.getUsername(), "Sent");
+            if (sentFolder == null)
+                return null;
+            email.setFolderId(sentFolder.getId());
+            folderManager.addEmail(sentFolder.getId(), emailId);
+        } else {
+            Folder inboxFolder = folderManager.getUserFolderByName(user.getUsername(), "Inbox");
+            if (inboxFolder == null)
+                return null;
+            email.setFolderId(inboxFolder.getId());
+            folderManager.addEmail(inboxFolder.getId(), emailId);
+        }
 
         return trashFolder;
     }
@@ -178,16 +199,19 @@ public class FolderController {
         if (user == null)
             return null;
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
-        Folder sentFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
-        if (sentFolder == null)
+        Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
+        if (trashFolder == null)
             return null;
+        System.out.println("Trash folder: " + trashFolder.getId());
         ArrayList<Email> emails = new ArrayList<Email>();
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
-        for (int emailId : sentFolder.getEmails()) {
+        for (int emailId : trashFolder.getEmails()) {
             Email email = emailManager.get(emailId);
-            if (!email.isDeleted()) {
-                emails.add(email);
-            }
+            emails.add(email);
+        }
+        System.out.println("Trash emails: ");
+        for (Email email : emails) {
+            System.out.println(email.readEmail());
         }
         // return emails;
         if (filterSubject != null) {
