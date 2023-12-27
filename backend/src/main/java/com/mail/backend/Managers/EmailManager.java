@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-//import org.springframework.ws.mime.Attachment;
+import org.springframework.ws.mime.Attachment;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,10 +28,12 @@ import com.mail.backend.Models.Sort.BodySort;
 import com.mail.backend.Models.Sort.DateSort;
 import com.mail.backend.Models.Sort.PrioritySort;
 import com.mail.backend.Models.Sort.SubjectSort;
+import com.mail.backend.Utils.AttachmentUtils;
 import com.mail.backend.Managers.ManagerInterface;
-import com.mail.backend.Models.Attachment.Attachment;
 import com.mail.backend.Utils.AttachmentUtils;
 
+@RestController
+@RequestMapping("/")
 public class EmailManager implements ManagerInterface<Email>{
     private static final String EMAILS_FILE_PATH = "data/emails.json";
     private static EmailManager instance;

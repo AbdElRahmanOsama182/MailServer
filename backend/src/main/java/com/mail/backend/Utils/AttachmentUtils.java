@@ -5,12 +5,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,12 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class AttachmentUtils {
 
-    private Path fileLocation;
+    private static Path fileLocation;
 
     @Value("${upload.base-path}")
-    private String basePath = "";
+    private static String basePath = "uploads/";
     
-    public File convertMFtoFile(final MultipartFile multipartFile){
+    public static File convertMFtoFile(final MultipartFile multipartFile){
         
         final File file = new File(multipartFile.getOriginalFilename());
 
@@ -38,17 +41,18 @@ public class AttachmentUtils {
     }
 
 
-    public String storeFile(File file, int id, String path){
+    public static Path storeFile(File file){
 
-        this.fileLocation = Paths.get(basePath + path).toAbsolutePath().normalize();
+        fileLocation = Paths.get(basePath).toAbsolutePath().normalize();
 
         try{
-            Files.createDirectories(this.fileLocation);
+            Files.createDirectories(fileLocation);
         } catch (Exception e){
             System.out.println("Error Can NOT store file");
         }
-
-        String fileName = StringUtils.cleanPath(id + "_" + file.getName());
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String fileName = StringUtils.cleanPath(file.getName());
+        fileName = timestamp + "_" + fileName;
 
         try{
             //handle file name 
@@ -56,16 +60,27 @@ public class AttachmentUtils {
 
             }*/
 
-            Path location = this.fileLocation.resolve(fileName);
+            Path location = fileLocation.resolve(fileName);
             Files.move(Paths.get(file.getPath()), location, StandardCopyOption.REPLACE_EXISTING);
             
-            return fileName;
+            return location;
 
         } catch (IOException e) {
             System.out.println("can NOT strore"+ fileName);
-            return "";
+            return null;
         }
 
+    }
+
+
+    public static Resource getFile(Path path){
+        try{
+            return new UrlResource(path.toUri());
+        } catch(MalformedURLException e){
+            System.err.println(e.getMessage());
+        }
+
+        return null;
     }
 
 }
