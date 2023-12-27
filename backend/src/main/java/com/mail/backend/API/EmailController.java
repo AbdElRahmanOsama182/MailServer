@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mail.backend.Managers.EmailManager;
+import com.mail.backend.Managers.EmailCreator;
 import com.mail.backend.Managers.FolderManager;
 import com.mail.backend.Managers.ManagerFactory;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -44,29 +45,13 @@ public class EmailController {
         // TODO: handle draft
         if (email.isDraft()) {
             email.setFromUserId(user.getUsername());
-            emailManager.add(email);
+            return emailManager.add(email);
 
         } else {
 
-            // add default fields
-            email.setFromUserId(user.getUsername());
-            email.setSendDate(new Date());
-            Folder inboxFolder = folderManager.getUserFolderByName(user.getUsername(), "Inbox");
-            email.setFolderId(inboxFolder.getId());
-
-            // create email
-            emailManager.add(email);
-
-            // send it to inbox folder (hope to be asynchronous)
-
-
-
-            // add it to sent folder
-            Folder outBoxFolder = folderManager.getUserFolderByName(user.getUsername(), "Sent");
-            folderManager.addEmail(outBoxFolder.getId(), email.getId());
+            return EmailCreator.createAndSend(email,user);
         }
 
-        return email;
     }
 
     @GetMapping("/emails/{id}")

@@ -1,11 +1,9 @@
 package com.mail.backend.Managers;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,7 +33,7 @@ import com.mail.backend.Models.Attachment.Attachment;
 import com.mail.backend.Utils.AttachmentUtils;
 
 public class EmailManager implements ManagerInterface<Email>{
-    private static final String EMAILS_FILE_PATH = "src/main/java/com/mail/backend/data/emails.json";
+    private static final String EMAILS_FILE_PATH = "data/emails.json";
     private static EmailManager instance;
     public Map<Integer, Email> emails = new HashMap<Integer, Email>();
     private int nextId = 0;
@@ -72,7 +70,10 @@ public class EmailManager implements ManagerInterface<Email>{
         if (email == null) {
             return null;
         }
+
+        System.out.println("Adding email: " + email.readEmail());
         email.setId(this.nextId);
+        System.out.println("Adding email with id: " + this.nextId);
         this.emails.put(this.nextId, email);
         this.nextId++;
         saveEmails();
@@ -93,8 +94,8 @@ public class EmailManager implements ManagerInterface<Email>{
         saveEmails();
     }
 
-    public void createEmail(Map<String, Object> email) {
-        addEmail(EmailBuilder.build(email));
+    public Email createEmail(Map<String, Object> email) {
+        return addEmail(EmailBuilder.build(email));
     }
 
     public Map<Object, Email> getAll() {
