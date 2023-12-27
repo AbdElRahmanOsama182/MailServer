@@ -1,5 +1,5 @@
 package com.mail.backend.Managers;
-import com.mail.backend.Managers.ManagerInterface;
+
 public class ManagerFactory {
     public static ManagerInterface getManager(String managerName){
         switch(managerName){
@@ -9,6 +9,8 @@ public class ManagerFactory {
                 return EmailManager.getInstance();
             case "FolderManager":
                 return FolderManager.getInstance();
+            case "ContactManager":
+                return ContactManager.getInstance();
             default:
                 return null;
         }
