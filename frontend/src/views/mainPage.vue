@@ -224,20 +224,11 @@ export default {
     async refresh(indexFolder) {
       console.log('refreshing');
       this.getEmailsByFolderName();
-      // if (indexFolder === 0) {
-      //   this.getInboxEmails();
-      // } else if (indexFolder === 4) {
-      //   this.getSentEmails();
-      // } else if (indexFolder === 2) {
-      //   this.getTrashEmails();
-      // } else {
-      //   this.getDraftEmails();
-      // }
     },
     changeTab(tab) {
       this.currentTab = tab;
       if (this.currentTab !== 'sendNewEmail' && this.currentTab !== 'contacts')
-      this.getEmailsByFolderName();
+        this.getEmailsByFolderName();
       console.log(this.currentTab);
     },
     logout() {

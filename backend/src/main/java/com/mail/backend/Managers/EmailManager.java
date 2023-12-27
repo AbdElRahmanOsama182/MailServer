@@ -166,10 +166,11 @@ public class EmailManager implements ManagerInterface<Email> {
             ObjectMapper mapper = new ObjectMapper();
             ArrayList<Email> emails = mapper.readValue(new File(EMAILS_FILE_PATH),
                     mapper.getTypeFactory().constructCollectionType(ArrayList.class, Email.class));
+            this.nextId = 0;
             for (Email email : emails) {
+                this.nextId = Math.max(this.nextId, email.getId() + 1);
                 this.emails.put(email.getId(), email);
             }
-            this.nextId = this.emails.size();
         } catch (Exception e) {
             System.out.println(e);
         }

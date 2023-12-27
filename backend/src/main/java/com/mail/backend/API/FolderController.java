@@ -298,6 +298,7 @@ public class FolderController {
             @RequestParam(required = false) String filterSubject,
             @RequestParam(required = false) Integer filterPriority,
             @RequestParam(required = false) String searchType, @RequestParam(required = false) String searchValue) {
+        System.out.println("Draft emails");
         User user = Auth.getUser(authorization);
         if (user == null)
             return null;
@@ -313,6 +314,11 @@ public class FolderController {
                 emails.add(email);
             }
         }
+
+        for (Email email : emails) {
+            System.out.println(email.readEmail());
+        }
+
         // return emails;
         if (filterSubject != null) {
             EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);

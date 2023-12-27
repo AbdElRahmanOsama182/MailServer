@@ -43,10 +43,14 @@ public class EmailController {
             return null;
         }
         // TODO: handle draft
+        System.out.println("DRAFTTTTTTTTTTT" + email.isDraft());
         if (email.isDraft()) {
             email.setFromUserId(user.getUsername());
-            email.setFolderId(folderManager.getUserFolderByName(user.getUsername(), "Drafts").getId());
-            return emailManager.add(email);
+            email.setFolderId(folderManager.getUserFolderByName(user.getUsername(), "Draft").getId());
+            email.setSendDate(new Date());
+            email = emailManager.add(email);
+            folderManager.addEmail(email.getFolderId(), email.getId());
+            return email;
 
         } else {
 
