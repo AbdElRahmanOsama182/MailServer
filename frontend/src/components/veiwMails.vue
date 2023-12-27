@@ -9,18 +9,18 @@
             <v-icon>mdi-email-search-outline</v-icon>
           </v-btn>
       
-        <v-col md="1.5">
-            <v-combobox v-show="!hidden3" v-model="filter" :items="items" label="Search by" dense hide-details></v-combobox>
+        <v-col md="2" v-if="!hidden3">
+            <v-combobox v-show="!hidden3" v-model="search" :items="items" label="Search by" dense hide-details></v-combobox>
         </v-col>
       
-        <v-col md="2">
+        <v-col md="2" v-if="!hidden3">
           <v-text-field
             v-show="!hidden3"
             clearable
             filled
             outlined
             hide-details
-            v-model="search"
+            v-model="searchQuery"
             label="Email Search"
           ></v-text-field>
         </v-col>
@@ -28,39 +28,39 @@
           v-show="!hidden3"
           icon
           dark
-          @click="searchEmail">
+          @click="applyOperations">
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
         <v-btn @click="hidden = !hidden" icon>
           <v-icon>mdi-sort</v-icon>
         </v-btn>
-        <v-col md="1.5">
+        <v-col md="2" v-if="!hidden">
             <v-combobox v-show="!hidden" v-model="sort" :items="items" label="Sort by" dense hide-details></v-combobox>
         </v-col>
         <v-btn
           v-show="!hidden"
           icon
           dark
-          @click="applySort">
+          @click="applyOperations">
           <v-icon>mdi-sort-ascending</v-icon>
         </v-btn>
           <v-btn @click="hidden2 = !hidden2" icon>
             <v-icon>mdi-filter</v-icon>
           </v-btn>
       
-        <v-col md="1.5">
+        <v-col md="2" v-if="!hidden2">
             <v-combobox v-show="!hidden2" v-model="filter" :items="items" label="Filter by" dense hide-details></v-combobox>
         </v-col>
       
-        <v-col md="2">
+        <v-col md="2" v-if="!hidden2">
             <v-text-field v-show="!hidden2 && filter !== 'importance'" clearable dense v-model="filtername" hide-details></v-text-field>              
-            <v-slider span v-show="!hidden2 && filter === 'importance'" v-model="importance" :tick-labels="importanceList" :max="3" step="1" ticks="always" tick-size="4"></v-slider> 
+            <v-slider dark span v-show="!hidden2 && filter === 'importance'" v-model="importance" thumb-label :min="1" :max="4" step="1" ticks="always" tick-size="4"></v-slider> 
         </v-col> 
         <v-btn
           v-show="!hidden2"
           icon
           dark
-          @click="searchEmail">
+          @click="applyOperations">
           <v-icon>mdi-filter-check</v-icon>
         </v-btn>
           <!-- <v-btn v-show="!hidden2" fab small dark color="#2d3142" @click="applyFilter">
@@ -72,18 +72,18 @@
       <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
         <template v-slot:activator="{ on, attrs }">
           <v-row class="message-gallery">
-            <v-col v-for="(message, i) in messeages" :key="i" cols="12" sm="6" md="4" lg="3">
+            <v-col v-for="(message, i) in messages" :key="i" cols="12" sm="6" md="4" lg="3">
               <v-card class="message-card" @click="openMessage(i)" v-bind="attrs" v-on="on">
                 <v-img class="message-image" src="..\assets\mail.png"></v-img>
                 <v-card-text class="message-info">
-                  <div class="message-info-item"><strong>From:</strong> {{ message.sender }}</div>
-                  <div class="message-info-item"><strong>To:</strong> {{ message.recievers[0] }}</div>
+                  <div class="message-info-item"><strong>From:</strong> {{ message.fromUserId }}</div>
+                  <div class="message-info-item"><strong>To:</strong> {{ message.to[0].name }}</div>
                   <div class="message-info-item"><strong>Subject:</strong> {{ message.subject }}</div>
                   <div class="message-info-item"><strong>Body:</strong> {{ message.body.substring(0, 20) }}</div>
-                  <div class="message-info-item"><strong>Date:</strong> {{ message.date }}</div>
-                  <div class="message-info-item"><strong>Importance:</strong> {{ message.importance === 'veryImportant' ? 'Very Important' : message.importance }}</div>
+                  <div class="message-info-item"><strong>Date:</strong> {{ message.sendDate.substring(0,10) }}</div>
+                  <div class="message-info-item"><strong>Priority:</strong> {{ message.priority }}</div>
                 </v-card-text>
-                <v-btn class="message-action" icon @click="deleteORretrieve(message)" @click.stop="openMessage(i)">
+                <v-btn class="message-action" icon @click="deleteEmail(message)" @click.stop="openMessage(i)">
                   <v-icon>{{ delete_retrieve === 'delete' ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
                 </v-btn>
               </v-card>
@@ -91,27 +91,9 @@
           </v-row>
         </template>
 
-        <v-card>
-                      <v-toolbar
-                      color="#2d3142"
-                      dark
-                      dense
-                      flat
-                      >
-                        <v-btn
-                            icon
-                            dark
-                            @click="dialog = false"
-                        >
-                            <v-icon>mdi-close</v-icon>
-                        </v-btn>
-                        <v-toolbar-title><v-icon>mdi-mail</v-icon></v-toolbar-title>
-                        <v-spacer></v-spacer>
-                      </v-toolbar>
-
-                      <ViewMail :mail="mail" @reply= "reply($event)" ></ViewMail>
-
-              </v-card>
+        <v-card @click="dialog=false">
+          <ViewMail :mail="mail" @reply= "reply($event)" ></ViewMail>
+        </v-card>
       </v-dialog>
     </v-row>
     <v-row class="cont">
@@ -133,7 +115,7 @@ import VueAxios from 'vue-axios'
 
 
 export default {
-  props: ['messeages','folder','numberOfPages'],
+  props: ['messages','folder','numberOfPages'],
   data: function (){
     return {
       dialog: false,
@@ -144,23 +126,25 @@ export default {
       page: 1,
       n:"",
       indexFolder : '' ,
-      sort: 'null',
-      filter: 'null',
-      filtername : 'null',
-      items: ['null','subject','sender','SenderAddress','date','importance'],
+      sort: null,
+      filter: null,
+      filtername : null,
+      items: ['none','subject','body','date','priority'],
       mail:"",
       delete_retrieve : "delete",
       importanceList: ['1','2','3','4'],
       importanceList2: ['low','medium','Important','veryImportant'],
       importance: '',
+      search: null,
+      searchQuery: null,
     }
   },
   mounted () {
       console.log(this.folder);
       console.log("dd");
-      console.log(this.messeages);
-      this.checkFolder();
-      this.sortandFilter();
+      console.log(this.messages);
+      // this.checkFolder();
+      // this.sortandFilter();
   },
   components : {
     ViewMail
@@ -184,6 +168,16 @@ export default {
           this.indexFolder = 3;
           this.delete_retrieve = "delete";
         }
+      },
+      deleteEmail(message) {
+        console.log(message);
+        console.log(this.indexFolder);
+        axios.put('http://localhost:8080/folders/trash/emails/'+message.id, {
+          headers: {
+            authorization: `${localStorage.getItem('token')}`
+          },
+        });
+        this.refresh(this.indexFolder);
       },
       deleteORretrieve(messeage) {
         console.log(messeage);
@@ -228,7 +222,7 @@ export default {
       },
       openMessage(n) {
         console.log("ok i will show this mess" + n)
-        this.mail = this.messeages[n];
+        this.mail = this.messages[n];
       },
        
       changeThePage(){
@@ -250,14 +244,24 @@ export default {
         this.sortandFilter();
       },
 
-      applyFilter(){
-          if (this.filter === 'importance'){
-            this.filtername = this.importanceList2[this.importance];
-            console.log(this.filtername);
-          }
-        this.sortandFilter();
+      applyOperations(){
         console.log(this.filter);
+        console.log(this.filtername);
+        console.log(this.importance);
+        console.log(this.sort);
+        console.log(this.search);
+        console.log(this.searchQuery);
+        this.$emit('applyFilters',{
+          filter: this.filter,
+          filtername: this.filtername,
+          importance: this.importance,
+          indexFolder: this.indexFolder,
+          sort: this.sort,
+          search: this.search,
+          searchQuery: this.searchQuery,
+        });         
         
+        // this.refresh(this.indexFolder);
       },
 
       sortandFilter : function(){

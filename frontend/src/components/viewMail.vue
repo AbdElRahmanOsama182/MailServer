@@ -16,7 +16,7 @@
                     <h2 class="font-italic">From : </h2>
                     <v-card>
                       <v-card-subtitle class="font-italic">
-                        <span class="text--primary">{{ mail.sender }}</span>
+                        <span class="text--primary">{{ mail.fromUserId }}</span>
                       </v-card-subtitle>
                     </v-card>
                   </v-col>
@@ -24,7 +24,7 @@
                     <h2 class="font-italic">To : </h2>
                     <v-card>
                       <v-card-subtitle class="font-italic">
-                        <span class="text--primary">{{ mail.recievers.join(', ') }}</span>
+                        <span class="text--primary">{{ receiversNames }}</span>
                       </v-card-subtitle>
                     </v-card>
                   </v-col>
@@ -44,7 +44,7 @@
                   </v-col>
                   <v-col>
                     <div class="font-italic">
-                      {{ mail.importance == "veryImportant" ? "Very Important" : mail.importance }} - {{ mail.date }}
+                      Priority: {{ mail.priority }} - Date: {{ mail.sendDate.substring(0, 10) }}
                     </div>
                   </v-col>
                 </v-card-text>
@@ -59,8 +59,18 @@
 <script>
 export default {
   props: ['mail'],
-  data: () => ({}),
-  methods: {},
+  data: () => ({
+    receiversNames: '',
+  }),
+  methods: {
+    formattedRecievers() {
+      return this.mail.to.map((reciever) => reciever.name).join(', ');
+    },
+  },
+  mounted() {
+    console.log(this.mail);
+    this.receiversNames = this.formattedRecievers();
+  },
 };
 </script>
 
