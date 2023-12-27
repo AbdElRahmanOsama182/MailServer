@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.mail.backend.Managers.UserManager;
 import com.mail.backend.Models.Email.Email;
+import com.mail.backend.Models.Filter.EmailPriorityCriteria;
+import com.mail.backend.Models.Filter.EmailSubjectCriteria;
 import com.mail.backend.Models.Folder.Folder;
+import com.mail.backend.Models.Search.SearchContext;
 import com.mail.backend.Models.User.User;
 import com.mail.backend.Utils.Auth;
 
@@ -132,6 +135,7 @@ public class FolderController {
         User user = Auth.getUser(authorization);
         if (user == null)
             return null;
+        System.out.println("Trash email");
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
         if (trashFolder == null)
@@ -140,8 +144,10 @@ public class FolderController {
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         Email email = emailManager.get(emailId);
         // mark as deleted
+        email.setDeleted(true);
+        email.setFolderId(trashFolder.getId());
         emailManager.updateEmail(emailId, Map.of("isDeleted", true));
-
+        folderManager.addEmail(trashFolder.getId(), emailId);
         return trashFolder;
     }
 
@@ -159,14 +165,36 @@ public class FolderController {
         Email email = emailManager.get(emailId);
         // mark as deleted
         emailManager.updateEmail(emailId, Map.of("isDeleted", false));
+        folderManager.removeEmail(trashFolder.getId(), emailId);
+        if (email.isDraft()) {
+            Folder draftFolder = folderManager.getUserFolderByName(user.getUsername(), "Draft");
+            if (draftFolder == null)
+                return null;
+            email.setFolderId(draftFolder.getId());
+            folderManager.addEmail(draftFolder.getId(), emailId);
+        } else if (email.getFromUserId().equals(user.getUsername())) {
+            Folder sentFolder = folderManager.getUserFolderByName(user.getUsername(), "Sent");
+            if (sentFolder == null)
+                return null;
+            email.setFolderId(sentFolder.getId());
+            folderManager.addEmail(sentFolder.getId(), emailId);
+        } else {
+            Folder inboxFolder = folderManager.getUserFolderByName(user.getUsername(), "Inbox");
+            if (inboxFolder == null)
+                return null;
+            email.setFolderId(inboxFolder.getId());
+            folderManager.addEmail(inboxFolder.getId(), emailId);
+        }
 
         return trashFolder;
     }
 
     @GetMapping("folders/trash/emails")
     public ArrayList<Email> getTrashEmails(@RequestHeader String authorization,
-            @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from,
-            @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
+            @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) String filterSubject,
+            @RequestParam(required = false) Integer filterPriority,
+            @RequestParam(required = false) String searchType, @RequestParam(required = false) String searchValue) {
         User user = Auth.getUser(authorization);
         if (user == null)
             return null;
@@ -174,37 +202,47 @@ public class FolderController {
         Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
         if (trashFolder == null)
             return null;
-        Comparator<Email> comparator = new Comparator<Email>() {
-            @Override
-            public int compare(Email email1, Email email2) {
-                if (sort == null || !sort.equals("priority"))
-                    return email1.getSendDate().compareTo(email2.getSendDate());
-                else
-                    return Integer.valueOf(email2.getPriority()).compareTo(email1.getPriority());
-            }
-        };
-        PriorityQueue<Email> emailsPQ = new PriorityQueue<Email>(comparator);
-        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
+        System.out.println("Trash folder: " + trashFolder.getId());
         ArrayList<Email> emails = new ArrayList<Email>();
+        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         for (int emailId : trashFolder.getEmails()) {
             Email email = emailManager.get(emailId);
-            if (email.isDeleted() && (subjectHas == null || email.getSubject().contains(subjectHas))
-                    && (from == null || email.getFromUserId().equals(from))) {
-                emailsPQ.add(email);
-            }
+            emails.add(email);
         }
-        while (!emailsPQ.isEmpty()) {
-            emails.add(emailsPQ.poll());
+        System.out.println("Trash emails: ");
+        for (Email email : emails) {
+            System.out.println(email.readEmail());
+        }
+        // return emails;
+        if (filterSubject != null) {
+            EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
+            emails = emailSubjectCriteria.meetCriteria(emails);
+        }
+        System.out.println("filterPriority: " + filterPriority);
+
+        if (filterPriority != null) {
+            EmailPriorityCriteria emailPriorityCriteria = new EmailPriorityCriteria(filterPriority);
+            emails = emailPriorityCriteria.meetCriteria(emails);
+        }
+        if (searchType != null && searchValue != null) {
+            System.out.println("Search type: " + searchType);
+            System.out.println("Search value: " + searchValue);
+            emails = SearchContext.search(searchType, emails, searchValue);
         }
 
+        if (sort != null)
+            emails = emailManager.sort(emails, sort);
         if (page != null && page * itemsPage <= emails.size()) {
-            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) * itemsPage);
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) *
+                    itemsPage);
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
-
         }
-
+        System.out.println("Final emails: ");
+        for (Email email : emails) {
+            System.out.println(email.readEmail());
+        }
         return emails;
     }
 
@@ -256,46 +294,70 @@ public class FolderController {
 
     @GetMapping("folders/draft/emails")
     public ArrayList<Email> getDraftEmails(@RequestHeader String authorization,
-            @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
+            @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) String filterSubject,
+            @RequestParam(required = false) Integer filterPriority,
+            @RequestParam(required = false) String searchType, @RequestParam(required = false) String searchValue) {
+        System.out.println("Draft emails");
         User user = Auth.getUser(authorization);
         if (user == null)
             return null;
-
-        Comparator<Email> comparator = new Comparator<Email>() {
-            @Override
-            public int compare(Email email1, Email email2) {
-                if (sort == null || !sort.equals("priority"))
-                    return email1.getSendDate().compareTo(email2.getSendDate());
-                else
-                    return Integer.valueOf(email2.getPriority()).compareTo(email1.getPriority());
-            }
-        };
-        PriorityQueue<Email> emailsPQ = new PriorityQueue<Email>(comparator);
-        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
+        FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
+        Folder sentFolder = folderManager.getUserFolderByName(user.getUsername(), "Draft");
+        if (sentFolder == null)
+            return null;
         ArrayList<Email> emails = new ArrayList<Email>();
-        for (Email email : emailManager.getAllEmails()) {
-            if (email.isDraft() && email.getFromUserId().equals(user.getUsername()) && !email.isDeleted()) {
-                emailsPQ.add(email);
+        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
+        for (int emailId : sentFolder.getEmails()) {
+            Email email = emailManager.get(emailId);
+            if (!email.isDeleted()) {
+                emails.add(email);
             }
         }
-        while (!emailsPQ.isEmpty()) {
-            emails.add(emailsPQ.poll());
+
+        for (Email email : emails) {
+            System.out.println(email.readEmail());
         }
 
+        // return emails;
+        if (filterSubject != null) {
+            EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
+            emails = emailSubjectCriteria.meetCriteria(emails);
+        }
+        System.out.println("filterPriority: " + filterPriority);
+
+        if (filterPriority != null) {
+            EmailPriorityCriteria emailPriorityCriteria = new EmailPriorityCriteria(filterPriority);
+            emails = emailPriorityCriteria.meetCriteria(emails);
+        }
+        if (searchType != null && searchValue != null) {
+            System.out.println("Search type: " + searchType);
+            System.out.println("Search value: " + searchValue);
+            emails = SearchContext.search(searchType, emails, searchValue);
+        }
+
+        if (sort != null)
+            emails = emailManager.sort(emails, sort);
         if (page != null && page * itemsPage <= emails.size()) {
-            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) * itemsPage);
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) *
+                    itemsPage);
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
-
+        }
+        System.out.println("Final emails: ");
+        for (Email email : emails) {
+            System.out.println(email.readEmail());
         }
         return emails;
     }
 
     @GetMapping("folders/sent/emails")
     public ArrayList<Email> getSentEmails(@RequestHeader String authorization,
-            @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from,
-            @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
+            @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) String filterSubject,
+            @RequestParam(required = false) Integer filterPriority,
+            @RequestParam(required = false) String searchType, @RequestParam(required = false) String searchValue) {
         User user = Auth.getUser(authorization);
         if (user == null)
             return null;
@@ -303,83 +365,97 @@ public class FolderController {
         Folder sentFolder = folderManager.getUserFolderByName(user.getUsername(), "Sent");
         if (sentFolder == null)
             return null;
-
-        Comparator<Email> comparator = new Comparator<Email>() {
-            @Override
-            public int compare(Email email1, Email email2) {
-                if (sort == null || !sort.equals("priority"))
-                    return email1.getSendDate().compareTo(email2.getSendDate());
-                else {
-                    System.out.printf("Email1: %d, Email2: %d\n EmailId: %d\n", email1.getPriority(),
-                            email2.getPriority(), email1.getId());
-                    return Integer.valueOf(email2.getPriority()).compareTo(email1.getPriority());
-                }
-            }
-        };
-        PriorityQueue<Email> emailsPQ = new PriorityQueue<Email>(comparator);
-        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         ArrayList<Email> emails = new ArrayList<Email>();
+        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         for (int emailId : sentFolder.getEmails()) {
             Email email = emailManager.get(emailId);
-            if (!email.isDeleted() && (subjectHas == null || email.getSubject().contains(subjectHas))
-                    && (from == null || email.getFromUserId().equals(from))) {
-                emailsPQ.add(email);
+            if (!email.isDeleted()) {
+                emails.add(email);
             }
         }
-        while (!emailsPQ.isEmpty()) {
-            emails.add(emailsPQ.poll());
+        // return emails;
+        if (filterSubject != null) {
+            EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
+            emails = emailSubjectCriteria.meetCriteria(emails);
+        }
+        System.out.println("filterPriority: " + filterPriority);
+
+        if (filterPriority != null) {
+            EmailPriorityCriteria emailPriorityCriteria = new EmailPriorityCriteria(filterPriority);
+            emails = emailPriorityCriteria.meetCriteria(emails);
+        }
+        if (searchType != null && searchValue != null) {
+            System.out.println("Search type: " + searchType);
+            System.out.println("Search value: " + searchValue);
+            emails = SearchContext.search(searchType, emails, searchValue);
         }
 
+        if (sort != null)
+            emails = emailManager.sort(emails, sort);
         if (page != null && page * itemsPage <= emails.size()) {
-            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) * itemsPage);
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) *
+                    itemsPage);
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
-
+        }
+        System.out.println("Final emails: ");
+        for (Email email : emails) {
+            System.out.println(email.readEmail());
         }
         return emails;
     }
 
     @GetMapping("folders/inbox/emails")
     public ArrayList<Email> getInboxEmails(@RequestHeader String authorization,
-            @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from,
-            @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
+            @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) String filterSubject,
+            @RequestParam(required = false) Integer filterPriority,
+            @RequestParam(required = false) String searchType, @RequestParam(required = false) String searchValue) {
         User user = Auth.getUser(authorization);
         if (user == null)
             return null;
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
-        Folder inboxFolder = folderManager.getUserFolderByName(user.getUsername(), "Inbox");
-        if (inboxFolder == null)
+        Folder sentFolder = folderManager.getUserFolderByName(user.getUsername(), "Inbox");
+        if (sentFolder == null)
             return null;
-
-        Comparator<Email> comparator = new Comparator<Email>() {
-            @Override
-            public int compare(Email email1, Email email2) {
-                if (sort == null || !sort.equals("priority"))
-                    return email1.getSendDate().compareTo(email2.getSendDate());
-                else
-                    return Integer.valueOf(email2.getPriority()).compareTo(email1.getPriority());
-            }
-        };
-        PriorityQueue<Email> emailsPQ = new PriorityQueue<Email>(comparator);
-        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         ArrayList<Email> emails = new ArrayList<Email>();
-        for (int emailId : inboxFolder.getEmails()) {
+        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
+        for (int emailId : sentFolder.getEmails()) {
             Email email = emailManager.get(emailId);
-            if (!email.isDeleted() && (subjectHas == null || email.getSubject().contains(subjectHas))
-                    && (from == null || email.getFromUserId().equals(from))) {
-                emailsPQ.add(email);
+            if (!email.isDeleted()) {
+                emails.add(email);
             }
         }
-        while (!emailsPQ.isEmpty()) {
-            emails.add(emailsPQ.poll());
+        // return emails;
+        if (filterSubject != null) {
+            EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
+            emails = emailSubjectCriteria.meetCriteria(emails);
+        }
+        System.out.println("filterPriority: " + filterPriority);
+
+        if (filterPriority != null) {
+            EmailPriorityCriteria emailPriorityCriteria = new EmailPriorityCriteria(filterPriority);
+            emails = emailPriorityCriteria.meetCriteria(emails);
+        }
+        if (searchType != null && searchValue != null) {
+            System.out.println("Search type: " + searchType);
+            System.out.println("Search value: " + searchValue);
+            emails = SearchContext.search(searchType, emails, searchValue);
         }
 
+        if (sort != null)
+            emails = emailManager.sort(emails, sort);
         if (page != null && page * itemsPage <= emails.size()) {
-            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) * itemsPage);
+            List<Email> pageList = emails.subList((page - 1) * itemsPage, (page) *
+                    itemsPage);
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
+        }
+        System.out.println("Final emails: ");
+        for (Email email : emails) {
+            System.out.println(email.readEmail());
         }
         return emails;
     }
