@@ -9,6 +9,8 @@ public class ManagerFactory {
                 return EmailManager.getInstance();
             case "FolderManager":
                 return FolderManager.getInstance();
+            case "AttachmentManager":
+                return AttachmentManager.getInstance();
             default:
                 return null;
         }

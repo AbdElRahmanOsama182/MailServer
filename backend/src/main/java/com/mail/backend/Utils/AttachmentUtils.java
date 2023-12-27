@@ -41,17 +41,18 @@ public class AttachmentUtils {
     }
 
 
-    public String storeFile(File file, int id, String path){
+    public Path storeFile(File file){
 
-        this.fileLocation = Paths.get(basePath + path).toAbsolutePath().normalize();
+        this.fileLocation = Paths.get(basePath).toAbsolutePath().normalize();
 
         try{
             Files.createDirectories(this.fileLocation);
         } catch (Exception e){
             System.out.println("Error Can NOT store file");
         }
-
-        String fileName = StringUtils.cleanPath(id + "_" + file.getName());
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String fileName = StringUtils.cleanPath(file.getName());
+        fileName = timestamp + "_" + fileName;
 
         try{
             //handle file name 
@@ -62,18 +63,17 @@ public class AttachmentUtils {
             Path location = this.fileLocation.resolve(fileName);
             Files.move(Paths.get(file.getPath()), location, StandardCopyOption.REPLACE_EXISTING);
             
-            return fileName;
+            return location;
 
         } catch (IOException e) {
             System.out.println("can NOT strore"+ fileName);
-            return "";
+            return null;
         }
 
     }
 
 
-    public Resource getFile(String fileName){
-        Path path = Paths.get(basePath).resolve(fileName).normalize();
+    public Resource getFile(Path path){
         try{
             return new UrlResource(path.toUri());
         } catch(MalformedURLException e){

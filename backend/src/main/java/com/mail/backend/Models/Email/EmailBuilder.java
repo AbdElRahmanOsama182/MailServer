@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
-//import org.springframework.ws.mime.Attachment;
-import com.mail.backend.Models.Attachment.Attachment;
+import org.springframework.ws.mime.Attachment;
 
 
 import com.mail.backend.Managers.EmailManager;
