@@ -53,7 +53,14 @@ public class ContactManager implements ManagerInterface<Contact> {
             return null;
         }
         contact.setId(this.contacts.size());
-        this.contacts.put(this.contacts.size(), contact);
+        //check if the contact id is already in the contacts map
+        int newId = contact.getId();
+        while (this.contacts.containsKey(contact.getId())) {
+            contact.setId(contact.getId() + 1);
+            newId = contact.getId();
+        }
+
+        this.contacts.put(newId, contact);
         saveContacts();
 
         return contact;
