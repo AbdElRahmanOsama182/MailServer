@@ -267,6 +267,7 @@ export default {
     },
 
     sortContacts() {
+      this.hidden = true;
       axios.get('http://localhost:8080/contacts/sort', {
         headers: {
           authorization: `${localStorage.getItem('token')}`,

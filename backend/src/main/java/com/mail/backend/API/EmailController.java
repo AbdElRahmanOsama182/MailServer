@@ -43,13 +43,18 @@ public class EmailController {
             return null;
         }
         // TODO: handle draft
+        System.out.println("DRAFTTTTTTTTTTT" + email.isDraft());
         if (email.isDraft()) {
             email.setFromUserId(user.getUsername());
-            return emailManager.add(email);
+            email.setFolderId(folderManager.getUserFolderByName(user.getUsername(), "Draft").getId());
+            email.setSendDate(new Date());
+            email = emailManager.add(email);
+            folderManager.addEmail(email.getFolderId(), email.getId());
+            return email;
 
         } else {
 
-            return EmailCreator.createAndSend(email,user);
+            return EmailCreator.createAndSend(email, user);
         }
 
     }
@@ -81,6 +86,9 @@ public class EmailController {
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         User user = Auth.getUser(authorization);
         Email email = emailManager.get(id);
+        if (email == null) {
+            return;
+        }
         if (email.getFromUserId().equals(user.getUsername())) {
             // remove from its folder
             FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
