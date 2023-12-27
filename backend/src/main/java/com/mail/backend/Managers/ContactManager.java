@@ -15,9 +15,10 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mail.backend.Models.Contact.Contact;
+import com.mail.backend.Models.Sort.ContactSort;
 
 @Component
-public class ContactManager {
+public class ContactManager implements ManagerInterface<Contact> {
     private static final String CONTACTS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\contacts.json";
     private static ContactManager instance;
     public Map<Integer, Contact> contacts = new HashMap<Integer, Contact>();
@@ -34,24 +35,42 @@ public class ContactManager {
         return instance;
     }
 
-    public int getNextId() {
-        return this.nextId;
+    public Contact get(Object id) {
+        return this.getContact((int) id);
     }
 
     public Contact getContact(int id) {
         return this.contacts.get(id);
     }
 
-    public void addContact(Contact contact) {
+    public Map<Object, Contact> getAll() {
+        return new HashMap<Object, Contact>(this.contacts);
+    }
+
+    public ArrayList<Contact> getAllContacts() {
+        printContacts();
+        return new ArrayList<Contact>(this.contacts.values());
+    }
+
+    public Contact add(Contact contact) {
+        return this.addContact(contact);
+    }
+
+    public Contact addContact(Contact contact) {
         printContacts();
         System.out.println(this.nextId);
         if (contact == null) {
-            return;
+            return null;
         }
         contact.setId(this.nextId);
         this.contacts.put(this.nextId, contact);
         this.nextId++;
         saveContacts();
+        return contact;
+    }
+
+    public void remove(Object id) {
+        this.removeContact((int) id);
     }
 
     public void removeContact(int id) {
@@ -73,11 +92,6 @@ public class ContactManager {
     public void removeEmailFromContact(int contactId, String email) {
         this.contacts.get(contactId).removeEmail(email);
         saveContacts();
-    }
-
-    public ArrayList<Contact> getAllContacts() {
-        printContacts();
-        return new ArrayList<Contact>(this.contacts.values());
     }
 
     public ArrayList<Contact> getUserContacts(String username) {
@@ -108,12 +122,11 @@ public class ContactManager {
     }
 
     public List<Contact> sortContacts(String username) {
-        List<Contact> sortedContacts = new ArrayList<Contact>(this.getUserContacts(username));
-        sortedContacts.sort(Comparator.comparing(Contact::getName));
-        return sortedContacts;
+        return new ContactSort().sort(this.getUserContacts(username));
     }
 
     public void loadContacts() {
+        System.out.println("Loading contacts");
         try {
             // Path path = Paths.get(CONTACTS_FILE_PATH);
             ObjectMapper mapper = new ObjectMapper();
@@ -151,6 +164,7 @@ public class ContactManager {
     }
 
     public void saveContacts() {
+        System.out.println("Saving contacts");
         try {
             ObjectMapper mapper = new ObjectMapper();
             String json = mapper.writeValueAsString(this.contacts.values());

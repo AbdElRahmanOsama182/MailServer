@@ -4,9 +4,10 @@ import java.util.ArrayList;
 
 import com.mail.backend.Models.Contact.Contact;
 
-public class contactNameSort {
+public class ContactSort {
+
     public ArrayList<Contact> sort(ArrayList<Contact> contacts) {
-        ArrayList<Contact> sortedContacts = new ArrayList<>(contacts);
+        ArrayList<Contact> sortedContacts = contacts;
         // Sort by name alphabetically
         for (int i = 0; i < sortedContacts.size(); i++) {
             for (int j = i + 1; j < sortedContacts.size(); j++) {
@@ -19,4 +20,5 @@ public class contactNameSort {
         }
         return sortedContacts;
     }
+
 }

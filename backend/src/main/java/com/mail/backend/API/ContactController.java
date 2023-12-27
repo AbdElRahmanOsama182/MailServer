@@ -20,27 +20,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(origins = { "http://localhost:8081" })
-@RequestMapping("/contacts")
 public class ContactController {
-    @GetMapping
+
+    private ContactManager contactManager = (ContactManager) ManagerFactory.getManager("ContactManager");
+
+    @GetMapping("/contacts")
     public ArrayList<Contact> getAllContacts(@RequestHeader String authorization) {
         User user = Auth.getUser(authorization);
-        return ContactManager.getInstance().getUserContacts(user.getUsername());
+        return contactManager.getUserContacts(user.getUsername());
     }
 
-    @GetMapping("/sort")
-    public List<Contact> getSortedContacts(@RequestHeader String authorization) {
-        User user = Auth.getUser(authorization);
-        return ContactManager.getInstance().sortContacts(user.getUsername());
-    }
-
-    @PostMapping
-    public String addContact(@RequestHeader String authorization, @RequestBody Contact contact) {
+    @PostMapping("/contacts")
+    public String createContact(@RequestHeader String authorization, @RequestBody Contact contact) {
         User user = Auth.getUser(authorization);
         contact.setUsername(user.getUsername());
         System.out.println(contact);
@@ -56,28 +51,33 @@ public class ContactController {
         return "Contact added successfully";
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeContact(@PathVariable int id) {
-        ContactManager.getInstance().removeContact(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @DeleteMapping("/contacts/{id}")
+    public void removeContact(@PathVariable int id) {
+        contactManager.removeContact(id);
     }
 
-    @PutMapping("/{id}")
-    public String editContact(@PathVariable int id, @RequestBody Contact updatedContact) {
+    @PutMapping("/contacts/{id}")
+    public String updateContact(@PathVariable int id, @RequestBody Contact updatedContact) {
         UserManager userManager = (UserManager) ManagerFactory.getManager("UserManager");
         for (String email : updatedContact.getEmails()) {
             if (userManager.getUserByEmail(email) == null) {
                 return "Email " + email + " does not exist";
             }
         }
-        Contact contact = ContactManager.getInstance().updateContact(updatedContact);
+        Contact contact = contactManager.updateContact(updatedContact);
         if (contact == null) {
             return "Contact not found";
         }
         return "Contact updated successfully";
     }
 
-    @GetMapping("/search/{name}")
+    @GetMapping("/contacts/sort")
+    public List<Contact> sortedContacts(@RequestHeader String authorization) {
+        User user = Auth.getUser(authorization);
+        return contactManager.sortContacts(user.getUsername());
+    }
+
+    @GetMapping("contacts/search/{name}")
     public List<Contact> searchContact(@RequestHeader String authorization, @PathVariable String name) {
         User user = Auth.getUser(authorization);
         return ContactManager.getInstance().searchContact(name, user.getUsername());
