@@ -32,7 +32,7 @@ import com.mail.backend.Utils.AttachmentUtils;
 @RequestMapping("/attachment")
 public class AttachmentManager implements ManagerInterface<Afile>{
 
-    private static final String AFILES_FILE_PATH = "src/main/java/com/mail/backend/data/Afiles.json";
+    private static final String AFILES_FILE_PATH = "data/Afiles.json";
     private static AttachmentManager instance;
     public Map<Integer, Afile> afiles = new HashMap<Integer, Afile>();
     private int nextId = 0;
@@ -49,8 +49,8 @@ public class AttachmentManager implements ManagerInterface<Afile>{
         return instance;
     }
 
-    @Autowired
-    private AttachmentUtils AttachmentUtils;
+    // @Autowired
+    // private AttachmentUtils AttachmentUtils;
     
     public Afile uploadFiles(MultipartFile[] files){
         ArrayList<Path> paths = new ArrayList<>();
@@ -126,9 +126,11 @@ public class AttachmentManager implements ManagerInterface<Afile>{
             ObjectMapper mapper = new ObjectMapper();
             ArrayList<Afile> afiles = mapper.readValue(new File(AFILES_FILE_PATH),
                     mapper.getTypeFactory().constructCollectionType(ArrayList.class, Afile.class));
+            this.afiles = new HashMap<Integer, Afile>();
             for (Afile afile : afiles) {
                 this.afiles.put(afile.getId(), afile);
             }
+            this.nextId=this.afiles.size();
         } catch (Exception e) {
             System.out.println(e);
         }

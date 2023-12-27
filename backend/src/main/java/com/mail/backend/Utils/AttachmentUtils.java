@@ -22,12 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class AttachmentUtils {
 
-    private Path fileLocation;
+    private static Path fileLocation;
 
     @Value("${upload.base-path}")
-    private String basePath = "";
+    private static String basePath = "uploads/";
     
-    public File convertMFtoFile(final MultipartFile multipartFile){
+    public static File convertMFtoFile(final MultipartFile multipartFile){
         
         final File file = new File(multipartFile.getOriginalFilename());
 
@@ -41,12 +41,12 @@ public class AttachmentUtils {
     }
 
 
-    public Path storeFile(File file){
+    public static Path storeFile(File file){
 
-        this.fileLocation = Paths.get(basePath).toAbsolutePath().normalize();
+        fileLocation = Paths.get(basePath).toAbsolutePath().normalize();
 
         try{
-            Files.createDirectories(this.fileLocation);
+            Files.createDirectories(fileLocation);
         } catch (Exception e){
             System.out.println("Error Can NOT store file");
         }
@@ -60,7 +60,7 @@ public class AttachmentUtils {
 
             }*/
 
-            Path location = this.fileLocation.resolve(fileName);
+            Path location = fileLocation.resolve(fileName);
             Files.move(Paths.get(file.getPath()), location, StandardCopyOption.REPLACE_EXISTING);
             
             return location;
@@ -73,7 +73,7 @@ public class AttachmentUtils {
     }
 
 
-    public Resource getFile(Path path){
+    public static Resource getFile(Path path){
         try{
             return new UrlResource(path.toUri());
         } catch(MalformedURLException e){

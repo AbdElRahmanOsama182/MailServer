@@ -8,8 +8,8 @@ import java.util.HashMap;
 
 import java.util.Map;
 
-import org.springframework.ws.mime.Attachment;
 import com.mail.backend.Managers.EmailManager;
+import com.mail.backend.Models.Afile.Afile;
 import com.mail.backend.Models.Contact.Contact;
 import com.mail.backend.Models.Filter.AndEmailCriteria;
 import com.mail.backend.Models.Filter.EmailCriteria;
@@ -22,7 +22,7 @@ public class Email {
     private int id;
     private String fromUserId;
     private ArrayList<Contact> to;
-    private ArrayList<Attachment> attachments;
+    private ArrayList<Afile> attachments;
     private int priority;
     private String subject;
     private String body;
@@ -67,19 +67,19 @@ public class Email {
         this.to.remove(contact);
     }
 
-    public ArrayList<Attachment> getAttachments() {
+    public ArrayList<Afile> getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(ArrayList<Attachment> attachments) {
+    public void setAttachments(ArrayList<Afile> attachments) {
         this.attachments = attachments;
     }
 
-    public void addAttachment(Attachment attachment) {
+    public void addAttachment(Afile attachment) {
         this.attachments.add(attachment);
     }
 
-    public void removeAttachment(Attachment attachment) {
+    public void removeAttachment(Afile attachment) {
         this.attachments.remove(attachment);
     }
 
@@ -171,7 +171,7 @@ public class Email {
                     this.setTo((ArrayList<Contact>) email.get(key));
                     break;
                 case "attachments":
-                    this.setAttachments((ArrayList<Attachment>) email.get(key));
+                    this.setAttachments((ArrayList<Afile>) email.get(key));
                     break;
                 case "priority":
                     this.setPriority((int) email.get(key));
