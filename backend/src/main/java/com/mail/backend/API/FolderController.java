@@ -1,33 +1,9 @@
 package com.mail.backend.API;
 
 
-import java.time.temporal.ChronoUnit;
-
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-
-import com.mail.backend.Managers.UserManager;
-import com.mail.backend.Models.Email.Email;
-import com.mail.backend.Models.Filter.EmailPriorityCriteria;
-import com.mail.backend.Models.Filter.EmailSubjectCriteria;
-import com.mail.backend.Models.Folder.Folder;
-import com.mail.backend.Models.Search.SearchContext;
-import com.mail.backend.Models.User.User;
-import com.mail.backend.Utils.Auth;
-
-import io.jsonwebtoken.Jwts;
-
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,7 +20,10 @@ import com.mail.backend.Managers.EmailManager;
 import com.mail.backend.Managers.FolderManager;
 import com.mail.backend.Managers.ManagerFactory;
 import com.mail.backend.Models.Email.Email;
+import com.mail.backend.Models.Filter.EmailPriorityCriteria;
+import com.mail.backend.Models.Filter.EmailSubjectCriteria;
 import com.mail.backend.Models.Folder.Folder;
+import com.mail.backend.Models.Search.SearchContext;
 import com.mail.backend.Models.User.User;
 import com.mail.backend.Utils.Auth;
 
@@ -257,9 +236,13 @@ public class FolderController {
     }
 
     @GetMapping("folders/{id}/emails")
-    public Map<String,Object> getFolderEmails(@RequestHeader String authorization, @PathVariable("id") Integer id,
-            @RequestParam(required = false) String subjectHas, @RequestParam(required = false) String from,
-            @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort) {
+    public Map<String,Object> getFolderEmails(@RequestHeader String authorization,
+            @PathVariable("id") Integer id,
+            @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) String filterSubject,
+            @RequestParam(required = false) Integer filterPriority,
+            @RequestParam(required = false) String searchType, @RequestParam(required = false) String searchValue) {
+
         User user = Auth.getUser(authorization);
         if (user == null)
             return null;
@@ -267,31 +250,33 @@ public class FolderController {
         Folder folder = folderManager.get(id);
         if (folder == null)
             return null;
-        if (!folder.getUserId().equals(user.getUsername()))
-            return null;
-        Comparator<Email> comparator = new Comparator<Email>() {
-            @Override
-            public int compare(Email email1, Email email2) {
-                if (sort == null || !sort.equals("priority"))
-                    return email1.getSendDate().compareTo(email2.getSendDate());
-                else
-                    return Integer.valueOf(email2.getPriority()).compareTo(email1.getPriority());
-            }
-        };
-        PriorityQueue<Email> emailsPQ = new PriorityQueue<Email>(comparator);
-        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         ArrayList<Email> emails = new ArrayList<Email>();
+        EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         for (int emailId : folder.getEmails()) {
             Email email = emailManager.get(emailId);
-            if (!email.isDeleted() && (subjectHas == null || email.getSubject().contains(subjectHas))
-                    && (from == null || email.getFromUserId().equals(from))) {
-                emailsPQ.add(email);
+            if (!email.isDeleted()) {
+                emails.add(email);
             }
         }
-        while (!emailsPQ.isEmpty()) {
-            emails.add(emailsPQ.poll());
+
+        if (filterSubject != null) {
+            EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
+            emails = emailSubjectCriteria.meetCriteria(emails);
+        }
+        System.out.println("filterPriority: " + filterPriority);
+
+        if (filterPriority != null) {
+            EmailPriorityCriteria emailPriorityCriteria = new EmailPriorityCriteria(filterPriority);
+            emails = emailPriorityCriteria.meetCriteria(emails);
+        }
+        if (searchType != null && searchValue != null) {
+            System.out.println("Search type: " + searchType);
+            System.out.println("Search value: " + searchValue);
+            emails = SearchContext.search(searchType, emails, searchValue);
         }
 
+        if (sort != null)
+            emails = emailManager.sort(emails, sort);
         int pages=(int)Math.ceil((double)emails.size()/itemsPage);
         if (page != null && (int)Math.ceil((double)emails.size()/itemsPage) >= page) {
             List<Email> pageList = emails.subList((page - 1) * itemsPage, Math.min(itemsPage* page,emails.size()));
@@ -300,8 +285,13 @@ public class FolderController {
                 emails.add(email);
 
         }
+        System.out.println("Final emails: ");
+        for (Email email : emails) {
+            System.out.println(email.readEmail());
+        }
         return Map.of("emails",emails,"total",emails.size(),"pages",pages);
     }
+
 
     @GetMapping("folders/draft/emails")
     public Map<String,Object> getDraftEmails(@RequestHeader String authorization,

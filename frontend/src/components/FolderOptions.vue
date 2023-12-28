@@ -34,17 +34,21 @@ export default {
             this.renamedFolder = folder;
         },
         async viewFolder(folder) {
+            console.log('viewing folder1', folder);
             try {
             const response = await axios.get(`http://localhost:8080/folders/${folder.id}/emails`, {
                 headers: {
                     authorization: `${localStorage.getItem('token')}`,
                 },
             });
-            this.emails = response.data;
+            this.emails = response.data.emails;
+            this.pages = response.data.pages;
             } catch (error) {
             console.error('Error fetching emails', error);
             }
-            this.$emit('view-folder', { folder, emails: this.emails });
+            console.log('viewing folder2', folder);
+            this.$emit('view-folder', { folder, emails: this.emails, pages: this.pages });
+            console.log('viewing folder3', folder);
         },
         async addFolder() {
             this.add = false;
@@ -55,6 +59,7 @@ export default {
                     headers: {
                         authorization: `${localStorage.getItem('token')}`,
                     },
+                    
                 })
                 this.folders.push(response.data);
                 this.addedFolderName = '';
@@ -105,6 +110,7 @@ export default {
             addedFolderName: '',
             renamedFolderName: '',
             componentKey: 0,
+            pages: 0,
         };
     },
 };
