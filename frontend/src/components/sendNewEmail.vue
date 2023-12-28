@@ -172,57 +172,57 @@ export default {
       }
       console.log("this.attachments", this.attachments)
 
-      console.log(this.receivers);
-      axios.post('http://localhost:8080/emails', {
-        // to: this.receiverEmailAddress,
-        to: this.receivers,
-        subject: this.subject,
-        body: this.body,
-        attachments: this.attachments,
-        priority: this.importance,
-        isDraft: isDraft
-      }, {
-        headers: {
-          authorization: `${localStorage.getItem('token')}`
-        }
-      }).then((response => response.data))
-        .then((data) => {
-          console.log(data);
-          if (data === '') {
-            this.snackbar = true;
-            this.text = 'Email not sent';
-          }
-          else {
-            this.snackbar = true;
-            if (!isDraft) {
-              this.text = 'Email saved as draft';
+        console.log(this.receivers);
+        axios.post('http://localhost:8080/emails', {
+            // to: this.receiverEmailAddress,
+            to: this.receivers,
+            subject: this.subject,
+            body: this.body,
+            attachments: this.attachments,
+            priority: this.importance,
+            draft: !isDraft
+          }, {
+            headers: {
+              authorization: `${localStorage.getItem('token')}`
             }
-            else
-              this.text = 'Email sent';
+        }).then((response => response.data))
+          .then((data) => {
+            console.log(data);
+            if (data === '') {
+              this.snackbar = true;
+              this.text = 'Email not sent';
+            }
+            else {
+              this.snackbar = true;
+              if (!isDraft) {
+                this.text = 'Email saved as draft';
+              }
+              else
+                this.text = 'Email sent';
+            }
+          })
+      },
+      addReceiver() {
+          this.receiverEmailAddress.push('');
+      },
+      removeReceiver(){
+          this.receiverEmailAddress.pop();
+      },
+      addAttachment(){
+          this.attachments.push('');
+      },
+      removeAttachment(){
+          this.attachments.pop();
+      },
+      getContacts() {
+        axios.get('http://localhost:8080/contacts', {
+          headers: {
+            authorization: `${localStorage.getItem('token')}`
           }
-        })
-    },
-    addReceiver() {
-      this.receiverEmailAddress.push('');
-    },
-    removeReceiver() {
-      this.receiverEmailAddress.pop();
-    },
-    addAttachment() {
-      this.attachments.push('');
-    },
-    removeAttachment() {
-      this.attachments.pop();
-    },
-    getContacts() {
-      axios.get('http://localhost:8080/contacts', {
-        headers: {
-          authorization: `${localStorage.getItem('token')}`
-        }
-      }).then((response => response.data))
-        .then((data) => {
-          this.contacts = data;
-          console.log(this.contacts);
+        }).then((response => response.data))
+          .then((data) => {
+            this.contacts = data;
+            console.log(this.contacts);
         })
     },
 
