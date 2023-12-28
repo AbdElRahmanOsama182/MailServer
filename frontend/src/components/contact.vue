@@ -107,8 +107,9 @@ import axios from 'axios';
 import VueAxios from 'vue-axios';
 
 export default {
-  props: ['contacts', 'numberOfPages'],
+  props: ['contacts',],
   data: () => ({
+    numberOfPages:0,
     newContact: {},
     newEmail: '',
     text: '',
@@ -116,7 +117,7 @@ export default {
     page: 1,
     search: '',
     hidden: true,
-    disable: '',
+    disable: false,
   }),
   components: {
     AddContact,
@@ -159,10 +160,15 @@ export default {
           headers: {
             authorization: `${localStorage.getItem('token')}`,
           },
+          params: {
+            page: this.page,
+          },
         })
         .then((Response) => {
           const Data = Response.data;
-          this.contacts = Data;
+          console.log(Data)
+          this.contacts = Data.contacts;
+          this.numberOfPages = Data.pages;
         });
     },
 
@@ -234,16 +240,7 @@ export default {
     },
 
     changeThePage() {
-      axios
-        .get('http://localhost:8080/api/GetContactPage', {
-          params: {
-            PageNumber: this.page,
-          },
-        })
-        .then((Response) => {
-          const Data = Response.data;
-          this.contacts = Data;
-        });
+      this.getContacts();
     },
 
     getNumberOfPages() {
@@ -267,6 +264,7 @@ export default {
     },
 
     sortContacts() {
+      this.hidden = true;
       axios.get('http://localhost:8080/contacts/sort', {
         headers: {
           authorization: `${localStorage.getItem('token')}`,

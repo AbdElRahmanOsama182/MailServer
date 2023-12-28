@@ -9,18 +9,18 @@
             <v-icon>mdi-email-search-outline</v-icon>
           </v-btn>
       
-        <v-col md="1.5">
-            <v-combobox v-show="!hidden3" v-model="filter" :items="items" label="Search by" dense hide-details></v-combobox>
+        <v-col md="2" v-if="!hidden3">
+            <v-combobox v-show="!hidden3" v-model="search" :items="items" label="Search by" dense hide-details></v-combobox>
         </v-col>
       
-        <v-col md="2">
+        <v-col md="2" v-if="!hidden3">
           <v-text-field
             v-show="!hidden3"
             clearable
             filled
             outlined
             hide-details
-            v-model="search"
+            v-model="searchQuery"
             label="Email Search"
           ></v-text-field>
         </v-col>
@@ -28,40 +28,46 @@
           v-show="!hidden3"
           icon
           dark
-          @click="searchEmail">
+          @click="applyOperations">
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
         <v-btn @click="hidden = !hidden" icon>
           <v-icon>mdi-sort</v-icon>
         </v-btn>
-        <v-col md="1.5">
+        <v-col md="2" v-if="!hidden">
             <v-combobox v-show="!hidden" v-model="sort" :items="items" label="Sort by" dense hide-details></v-combobox>
         </v-col>
         <v-btn
           v-show="!hidden"
           icon
           dark
-          @click="applySort">
+          @click="applyOperations">
           <v-icon>mdi-sort-ascending</v-icon>
         </v-btn>
           <v-btn @click="hidden2 = !hidden2" icon>
             <v-icon>mdi-filter</v-icon>
           </v-btn>
       
-        <v-col md="1.5">
+        <v-col md="2" v-if="!hidden2">
             <v-combobox v-show="!hidden2" v-model="filter" :items="items" label="Filter by" dense hide-details></v-combobox>
         </v-col>
       
-        <v-col md="2">
+        <v-col md="2" v-if="!hidden2">
             <v-text-field v-show="!hidden2 && filter !== 'importance'" clearable dense v-model="filtername" hide-details></v-text-field>              
-            <v-slider span v-show="!hidden2 && filter === 'importance'" v-model="importance" :tick-labels="importanceList" :max="3" step="1" ticks="always" tick-size="4"></v-slider> 
+            <v-slider dark span v-show="!hidden2 && filter === 'importance'" v-model="importance" thumb-label :min="1" :max="4" step="1" ticks="always" tick-size="4"></v-slider> 
         </v-col> 
         <v-btn
           v-show="!hidden2"
           icon
           dark
-          @click="searchEmail">
+          @click="applyOperations">
           <v-icon>mdi-filter-check</v-icon>
+        </v-btn>
+        <v-btn icon dark @click="BulkDelete">
+          <v-icon>{{ this.folder !== 'Trash' ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
+        </v-btn>
+        <v-btn icon dark @click="startBulkMove">
+          <v-icon>mdi-cursor-move</v-icon>
         </v-btn>
           <!-- <v-btn v-show="!hidden2" fab small dark color="#2d3142" @click="applyFilter">
             <v-icon>mdi-checkbox-marked-circle</v-icon>
@@ -72,46 +78,53 @@
       <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
         <template v-slot:activator="{ on, attrs }">
           <v-row class="message-gallery">
-            <v-col v-for="(message, i) in messeages" :key="i" cols="12" sm="6" md="4" lg="3">
+            <v-col v-for="(message, i) in messages" :key="i" cols="12" sm="6" md="4" lg="3">
               <v-card class="message-card" @click="openMessage(i)" v-bind="attrs" v-on="on">
                 <v-img class="message-image" src="..\assets\mail.png"></v-img>
                 <v-card-text class="message-info">
-                  <div class="message-info-item"><strong>From:</strong> {{ message.sender }}</div>
-                  <div class="message-info-item"><strong>To:</strong> {{ message.recievers[0] }}</div>
+                  <div class="message-info-item"><strong>From:</strong> {{ message.fromUserId }}</div>
+                  <div class="message-info-item"><strong>To:</strong> {{ message.to[0]?message.to[0].name:"" }}</div>
                   <div class="message-info-item"><strong>Subject:</strong> {{ message.subject }}</div>
                   <div class="message-info-item"><strong>Body:</strong> {{ message.body.substring(0, 20) }}</div>
-                  <div class="message-info-item"><strong>Date:</strong> {{ message.date }}</div>
-                  <div class="message-info-item"><strong>Importance:</strong> {{ message.importance === 'veryImportant' ? 'Very Important' : message.importance }}</div>
+                  <div class="message-info-item"><strong>Date:</strong> {{ message.sendDate.substring(0,10) }}</div>
+                  <div class="message-info-item"><strong>Priority:</strong> {{ message.priority }}</div>
                 </v-card-text>
-                <v-btn class="message-action" icon @click="deleteORretrieve(message)" @click.stop="openMessage(i)">
-                  <v-icon>{{ delete_retrieve === 'delete' ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
+                <v-btn class="message-action" icon @click.stop="openMessage(i)" @click="deleteOrrestore(message)">
+                  <v-icon>{{ message.deleted === false ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
                 </v-btn>
+                <v-btn class="message-action mr-8" icon @click.stop="openMessage(i)" @click="startMove(i)">
+                  <v-icon>mdi-cursor-move</v-icon>
+                </v-btn>
+                <v-checkbox class="message-action mt-8" v-model="selectedMessages[i]" hide-details @click.stop="openMessage(i)"></v-checkbox>
+                <v-dialog v-model="moveDialog" max-width="400" transition="dialog-bottom-transition">
+                  <v-card color="#BFD7ED">
+                    <v-card-title>Choose Destination Folder</v-card-title>
+                    <v-card-text>
+                      <v-select 
+                        v-model="selectedFolder"
+                        :items="AllFolders"
+                        chips
+                        solo
+                        filled
+                        dense
+                        item-text="name"
+                        label="Destination Folder"></v-select>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn @click="moveDialog = false" color="#071551" dark>Cancel</v-btn>
+                      <v-spacer></v-spacer>
+                      <v-btn @click="move" color="#071551" dark>Move</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </v-card>
             </v-col>
           </v-row>
         </template>
 
-        <v-card>
-                      <v-toolbar
-                      color="#2d3142"
-                      dark
-                      dense
-                      flat
-                      >
-                        <v-btn
-                            icon
-                            dark
-                            @click="dialog = false"
-                        >
-                            <v-icon>mdi-close</v-icon>
-                        </v-btn>
-                        <v-toolbar-title><v-icon>mdi-mail</v-icon></v-toolbar-title>
-                        <v-spacer></v-spacer>
-                      </v-toolbar>
-
-                      <ViewMail :mail="mail" @reply= "reply($event)" ></ViewMail>
-
-              </v-card>
+        <v-card @click="dialog=false">
+          <ViewMail :mail="mail" @reply= "reply($event)" ></ViewMail>
+        </v-card>
       </v-dialog>
     </v-row>
     <v-row class="cont">
@@ -126,14 +139,13 @@
 <script>
 
 import ViewMail from './viewMail.vue'
-
 import Vue from 'vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
 
 export default {
-  props: ['messeages','folder','numberOfPages'],
+  props: ['messages','folder','numberOfPages'],
   data: function (){
     return {
       dialog: false,
@@ -144,28 +156,111 @@ export default {
       page: 1,
       n:"",
       indexFolder : '' ,
-      sort: 'null',
-      filter: 'null',
-      filtername : 'null',
-      items: ['null','subject','sender','SenderAddress','date','importance'],
+      sort: null,
+      filter: null,
+      filtername : null,
+      items: ['none','subject','body','date','priority'],
       mail:"",
       delete_retrieve : "delete",
       importanceList: ['1','2','3','4'],
       importanceList2: ['low','medium','Important','veryImportant'],
       importance: '',
+      search: null,
+      searchQuery: null,
+      isSpam:{}
+      moveDialog: false,
+      AllFolders: [],
+      selectedFolder: null,
+      moveingMessage: null,
+      selectedMessages: [],
+      singleMove: false,
+      BulkMove: false,
     }
   },
+  // checkspam befre mounted
+
   mounted () {
       console.log(this.folder);
       console.log("dd");
-      console.log(this.messeages);
-      this.checkFolder();
-      this.sortandFilter();
+      for(let message in this.messages){
+        console.log("messageeeeeeeeeeeeeeeee:");
+        console.log("message:",this.messages[message].body);
+        this.messages[message].spam=true;
+      }
+      console.log(this.messages);
+      console.log("Number of pages: " +this.numberOfPages);
+      // this.checkSpam();
+      // this.checkFolder();
+      // this.sortandFilter();
   },
   components : {
     ViewMail
   },
   methods : {
+      move() {
+        if (this.singleMove) {
+          this.moveMessage();
+          this.singleMove = false;
+        } else {
+          for (let i = 0; i < this.selectedMessages.length; i++) {
+            if (this.selectedMessages[i] === true) {
+              this.moveingMessage = this.messages[i];
+              this.moveMessage();
+            }
+          }
+          this.selectedMessages = [];
+          this.bulkMove = false;
+          this.refresh(this.indexFolder);
+        }
+      },
+      startMove(index) {
+        this.moveDialog = true;
+        this.selectedFolder = null;
+        this.moveingMessage = this.messages[index];
+        this.getAllFolders();
+        console.log(this.AllFolders);
+        this.singleMove = true;
+      },
+      moveMessage() {
+        console.log(this.moveingMessage);
+        const folder = this.AllFolders.find(folder => folder.name === this.selectedFolder);
+        axios.put('http://localhost:8080/folders/'+`${folder.id}`+'/emails/'+`${this.moveingMessage.id}`,{},{
+          headers: {
+            authorization: `${localStorage.getItem('token')}`
+          }
+        }).then(Response => {
+          const Data = Response.data;
+        });
+        this.moveDialog = false;
+        this.refresh(this.indexFolder);
+      },
+      startBulkMove(){
+        this.moveDialog = true;
+        this.selectedFolder = null;
+        this.bulkMove = true;
+        this.getAllFolders();
+        console.log(this.AllFolders);
+      },
+      BulkDelete(){
+        for (let i = 0; i < this.selectedMessages.length; i++) {
+          if (this.selectedMessages[i] === true) {
+            this.deleteOrrestore(this.messages[i]);
+          }
+        }
+        this.selectedMessages = [];
+        this.refresh(this.indexFolder);
+      },
+      getAllFolders() {
+        axios.get('http://localhost:8080/folders' ,{
+          headers: {
+            authorization: `${localStorage.getItem('token')}`
+          }
+        }).then(Response => {
+          const Data = Response.data;
+          this.AllFolders = Data;
+          console.log(this.AllFolders);
+        });
+      },
       checkFolder(){
         if(this.folder == "Inbox"){
           this.indexFolder = 0 ;
@@ -185,42 +280,38 @@ export default {
           this.delete_retrieve = "delete";
         }
       },
-      deleteORretrieve(messeage) {
-        console.log(messeage);
-        console.log(this.indexFolder);
-        if (this.indexFolder === 2) {
-          axios.get('http://localhost:8080/api/retriveFromTrash',{
-              params: {
-                  id : messeage.id,
-              }
-          }).then(Response=>{
-              // axios.get('http://localhost:8080/api/getPage',{
-              // params: {
-              //     PageNumber : this.page,
-              // }
-              // }).then(Response=>{
-              //   const Data = Response.data;
-              //   this.messeages = Data ;
-              // });
-          });
+
+      deleteOrrestore(message){
+        if(message.deleted === false){
+          this.deleteEmail(message);
         }
         else {
-          axios.get('http://localhost:8080/api/bulkDelete',{
-                params: {
-                    id : messeage.id,
-                    indexOfDefaultFolder : this.indexFolder
-                }
-            }).then(Response=>{
-              // axios.get('http://localhost:8080/api/getPage',{
-              // params: {
-              //     PageNumber : this.page,
-              // }
-              // }).then(Response=>{
-              //   const Data = Response.data;
-              //   this.messeages = Data ;
-              // });
-            });
+          this.restoreEmail(message);
         }
+        this.refresh(this.indexFolder);
+      },
+      deleteEmail(message) {
+        console.log(message);
+        console.log(this.indexFolder);
+        axios.put('http://localhost:8080/folders/trash/emails/'+`${message.id}`,{},{
+            headers: {
+                authorization: `${localStorage.getItem('token')}`
+            },
+        }).then(Response=>{
+            const Data = Response.data;
+        });
+        this.refresh(this.indexFolder);
+      },
+      restoreEmail(message) {
+        console.log(message);
+        console.log(this.indexFolder);
+        axios.put('http://localhost:8080/folders/trash/emails/'+`${message.id}`+'/restore',{},{
+            headers: {
+                authorization: `${localStorage.getItem('token')}`
+            },
+        }).then(Response=>{
+            const Data = Response.data;
+        });
         this.refresh(this.indexFolder);
       },
       refresh(index) {
@@ -228,19 +319,20 @@ export default {
       },
       openMessage(n) {
         console.log("ok i will show this mess" + n)
-        this.mail = this.messeages[n];
+        this.mail = this.messages[n];
       },
        
       changeThePage(){
-        console.log("okokkoko")
-        axios.get('http://localhost:8080/api/getPage',{
-              params: {
-                  PageNumber : this.page
-              }
-        }).then(Response=>{
-              const Data = Response.data;
-              this.messeages = Data ;
-        });
+        // console.log("okokkoko")
+        // axios.get('http://localhost:8080/api/getPage',{
+        //       params: {
+        //           PageNumber : this.page
+        //       }
+        // }).then(Response=>{
+        //       const Data = Response.data;
+        //       this.messeages = Data ;
+        // });
+        this.$emit('changePage',this.page);
       },
       
       applySort(){
@@ -250,14 +342,23 @@ export default {
         this.sortandFilter();
       },
 
-      applyFilter(){
-          if (this.filter === 'importance'){
-            this.filtername = this.importanceList2[this.importance];
-            console.log(this.filtername);
-          }
-        this.sortandFilter();
+      applyOperations(){
         console.log(this.filter);
-        
+        console.log(this.filtername);
+        console.log(this.importance);
+        console.log(this.sort);
+        console.log(this.search);
+        console.log(this.searchQuery);
+        this.$emit('applyFilters',{
+          filter: this.filter,
+          filtername: this.filtername,
+          importance: this.importance,
+          indexFolder: this.indexFolder,
+          sort: this.sort,
+          search: this.search,
+          searchQuery: this.searchQuery,
+        });         
+        this.refresh(this.indexFolder);
       },
 
       sortandFilter : function(){
@@ -267,16 +368,6 @@ export default {
               const Data = Response.data;
               this.messeages = Data ;
         });
-      },
-      searchEmail(){
-      //   axios.get('http://localhost:8080/api/search',{
-      //         params: {
-      //             search : this.search
-      //         }
-      //   }).then(Response=>{
-      //         const Data = Response.data;
-      //         this.messeages = Data ;
-      //   });
       },
   }
 }
@@ -320,6 +411,11 @@ export default {
   right: 8px;
 }
 
+.message-spam {
+  position: absolute;
+  top: 8px;
+  right: 25px;
+}
 .cont {
   display: flex;
   justify-content: center;

@@ -5,16 +5,17 @@
         <SendNewEmail :senderEmailAddress="emailAddress"/>
       </div>
       <div v-else-if="currentTab === 'inbox'">
-        <ShowEmails :messages="inboxMails" folder="Inbox" :numberOfPages="inboxNumPages" @refresh="refresh" />
+        <ShowEmails :messages="inboxMails" folder="Inbox" :numberOfPages="inboxNumPages" @refresh="refresh" @applyFilters="applyFilters" />
       </div>
       <div v-else-if="currentTab === 'sent'">
-        <ShowEmails :messages="sentMails" folder="Sent" :numberOfPages="sentNumPages" @refresh="refresh" />
+        <ShowEmails :messages="sentMails" folder="Sent" :numberOfPages="sentNumPages" @refresh="refresh" @applyFilters="applyFilters" />
       </div>
       <div v-else-if="currentTab === 'trash'">
-        <ShowEmails :messages="trashMails" folder="Trash" :numberOfPages="trashNumPages" @refresh="refresh" />
+        <ShowEmails :messages="trashMails" folder="Trash" :numberOfPages="trashNumPages" @refresh="refresh" @applyFilters="applyFilters" />
       </div>
       <div v-else-if="currentTab === 'draft'">
-        <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" />
+        <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" @applyFilters="applyFilters" />
+
       </div>
       <div v-else-if="currentTab === 'folders'">
         <ShowEmails :messages="chosenFolderEmails" folder="folders" :numberOfPages="inboxNumPages" @refresh="refresh" />
@@ -70,6 +71,7 @@ import SendNewEmail from '../components/sendNewEmail.vue';
 import ShowEmails from '../components/veiwMails.vue';
 
 export default {
+  props: ['sort', 'filter', 'filtername', 'importance', 'search', 'searchQuery'],
   data: () => ({
     currentTab: 'sendNewEmail',
     username: '',
@@ -88,6 +90,12 @@ export default {
     chosenFolderEmails : [],
     Folders: [],
     showFolderOptions: false,
+    filterPriority: null,
+    filterSubject: null,
+    sort: null,
+    search: null,
+    searchQuery: null,
+    Mails: [],
   }),
   components: {
     SendNewEmail,
@@ -96,9 +104,8 @@ export default {
     FolderOptions,
   },
   mounted() {
-    this.getUserInfo();
-    this.getInboxEmails();
-    this.getFolders();
+    // this.getUserInfo();
+    // this.getInboxEmails();
   },
   methods: {
     handleViewFolder({ folder, emails }) {
@@ -107,7 +114,20 @@ export default {
       this.currentTab = 'folders';
       this.chosenFolderEmails = emails;
     },
-
+    applyFilters(data) {
+      this.filterSubject = data.filter === 'subject' ? data.filtername : null;
+      this.filterPriority = data.filter === 'importance' ? data.importance : null;
+      this.sort = data.sort === null || data.sort === 'none' ? null : data.sort;
+      this.search= data.search === null || data.search === 'none' ? null : data.search;
+      this.searchQuery = data.searchQuery === null || data.searchQuery === 'none' ? null : data.searchQuery;
+      console.log("in main page");
+      console.log(this.filterPriority);
+      console.log(this.filterSubject);
+      console.log(this.sort);
+      console.log(this.search);
+      console.log(this.searchQuery);
+      this.refresh(data.indexFolder);
+    },
     async getUserInfo() {
       try {
         const response = await axios.get('http://localhost:8080/api/getUser');
@@ -122,6 +142,42 @@ export default {
       } catch (error) {
         console.error('Error fetching user address', error);
       }
+    },
+    getEmailsByFolderName(PageNumber=1) {
+      axios.get('http://localhost:8080/folders/'+this.currentTab+'/emails', {
+        headers: {
+          authorization: `${localStorage.getItem('token')}`
+        },
+        params: {
+          sort: this.sort,
+        filterSubject: this.filterSubject,
+        filterPriority: this.filterPriority,
+        searchType: this.search,
+        searchValue: this.searchQuery,
+        page: PageNumber,
+
+        },
+      }).then(Response=>{
+        const Data = Response.data;
+        if (this.currentTab === 'inbox') {
+          this.inboxMails = Data.emails ;
+          this.inboxNumPages = Data.pages ;
+        } else if (this.currentTab === 'sent') {
+          this.sentMails = Data.emails ;
+          this.sentNumPages = Data.pages ;
+        } else if (this.currentTab === 'trash') {
+          this.trashMails = Data.emails ;
+          this.trashNumPages = Data.pages ;
+        } else if (this.currentTab === 'draft') {
+          this.DraftMails = Data.emails ;
+          this.DraftNumPages = Data.pages ;
+        }
+      }
+      );
+      console.log('Getting folder: ', this.currentTab);
+      console.log(this.Mails);
+
+
     },
     async getInboxEmails() {
       axios.get('http://localhost:8080/api/SetEmailsToShow',{
@@ -138,20 +194,31 @@ export default {
               });
           });
     },
-    async getSentEmails() {
-      try {
-        const response = await axios.get('http://localhost:8080/api/SetEmailsToShow', {
-          params: {
-            FolderIndex: 4,
-          },
-        });
-        this.sentMails = response.data;
-
-        const numPagesResponse = await axios.get('http://localhost:8080/api/EmailsNumberOfPages');
-        this.sentNumPages = numPagesResponse.data;
-      } catch (error) {
-        console.error('Error fetching sent emails', error);
+    getSentEmails() {
+      console.log("in get sent emails");
+      console.log(this.filterPriority);
+      console.log(`${localStorage.getItem('token')}`);
+      axios.get('http://localhost:8080/folders/sent/emails', {
+        
+      // }, {
+        headers: {
+          authorization: `${localStorage.getItem('token')}`
+        },
+        params: {
+          sort: this.sort,
+        filterSubject: this.filterSubject,
+        filterPriority: this.filterPriority,
+        searchType: this.search,
+        searchValue: this.searchQuery,
+        },
+      }).then(Response=>{
+        const Data = Response.data;
+        this.sentMails = Data ;
       }
+      );
+
+        console.log("Sent Mails")
+        console.log(this.sentMails);
     },
     async getTrashEmails() {
       try {
@@ -203,20 +270,14 @@ export default {
       }
     },
     async refresh(indexFolder) {
+      console.log('refreshing');
       await this.sleep(60);
-
-      if (indexFolder === 0) {
-        this.getInboxEmails();
-      } else if (indexFolder === 4) {
-        this.getSentEmails();
-      } else if (indexFolder === 2) {
-        this.getTrashEmails();
-      } else {
-        this.getDraftEmails();
-      }
+      this.getEmailsByFolderName();
     },
     changeTab(tab) {
       this.currentTab = tab;
+      if (this.currentTab !== 'sendNewEmail' && this.currentTab !== 'contacts')
+        this.getEmailsByFolderName();
       console.log(this.currentTab);
     },
     logout() {
@@ -224,6 +285,9 @@ export default {
     },
     sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    changePage(data) {
+      this.getEmailsByFolderName(data);
     },
   },
 };

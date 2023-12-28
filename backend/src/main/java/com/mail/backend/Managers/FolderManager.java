@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.mail.backend.Models.Email.Email;
 import com.mail.backend.Models.Folder.DraftFolder;
 import com.mail.backend.Models.Folder.Folder;
 import com.mail.backend.Models.Folder.InboxFolder;
@@ -17,7 +17,7 @@ import com.mail.backend.Models.Folder.TrashFolder;
 
 public class FolderManager implements ManagerInterface<Folder> {
 
-    private static final String FOLDERS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\folders.json";
+    private static final String FOLDERS_FILE_PATH = "data/folders.json";
     private static FolderManager instance = null;
     Map<Integer, Folder> folders = new HashMap<Integer, Folder>();
     private int nextId = 0;
@@ -114,6 +114,8 @@ public class FolderManager implements ManagerInterface<Folder> {
 
     public void moveEmail(int emailId, int fromId, int toId) {
         this.removeEmail(fromId, emailId);
+        Email email = (Email) ManagerFactory.getManager("EmailManager").get(emailId);
+        email.setFolderId(toId);
         this.addEmail(toId, emailId);
         this.saveFolders();
     }
@@ -168,7 +170,7 @@ public class FolderManager implements ManagerInterface<Folder> {
         System.out.println("Folders:");
         for (Folder folder : this.folders.values()) {
             System.out.println(folder.getName());
-            if (folder.getUserId().equals(userId) && folder.getName().equals(name)) {
+            if (folder.getUserId().equals(userId) && folder.getName().toLowerCase().equals(name.toLowerCase())) {
                 return folder;
             }
         }
