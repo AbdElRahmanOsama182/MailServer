@@ -274,6 +274,7 @@ export default {
       this.getEmailsByFolderName();
     },
     changeTab(tab) {
+      this.showFolderOptions = false;
       this.currentTab = tab;
       if (this.currentTab !== 'sendNewEmail' && this.currentTab !== 'contacts')
         this.getEmailsByFolderName();
