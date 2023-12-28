@@ -15,6 +15,7 @@
       </div>
       <div v-else-if="currentTab === 'draft'">
         <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" @applyFilters="applyFilters" />
+
       </div>
       <div v-else-if="currentTab === 'contacts'">
         <contact :contacts="contacts" :numberOfPages="contactsNumPages" />
@@ -123,7 +124,7 @@ export default {
         console.error('Error fetching user address', error);
       }
     },
-    getEmailsByFolderName() {
+    getEmailsByFolderName(PageNumber=1) {
       axios.get('http://localhost:8080/folders/'+this.currentTab+'/emails', {
         headers: {
           authorization: `${localStorage.getItem('token')}`
@@ -134,20 +135,29 @@ export default {
         filterPriority: this.filterPriority,
         searchType: this.search,
         searchValue: this.searchQuery,
+        page: PageNumber,
+
         },
       }).then(Response=>{
         const Data = Response.data;
         if (this.currentTab === 'inbox') {
-          this.inboxMails = Data ;
+          this.inboxMails = Data.emails ;
+          this.inboxNumPages = Data.pages ;
         } else if (this.currentTab === 'sent') {
-          this.sentMails = Data ;
+          this.sentMails = Data.emails ;
+          this.sentNumPages = Data.pages ;
         } else if (this.currentTab === 'trash') {
-          this.trashMails = Data ;
+          this.trashMails = Data.emails ;
+          this.trashNumPages = Data.pages ;
         } else if (this.currentTab === 'draft') {
-          this.DraftMails = Data ;
+          this.DraftMails = Data.emails ;
+          this.DraftNumPages = Data.pages ;
         }
       }
       );
+      console.log('Getting folder: ', this.currentTab);
+      console.log(this.Mails);
+
 
     },
     async getInboxEmails() {
@@ -223,6 +233,7 @@ export default {
     },
     async refresh(indexFolder) {
       console.log('refreshing');
+      await this.sleep(60);
       this.getEmailsByFolderName();
     },
     changeTab(tab) {
@@ -236,6 +247,9 @@ export default {
     },
     sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    changePage(data) {
+      this.getEmailsByFolderName(data);
     },
   },
 };

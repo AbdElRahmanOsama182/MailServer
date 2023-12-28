@@ -37,8 +37,8 @@
                   <v-col>
                       <h2 class="font-italic">Attachments:</h2>
                     <v-card>
-                      <v-chip v-for="(attachment, index) in mail.attachments" :key="index" class="me-2 mt-2" color="primary">
-                        {{ attachment.name }}
+                      <v-chip v-for="(attachment, index) in mail.attachments[0].paths" :key="index" class="me-2 mt-2" color="primary" @click="download(attachment)">
+                        <a :href="`http://localhost:8080/static/${attachment.split('\\').pop().split('/').pop()}`" download style="color: white;">{{  attachment.split('\\').pop().split('/').pop() }}</a>
                       </v-chip>
                     </v-card>
                   </v-col>
@@ -57,6 +57,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   props: ['mail'],
   data: () => ({
@@ -66,9 +67,38 @@ export default {
     formattedRecievers() {
       return this.mail.to.map((reciever) => reciever.name).join(', ');
     },
+      async checkSpam(){
+        
+        console.log("messageeeeeeeeeeeeeeeee:");
+          console.log("message:",this.mail.body);
+          let message_id = this.mail.id;
+          // await axios.post('https://api-inference.huggingface.co/models/mshenoda/roberta-spam',
+          //     {
+          //       inputs: this.mail.body,
+          //     }
+          // ).then(Response=>{
+          //       const Data = Response.data;
+          //       console.log(Data,Data[0]);
+          // });
+        console.log(this.isSpam);
+      },
+      download(data){
+        // prevent other onclick events
+        event.stopPropagation();
+        console.log("download",data);
+        // download file from local pc
+        // window.open(data.split('///').pop(), '_blank');
+        
+
+
+      }
+  },
+  async beforeMount() {
+    await this.checkSpam();
   },
   mounted() {
-    console.log(this.mail);
+    console.log(this.mail,"maillllllllllllllllllll");
+
     this.receiversNames = this.formattedRecievers();
   },
 };

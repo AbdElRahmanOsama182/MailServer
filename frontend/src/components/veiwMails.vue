@@ -83,7 +83,7 @@
                 <v-img class="message-image" src="..\assets\mail.png"></v-img>
                 <v-card-text class="message-info">
                   <div class="message-info-item"><strong>From:</strong> {{ message.fromUserId }}</div>
-                  <div class="message-info-item"><strong>To:</strong> {{ message.to[0].name }}</div>
+                  <div class="message-info-item"><strong>To:</strong> {{ message.to[0]?message.to[0].name:"" }}</div>
                   <div class="message-info-item"><strong>Subject:</strong> {{ message.subject }}</div>
                   <div class="message-info-item"><strong>Body:</strong> {{ message.body.substring(0, 20) }}</div>
                   <div class="message-info-item"><strong>Date:</strong> {{ message.sendDate.substring(0,10) }}</div>
@@ -167,6 +167,7 @@ export default {
       importance: '',
       search: null,
       searchQuery: null,
+      isSpam:{}
       moveDialog: false,
       AllFolders: [],
       selectedFolder: null,
@@ -176,10 +177,19 @@ export default {
       BulkMove: false,
     }
   },
+  // checkspam befre mounted
+
   mounted () {
       console.log(this.folder);
       console.log("dd");
+      for(let message in this.messages){
+        console.log("messageeeeeeeeeeeeeeeee:");
+        console.log("message:",this.messages[message].body);
+        this.messages[message].spam=true;
+      }
       console.log(this.messages);
+      console.log("Number of pages: " +this.numberOfPages);
+      // this.checkSpam();
       // this.checkFolder();
       // this.sortandFilter();
   },
@@ -270,6 +280,7 @@ export default {
           this.delete_retrieve = "delete";
         }
       },
+
       deleteOrrestore(message){
         if(message.deleted === false){
           this.deleteEmail(message);
@@ -312,15 +323,16 @@ export default {
       },
        
       changeThePage(){
-        console.log("okokkoko")
-        axios.get('http://localhost:8080/api/getPage',{
-              params: {
-                  PageNumber : this.page
-              }
-        }).then(Response=>{
-              const Data = Response.data;
-              this.messeages = Data ;
-        });
+        // console.log("okokkoko")
+        // axios.get('http://localhost:8080/api/getPage',{
+        //       params: {
+        //           PageNumber : this.page
+        //       }
+        // }).then(Response=>{
+        //       const Data = Response.data;
+        //       this.messeages = Data ;
+        // });
+        this.$emit('changePage',this.page);
       },
       
       applySort(){
@@ -399,6 +411,11 @@ export default {
   right: 8px;
 }
 
+.message-spam {
+  position: absolute;
+  top: 8px;
+  right: 25px;
+}
 .cont {
   display: flex;
   justify-content: center;
