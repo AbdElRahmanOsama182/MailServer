@@ -77,7 +77,7 @@
                 <v-img class="message-image" src="..\assets\mail.png"></v-img>
                 <v-card-text class="message-info">
                   <div class="message-info-item"><strong>From:</strong> {{ message.fromUserId }}</div>
-                  <div class="message-info-item"><strong>To:</strong> {{ message.to[0].name }}</div>
+                  <div class="message-info-item"><strong>To:</strong> {{ message.to[0]?message.to[0].name:"" }}</div>
                   <div class="message-info-item"><strong>Subject:</strong> {{ message.subject }}</div>
                   <div class="message-info-item"><strong>Body:</strong> {{ message.body.substring(0, 20) }}</div>
                   <div class="message-info-item"><strong>Date:</strong> {{ message.sendDate.substring(0,10) }}</div>

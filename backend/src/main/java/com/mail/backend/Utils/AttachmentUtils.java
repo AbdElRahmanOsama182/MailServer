@@ -25,7 +25,7 @@ public class AttachmentUtils {
     private static Path fileLocation;
 
     @Value("${upload.base-path}")
-    private static String basePath = "uploads/";
+    private static String basePath = "src/main/resources/static/";
     
     public static File convertMFtoFile(final MultipartFile multipartFile){
         

@@ -177,7 +177,7 @@ export default {
       //     this.file = newfile ;
       //     console.log(this.file);
       // },
-      send(isDraft){
+      async send(isDraft){
         console.log(`${localStorage.getItem('token')}`);
         // get contacts of receivers from contacts list without __ob__: Observer
         this.receivers = [];
@@ -194,7 +194,24 @@ export default {
             }
           }
         }
-
+        console.log("this.attachments",this.attachments)
+        // send multipart/form-data request of attachments
+        const formData = new FormData();
+        for (let i = 0; i < this.attachments.length; i++) {
+          formData.append('files', this.attachments[i]);
+        }
+        console.log("formData",formData)
+        await axios.post('http://localhost:8080/attachment', formData, {
+          headers: {
+            authorization: `${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((response => [response.data]))
+          .then((data) => {
+            console.log(data);
+            this.attachments = data;
+          })
+        console.log("this.attachments",this.attachments)
 
         console.log(this.receivers);
         axios.post('http://localhost:8080/emails', {

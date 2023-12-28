@@ -37,8 +37,8 @@
                   <v-col>
                       <h2 class="font-italic">Attachments:</h2>
                     <v-card>
-                      <v-chip v-for="(attachment, index) in mail.attachments" :key="index" class="me-2 mt-2" color="primary">
-                        {{ attachment.name }}
+                      <v-chip v-for="(attachment, index) in mail.attachments[0].paths" :key="index" class="me-2 mt-2" color="primary" @click="download(attachment)">
+                        <a :href="`http://localhost:8080/static/${attachment.split('\\').pop().split('/').pop()}`" download style="color: white;">{{  attachment.split('\\').pop().split('/').pop() }}</a>
                       </v-chip>
                     </v-card>
                   </v-col>
@@ -81,6 +81,16 @@ export default {
           //       console.log(Data,Data[0]);
           // });
         console.log(this.isSpam);
+      },
+      download(data){
+        // prevent other onclick events
+        event.stopPropagation();
+        console.log("download",data);
+        // download file from local pc
+        // window.open(data.split('///').pop(), '_blank');
+        
+
+
       }
   },
   async beforeMount() {
