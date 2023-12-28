@@ -15,7 +15,6 @@
       </div>
       <div v-else-if="currentTab === 'draft'">
         <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" @applyFilters="applyFilters" />
-
       </div>
       <div v-else-if="currentTab === 'folders'">
         <ShowEmails :messages="chosenFolderEmails" folder="folders" :numberOfPages="inboxNumPages" @refresh="refresh" />
