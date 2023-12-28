@@ -1,5 +1,6 @@
 <template>
   <div class="main-container">
+    
     <div class="tab-content">
       <div v-if="currentTab === 'sendNewEmail'">
         <SendNewEmail :senderEmailAddress="emailAddress"/>
@@ -17,12 +18,13 @@
         <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" @applyFilters="applyFilters" @changePage="changePage" />
       </div>
       <div v-else-if="currentTab === 'folders'">
-        <ShowEmails :messages="chosenFolderEmails" folder="folders" :numberOfPages="inboxNumPages" @refresh="refresh" />
+        <ShowEmails :messages="chosenFolderEmails" folder="folders" :numberOfPages="folderNumPages" @refresh="refresh" />
       </div>
       <div v-else-if="currentTab === 'contacts'">
         <contact :contacts="contacts" :numberOfPages="contactsNumPages" />
       </div>
     </div>
+    <FolderOptions class="folderOptions" :folders="folders" v-if="showFolderOptions" @view-folder="handleViewFolder" />
     <div class="tabs">
       <div class="tab" @click="changeTab('sendNewEmail')" :class="{ active: currentTab === 'sendNewEmail' }">
         <i class="icon mdi mdi-email-plus-outline"></i>
@@ -57,7 +59,7 @@
         Log-Out
       </div>
     </div>
-    <FolderOptions :folders="folders" v-if="showFolderOptions" @view-folder="handleViewFolder" />
+
   </div>
   
 </template>
@@ -87,6 +89,7 @@ export default {
     contactsNumPages: 0,
     choosenFolder: 'folders',
     chosenFolderEmails : [],
+    folderNumPages: 0,
     Folders: [],
     showFolderOptions: false,
     filterPriority: null,
@@ -103,15 +106,18 @@ export default {
     FolderOptions,
   },
   mounted() {
+    this.getFolders();
     // this.getUserInfo();
     // this.getInboxEmails();
   },
   methods: {
-    handleViewFolder({ folder, emails }) {
+    handleViewFolder({ folder, emails, pages }) {
       this.showFolderOptions = false;
-      this.chosenFolder = folder.name;
+      this.choosenFolder = folder.name;
       this.currentTab = 'folders';
       this.chosenFolderEmails = emails;
+      this.inboxNumPages = pages;
+      console.log('pages', pages);
     },
     applyFilters(data) {
       this.filterSubject = data.filter === 'subject' ? data.filtername : null;
@@ -171,6 +177,8 @@ export default {
           this.DraftMails = Data.emails ;
           this.DraftNumPages = Data.pages ;
         }
+        
+
       }
       );
       console.log('Getting folder: ', this.currentTab);
@@ -249,13 +257,6 @@ export default {
         console.error('Error fetching draft emails', error);
       }
     },
-    chooseFolder(folder) {
-    this.chosenFolder = folder;
-    this.chosenFolderEmails = this.getEmailsForFolder(folder);
-    },
-    getEmailsForFolder(folder) {
-      // logic to get emails for the chosen folder
-    },
     async getFolders() {
       try {
         const response = await axios.get('http://localhost:8080/folders', {
@@ -263,7 +264,10 @@ export default {
             authorization: `${localStorage.getItem('token')}`,
           },
         });
-        this.folders = response.data;
+        this.folders = response.data.filter(folder => {
+          const name = folder.name.toLowerCase();
+          return name !== 'inbox' && name !== 'draft' && name !== 'sent' && name !== 'trash';
+        });
       } catch (error) {
         console.error('Error fetching folders', error);
       }
@@ -275,6 +279,7 @@ export default {
     },
     changeTab(tab) {
       this.showFolderOptions = false;
+      this.choosenFolder= 'folders';
       this.currentTab = tab;
       if (this.currentTab !== 'sendNewEmail' && this.currentTab !== 'contacts')
         this.getEmailsByFolderName();
@@ -310,6 +315,13 @@ align-items: center;
 width: 100%;
 padding: 0 5%;
 align-self: center;
+}
+
+.folderOptions {
+  position: absolute;
+  top: 50%;
+  justify-content: center;
+  z-index: 10;
 }
 
 .content-container {
