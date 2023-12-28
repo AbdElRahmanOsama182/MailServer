@@ -44,7 +44,7 @@
         <i class="icon mdi mdi-file-outline"></i>
         Draft
       </div>
-      <div class="tab" @click="changeTab('folders')" :class="{ active: currentTab === 'folders' }">
+      <div class="tab" @click="changeTab('folders'); showFolderOptions=true" :class="{ active: currentTab === 'folders' }">
         <i class="icon mdi mdi-folder"></i>
         {{choosenFolder}}
       </div>
@@ -57,7 +57,7 @@
         Log-Out
       </div>
     </div>
-    <FolderOptions :folders="folders" v-if="currentTab === 'folders'" />
+    <FolderOptions :folders="folders" v-if="showFolderOptions" @view-folder="handleViewFolder" />
   </div>
   
 </template>
@@ -87,6 +87,7 @@ export default {
     choosenFolder: 'folders',
     chosenFolderEmails : [],
     Folders: [],
+    showFolderOptions: false,
   }),
   components: {
     SendNewEmail,
@@ -100,6 +101,13 @@ export default {
     this.getFolders();
   },
   methods: {
+    handleViewFolder({ folder, emails }) {
+      this.showFolderOptions = false;
+      this.chosenFolder = folder.name;
+      this.currentTab = 'folders';
+      this.chosenFolderEmails = emails;
+    },
+
     async getUserInfo() {
       try {
         const response = await axios.get('http://localhost:8080/api/getUser');

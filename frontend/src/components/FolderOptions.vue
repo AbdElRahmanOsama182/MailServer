@@ -37,13 +37,14 @@ export default {
             try {
             const response = await axios.get(`http://localhost:8080/folders/${folder.id}/emails`, {
                 headers: {
-                authorization: 'Your authorization token here',
+                    authorization: `${localStorage.getItem('token')}`,
                 },
             });
             this.emails = response.data;
             } catch (error) {
             console.error('Error fetching emails', error);
             }
+            this.$emit('view-folder', { folder, emails: this.emails });
         },
         async addFolder() {
             this.add = false;
