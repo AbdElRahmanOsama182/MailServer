@@ -224,7 +224,7 @@ export default {
           }
         }).then((response => response.data))
           .then((data) => {
-            this.contacts = data;
+            this.contacts = data.contacts;
             console.log(this.contacts);
         })
     },

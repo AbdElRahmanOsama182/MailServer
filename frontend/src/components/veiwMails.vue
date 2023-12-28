@@ -167,7 +167,7 @@ export default {
       importance: '',
       search: null,
       searchQuery: null,
-      isSpam:{}
+      isSpam:{},
       moveDialog: false,
       AllFolders: [],
       selectedFolder: null,

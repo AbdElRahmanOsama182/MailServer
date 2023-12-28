@@ -19,7 +19,7 @@ import com.mail.backend.Models.Sort.ContactSort;
 
 @Component
 public class ContactManager implements ManagerInterface<Contact> {
-    private static final String CONTACTS_FILE_PATH = "data/contacts.json";
+    private static final String CONTACTS_FILE_PATH = "backend\\src\\main\\data\\contacts.json";
     private static ContactManager instance;
     public Map<Integer, Contact> contacts = new HashMap<Integer, Contact>();
     private int nextId = 0;

@@ -30,15 +30,14 @@ import com.mail.backend.Utils.AttachmentUtils;
 
 @RestController
 @RequestMapping("/attachment")
-public class AttachmentManager implements ManagerInterface<Afile>{
+public class AttachmentManager implements ManagerInterface<Afile> {
 
-    private static final String AFILES_FILE_PATH = "data/Afiles.json";
+    private static final String AFILES_FILE_PATH = "backend\\src\\main\\data\\Afiles.json";
     private static AttachmentManager instance;
     public Map<Integer, Afile> afiles = new HashMap<Integer, Afile>();
     private int nextId = 0;
 
-
-    private AttachmentManager(){
+    private AttachmentManager() {
     }
 
     public static synchronized AttachmentManager getInstance() {
@@ -51,19 +50,16 @@ public class AttachmentManager implements ManagerInterface<Afile>{
 
     // @Autowired
     // private AttachmentUtils AttachmentUtils;
-    
-    public Afile uploadFiles(MultipartFile[] files){
+
+    public Afile uploadFiles(MultipartFile[] files) {
         ArrayList<Path> paths = new ArrayList<>();
-        for(MultipartFile file  : files){
+        for (MultipartFile file : files) {
             Path location = AttachmentUtils.storeFile(AttachmentUtils.convertMFtoFile(file));
             paths.add(location);
         }
         Afile afile = new Afile(paths);
         return addAfile(afile);
     }
-
-
-  
 
     @Override
     public Afile get(Object id) {
@@ -85,13 +81,12 @@ public class AttachmentManager implements ManagerInterface<Afile>{
         this.afiles.remove(id);
     }
 
-
     public int getNextId() {
         return this.nextId;
     }
 
-    public Afile addAfile(Afile afile){
-        if(afile == null){
+    public Afile addAfile(Afile afile) {
+        if (afile == null) {
             return null;
         }
         afile.setId(this.nextId);
@@ -104,7 +99,6 @@ public class AttachmentManager implements ManagerInterface<Afile>{
     public ArrayList<Afile> getAllAfiles() {
         return new ArrayList<Afile>(this.afiles.values());
     }
-    
 
     public void saveAfiles() {
         System.out.println("Saving Afiles");
@@ -130,7 +124,7 @@ public class AttachmentManager implements ManagerInterface<Afile>{
             for (Afile afile : afiles) {
                 this.afiles.put(afile.getId(), afile);
             }
-            this.nextId=this.afiles.size();
+            this.nextId = this.afiles.size();
         } catch (Exception e) {
             System.out.println(e);
         }

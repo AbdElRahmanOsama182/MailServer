@@ -5,16 +5,16 @@
         <SendNewEmail :senderEmailAddress="emailAddress"/>
       </div>
       <div v-else-if="currentTab === 'inbox'">
-        <ShowEmails :messages="inboxMails" folder="Inbox" :numberOfPages="inboxNumPages" @refresh="refresh" @applyFilters="applyFilters" />
+        <ShowEmails :messages="inboxMails" folder="Inbox" :numberOfPages="inboxNumPages" @refresh="refresh" @applyFilters="applyFilters" @changePage="changePage" />
       </div>
       <div v-else-if="currentTab === 'sent'">
-        <ShowEmails :messages="sentMails" folder="Sent" :numberOfPages="sentNumPages" @refresh="refresh" @applyFilters="applyFilters" />
+        <ShowEmails :messages="sentMails" folder="Sent" :numberOfPages="sentNumPages" @refresh="refresh" @applyFilters="applyFilters" @changePage="changePage" />
       </div>
       <div v-else-if="currentTab === 'trash'">
-        <ShowEmails :messages="trashMails" folder="Trash" :numberOfPages="trashNumPages" @refresh="refresh" @applyFilters="applyFilters" />
+        <ShowEmails :messages="trashMails" folder="Trash" :numberOfPages="trashNumPages" @refresh="refresh" @applyFilters="applyFilters" @changePage="changePage" />
       </div>
       <div v-else-if="currentTab === 'draft'">
-        <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" @applyFilters="applyFilters" />
+        <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" @applyFilters="applyFilters" @changePage="changePage" />
       </div>
       <div v-else-if="currentTab === 'folders'">
         <ShowEmails :messages="chosenFolderEmails" folder="folders" :numberOfPages="inboxNumPages" @refresh="refresh" />
