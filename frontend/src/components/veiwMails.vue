@@ -53,8 +53,8 @@
         </v-col>
       
         <v-col md="2" v-if="!hidden2">
-            <v-text-field v-show="!hidden2 && filter !== 'importance'" clearable dense v-model="filtername" hide-details></v-text-field>              
-            <v-slider dark span v-show="!hidden2 && filter === 'importance'" v-model="importance" thumb-label :min="1" :max="4" step="1" ticks="always" tick-size="4"></v-slider> 
+            <v-text-field v-show="!hidden2 && filter !== 'priority'" clearable dense v-model="filtername" hide-details></v-text-field>              
+            <v-slider dark span v-show="!hidden2 && filter === 'priority'" v-model="importance" thumb-label :min="1" :max="4" step="1" ticks="always" tick-size="4"></v-slider> 
         </v-col> 
         <v-btn
           v-show="!hidden2"
@@ -68,6 +68,9 @@
         </v-btn>
         <v-btn icon dark @click="startBulkMove">
           <v-icon>mdi-cursor-move</v-icon>
+        </v-btn>
+        <v-btn icon dark @click="cancelFilters">
+          <v-icon>mdi-close</v-icon>
         </v-btn>
           <!-- <v-btn v-show="!hidden2" fab small dark color="#2d3142" @click="applyFilter">
             <v-icon>mdi-checkbox-marked-circle</v-icon>
@@ -345,7 +348,7 @@ export default {
       applyOperations(){
         console.log(this.filter);
         console.log(this.filtername);
-        console.log(this.importance);
+        console.log("priority ",this.importance);
         console.log(this.sort);
         console.log(this.search);
         console.log(this.searchQuery);
@@ -361,13 +364,17 @@ export default {
         this.refresh(this.indexFolder);
       },
 
-      sortandFilter : function(){
-        axios.post('http://localhost:8080/api/FilterAndSort?sort='+this.sort,
-              [ [ this.filter , this.filtername ] ]
-        ).then(Response=>{
-              const Data = Response.data;
-              this.messeages = Data ;
-        });
+      cancelFilters(){
+        this.filter = null;
+        this.filtername = null;
+        this.importance = null;
+        this.sort = null;
+        this.search = null;
+        this.searchQuery = null;
+        this.hidden = true;
+        this.hidden2 = true;
+        this.hidden3 = true;
+        this.applyOperations();
       },
   }
 }

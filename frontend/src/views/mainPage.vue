@@ -121,7 +121,7 @@ export default {
     },
     applyFilters(data) {
       this.filterSubject = data.filter === 'subject' ? data.filtername : null;
-      this.filterPriority = data.filter === 'importance' ? data.importance : null;
+      this.filterPriority = data.filter === 'priority' ? data.importance : null;
       this.sort = data.sort === null || data.sort === 'none' ? null : data.sort;
       this.search= data.search === null || data.search === 'none' ? null : data.search;
       this.searchQuery = data.searchQuery === null || data.searchQuery === 'none' ? null : data.searchQuery;
@@ -155,11 +155,11 @@ export default {
         },
         params: {
           sort: this.sort,
-        filterSubject: this.filterSubject,
-        filterPriority: this.filterPriority,
-        searchType: this.search,
-        searchValue: this.searchQuery,
-        page: PageNumber,
+          filterSubject: this.filterSubject,
+          filterPriority: this.filterPriority,
+          searchType: this.search,
+          searchValue: this.searchQuery,
+          page: PageNumber,
 
         },
       }).then(Response=>{
