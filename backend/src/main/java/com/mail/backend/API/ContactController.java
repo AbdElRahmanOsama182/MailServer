@@ -22,6 +22,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mail.backend.Managers.ContactManager;
+import com.mail.backend.Managers.ManagerFactory;
+import com.mail.backend.Managers.UserManager;
+import com.mail.backend.Models.Contact.Contact;
+import com.mail.backend.Models.User.User;
+import com.mail.backend.Utils.Auth;
+
 @RestController
 @CrossOrigin(origins = { "http://localhost:8081" })
 public class ContactController {
