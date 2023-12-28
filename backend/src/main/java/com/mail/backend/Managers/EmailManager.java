@@ -8,6 +8,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.ws.mime.Attachment;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mail.backend.Models.Email.Email;
 import com.mail.backend.Models.Email.EmailBuilder;
@@ -15,9 +25,15 @@ import com.mail.backend.Models.Sort.BodySort;
 import com.mail.backend.Models.Sort.DateSort;
 import com.mail.backend.Models.Sort.PrioritySort;
 import com.mail.backend.Models.Sort.SubjectSort;
+import com.mail.backend.Utils.AttachmentUtils;
+import com.mail.backend.Managers.ManagerInterface;
+import com.mail.backend.Utils.AttachmentUtils;
 
-public class EmailManager implements ManagerInterface<Email> {
-    private static final String EMAILS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\emails.json";
+@RestController
+@RequestMapping("/")
+public class EmailManager implements ManagerInterface<Email>{
+//     private static final String EMAILS_FILE_PATH = "data/emails.json";
+    private static final String EMAILS_FILE_PATH = "backend\\src\\main\\data\\emails.json";
     private static EmailManager instance;
     public Map<Integer, Email> emails = new HashMap<Integer, Email>();
     private int nextId = 0;
@@ -166,10 +182,11 @@ public class EmailManager implements ManagerInterface<Email> {
             ObjectMapper mapper = new ObjectMapper();
             ArrayList<Email> emails = mapper.readValue(new File(EMAILS_FILE_PATH),
                     mapper.getTypeFactory().constructCollectionType(ArrayList.class, Email.class));
+            this.nextId = 0;
             for (Email email : emails) {
+                this.nextId = Math.max(this.nextId, email.getId() + 1);
                 this.emails.put(email.getId(), email);
             }
-            this.nextId = this.emails.size();
         } catch (Exception e) {
             System.out.println(e);
         }

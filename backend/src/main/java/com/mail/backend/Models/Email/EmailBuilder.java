@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
-//import org.springframework.ws.mime.Attachment;
-import com.mail.backend.Models.Attachment.Attachment;
+import org.springframework.ws.mime.Attachment;
 
 
 import com.mail.backend.Managers.EmailManager;
 
 import com.mail.backend.Models.Contact.Contact;
+import com.mail.backend.Models.Afile.*;
 
 public class EmailBuilder {
     private Email email;
@@ -34,7 +34,7 @@ public class EmailBuilder {
         return this;
     }
 
-    public EmailBuilder attachments(ArrayList<Attachment> attachments) {
+    public EmailBuilder attachments(ArrayList<Afile> attachments) {
         this.email.setAttachments(attachments);
         return this;
     }
@@ -92,7 +92,7 @@ public class EmailBuilder {
                     builder.to((ArrayList<Contact>) email.get(key));
                     break;
                 case "attachments":
-                    builder.attachments((ArrayList<Attachment>) email.get(key));
+                    builder.attachments((ArrayList<Afile>) email.get(key));
                     break;
                 case "priority":
                     builder.priority((int) email.get(key));
