@@ -212,6 +212,7 @@ public class FolderController {
                 emailManager.remove(emailId);
                 continue;
             }
+
             emails.add(email);
         }
 

@@ -1,1 +1,2 @@
 [{"id":0,"fromUserId":"aaa","to":[{"id":1,"username":"aaa","name":"lolo","emails":["bb@bb.bb"]}],"attachments":[],"priority":1,"subject":"eee","body":"eee","deleteDate":null,"sendDate":1703747490314,"folderId":2,"deleted":false,"draft":false},{"id":1,"fromUserId":"aaa","to":[{"id":1,"username":"aaa","name":"lolo","emails":["bb@bb.bb"]}],"attachments":[],"priority":1,"subject":"eee","body":"eee","deleteDate":null,"sendDate":1703747490314,"folderId":4,"deleted":false,"draft":false}]
+
