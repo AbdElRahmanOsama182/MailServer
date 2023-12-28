@@ -59,7 +59,6 @@ export default {
                     headers: {
                         authorization: `${localStorage.getItem('token')}`,
                     },
-                    
                 })
                 this.folders.push(response.data);
                 this.addedFolderName = '';
