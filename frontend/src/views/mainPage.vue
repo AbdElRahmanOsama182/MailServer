@@ -16,6 +16,9 @@
       <div v-else-if="currentTab === 'draft'">
         <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" />
       </div>
+      <div v-else-if="currentTab === 'folders'">
+        <ShowEmails :messages="chosenFolderEmails" folder="folders" :numberOfPages="inboxNumPages" @refresh="refresh" />
+      </div>
       <div v-else-if="currentTab === 'contacts'">
         <contact :contacts="contacts" :numberOfPages="contactsNumPages" />
       </div>
@@ -41,6 +44,10 @@
         <i class="icon mdi mdi-file-outline"></i>
         Draft
       </div>
+      <div class="tab" @click="changeTab('folders')" :class="{ active: currentTab === 'folders' }">
+        <i class="icon mdi mdi-folder"></i>
+        {{choosenFolder}}
+      </div>
       <div class="tab" @click="changeTab('contacts')" :class="{ active: currentTab === 'contacts' }">
         <i class="icon mdi mdi-contacts"></i>
         Contacts
@@ -50,16 +57,17 @@
         Log-Out
       </div>
     </div>
+    <FolderOptions :folders="folders" v-if="currentTab === 'folders'" />
   </div>
+  
 </template>
 
 <script>
-import Vue from 'vue'
-import VueAxios from 'vue-axios'
-import axios from 'axios'
-import SendNewEmail from '../components/sendNewEmail.vue'
-import ShowEmails from '../components/veiwMails.vue'
-import Contact from '../components/contact.vue'
+import axios from 'axios';
+import FolderOptions from '../components/FolderOptions.vue';
+import Contact from '../components/contact.vue';
+import SendNewEmail from '../components/sendNewEmail.vue';
+import ShowEmails from '../components/veiwMails.vue';
 
 export default {
   data: () => ({
@@ -76,15 +84,20 @@ export default {
     DraftNumPages: 0,
     contacts: [],
     contactsNumPages: 0,
+    choosenFolder: 'folders',
+    chosenFolderEmails : [],
+    Folders: [],
   }),
   components: {
     SendNewEmail,
     ShowEmails,
     Contact,
+    FolderOptions,
   },
   mounted() {
     this.getUserInfo();
     this.getInboxEmails();
+    this.getFolders();
   },
   methods: {
     async getUserInfo() {
@@ -115,7 +128,7 @@ export default {
                       const Data = Response.data;
                       this.inboxNumPages = Data ;
               });
-          });  
+          });
     },
     async getSentEmails() {
       try {
@@ -160,6 +173,25 @@ export default {
         this.DraftNumPages = numPagesResponse.data;
       } catch (error) {
         console.error('Error fetching draft emails', error);
+      }
+    },
+    chooseFolder(folder) {
+    this.chosenFolder = folder;
+    this.chosenFolderEmails = this.getEmailsForFolder(folder);
+    },
+    getEmailsForFolder(folder) {
+      // logic to get emails for the chosen folder
+    },
+    async getFolders() {
+      try {
+        const response = await axios.get('http://localhost:8080/folders', {
+          headers: {
+            authorization: `${localStorage.getItem('token')}`,
+          },
+        });
+        this.folders = response.data;
+      } catch (error) {
+        console.error('Error fetching folders', error);
       }
     },
     async refresh(indexFolder) {
