@@ -63,6 +63,12 @@
           @click="applyOperations">
           <v-icon>mdi-filter-check</v-icon>
         </v-btn>
+        <v-btn icon dark @click="BulkDelete">
+          <v-icon>{{ this.folder !== 'Trash' ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
+        </v-btn>
+        <v-btn icon dark @click="startBulkMove">
+          <v-icon>mdi-cursor-move</v-icon>
+        </v-btn>
           <!-- <v-btn v-show="!hidden2" fab small dark color="#2d3142" @click="applyFilter">
             <v-icon>mdi-checkbox-marked-circle</v-icon>
           </v-btn> -->
@@ -86,6 +92,31 @@
                 <v-btn class="message-action" icon @click.stop="openMessage(i)" @click="deleteOrrestore(message)">
                   <v-icon>{{ message.deleted === false ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
                 </v-btn>
+                <v-btn class="message-action mr-8" icon @click.stop="openMessage(i)" @click="startMove(i)">
+                  <v-icon>mdi-cursor-move</v-icon>
+                </v-btn>
+                <v-checkbox class="message-action mt-8" v-model="selectedMessages[i]" hide-details @click.stop="openMessage(i)"></v-checkbox>
+                <v-dialog v-model="moveDialog" max-width="400" transition="dialog-bottom-transition">
+                  <v-card color="#BFD7ED">
+                    <v-card-title>Choose Destination Folder</v-card-title>
+                    <v-card-text>
+                      <v-select 
+                        v-model="selectedFolder"
+                        :items="AllFolders"
+                        chips
+                        solo
+                        filled
+                        dense
+                        item-text="name"
+                        label="Destination Folder"></v-select>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn @click="moveDialog = false" color="#071551" dark>Cancel</v-btn>
+                      <v-spacer></v-spacer>
+                      <v-btn @click="move" color="#071551" dark>Move</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </v-card>
             </v-col>
           </v-row>
@@ -108,7 +139,6 @@
 <script>
 
 import ViewMail from './viewMail.vue'
-
 import Vue from 'vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
@@ -137,6 +167,13 @@ export default {
       importance: '',
       search: null,
       searchQuery: null,
+      moveDialog: false,
+      AllFolders: [],
+      selectedFolder: null,
+      moveingMessage: null,
+      selectedMessages: [],
+      singleMove: false,
+      BulkMove: false,
     }
   },
   mounted () {
@@ -150,6 +187,70 @@ export default {
     ViewMail
   },
   methods : {
+      move() {
+        if (this.singleMove) {
+          this.moveMessage();
+          this.singleMove = false;
+        } else {
+          for (let i = 0; i < this.selectedMessages.length; i++) {
+            if (this.selectedMessages[i] === true) {
+              this.moveingMessage = this.messages[i];
+              this.moveMessage();
+            }
+          }
+          this.selectedMessages = [];
+          this.bulkMove = false;
+          this.refresh(this.indexFolder);
+        }
+      },
+      startMove(index) {
+        this.moveDialog = true;
+        this.selectedFolder = null;
+        this.moveingMessage = this.messages[index];
+        this.getAllFolders();
+        console.log(this.AllFolders);
+        this.singleMove = true;
+      },
+      moveMessage() {
+        console.log(this.moveingMessage);
+        const folder = this.AllFolders.find(folder => folder.name === this.selectedFolder);
+        axios.put('http://localhost:8080/folders/'+`${folder.id}`+'/emails/'+`${this.moveingMessage.id}`,{},{
+          headers: {
+            authorization: `${localStorage.getItem('token')}`
+          }
+        }).then(Response => {
+          const Data = Response.data;
+        });
+        this.moveDialog = false;
+        this.refresh(this.indexFolder);
+      },
+      startBulkMove(){
+        this.moveDialog = true;
+        this.selectedFolder = null;
+        this.bulkMove = true;
+        this.getAllFolders();
+        console.log(this.AllFolders);
+      },
+      BulkDelete(){
+        for (let i = 0; i < this.selectedMessages.length; i++) {
+          if (this.selectedMessages[i] === true) {
+            this.deleteOrrestore(this.messages[i]);
+          }
+        }
+        this.selectedMessages = [];
+        this.refresh(this.indexFolder);
+      },
+      getAllFolders() {
+        axios.get('http://localhost:8080/folders' ,{
+          headers: {
+            authorization: `${localStorage.getItem('token')}`
+          }
+        }).then(Response => {
+          const Data = Response.data;
+          this.AllFolders = Data;
+          console.log(this.AllFolders);
+        });
+      },
       checkFolder(){
         if(this.folder == "Inbox"){
           this.indexFolder = 0 ;
