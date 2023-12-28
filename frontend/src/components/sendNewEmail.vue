@@ -145,6 +145,7 @@ export default {
               name: this.contacts[j].name,
               emails: this.contacts[j].emails,
               username: this.contacts[j].username
+
             }
             this.receivers.push(receiver);
           }
@@ -158,6 +159,7 @@ export default {
       }
       console.log("formData", formData)
       if (this.attachments.length > 0) {
+
         await axios.post('http://localhost:8080/attachment', formData, {
           headers: {
             authorization: `${localStorage.getItem('token')}`,
@@ -171,6 +173,7 @@ export default {
 
       }
       console.log("this.attachments", this.attachments)
+
 
         console.log(this.receivers);
         axios.post('http://localhost:8080/emails', {

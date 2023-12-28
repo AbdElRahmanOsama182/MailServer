@@ -1,25 +1,17 @@
 package com.mail.backend.API;
 
-import java.time.temporal.ChronoUnit;
-
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-
-import com.mail.backend.Managers.UserManager;
-import com.mail.backend.Models.User.User;
-import com.mail.backend.Utils.Auth;
-
-import io.jsonwebtoken.Jwts;
-import java.util.Date;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.mail.backend.Managers.FolderManager;
 import com.mail.backend.Managers.ManagerFactory;
+import com.mail.backend.Managers.UserManager;
+import com.mail.backend.Models.User.User;
+import com.mail.backend.Utils.Auth;
 
 @RestController
 @CrossOrigin(origins = { "http://localhost:8081" })
