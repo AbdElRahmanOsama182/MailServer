@@ -1,6 +1,7 @@
 package com.mail.backend.API;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -135,6 +136,7 @@ public class FolderController {
         // mark as deleted
         email.setDeleted(true);
         email.setFolderId(trashFolder.getId());
+        email.setDeleteDate(new Date());
         emailManager.updateEmail(emailId, Map.of("isDeleted", true));
         folderManager.addEmail(trashFolder.getId(), emailId);
         return trashFolder;
@@ -152,8 +154,10 @@ public class FolderController {
 
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         Email email = emailManager.get(emailId);
+        email.setDeleteDate(null);
         // mark as deleted
         emailManager.updateEmail(emailId, Map.of("isDeleted", false));
+
         folderManager.removeEmail(trashFolder.getId(), emailId);
         if (email.isDraft()) {
             Folder draftFolder = folderManager.getUserFolderByName(user.getUsername(), "Draft");
@@ -189,13 +193,25 @@ public class FolderController {
         if (user == null)
             return null;
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
-        Folder sentFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
-        if (sentFolder == null)
+        Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
+        if (trashFolder == null)
             return null;
         ArrayList<Email> emails = new ArrayList<Email>();
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
-        for (int emailId : sentFolder.getEmails()) {
+        for (int emailId : trashFolder.getEmails()) {
             Email email = emailManager.get(emailId);
+            // check if the message is deleted from 30 days
+            if (email.getDeleteDate() != null
+                    && new Date().getTime() - email.getDeleteDate().getTime() > (long) 30 * 24 * 60 * 60 * 1000) {
+                System.out.println(new Date().getTime() - email.getDeleteDate().getTime());
+                System.out.println(email.getDeleteDate().getTime() + 30 * 24 * 60 * 60 * 1000);
+                System.out.println(new Date().getTime());
+
+                System.out.println("Remove email");
+                folderManager.removeEmail(trashFolder.getId(), emailId);
+                emailManager.remove(emailId);
+                continue;
+            }
             emails.add(email);
         }
 
