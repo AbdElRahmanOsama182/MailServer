@@ -216,6 +216,7 @@ export default {
       }
     },
     changeTab(tab) {
+      this.showFolderOptions = false;
       this.currentTab = tab;
       console.log(this.currentTab);
     },
