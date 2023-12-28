@@ -36,19 +36,21 @@ public class ContactController {
     private ContactManager contactManager = (ContactManager) ManagerFactory.getManager("ContactManager");
 
     @GetMapping("/contacts")
-    public Map<String,Object> getAllContacts(@RequestHeader String authorization, @RequestParam(required = false) Integer page) {
+    public Map<String, Object> getAllContacts(@RequestHeader String authorization,
+            @RequestParam(required = false) Integer page) {
         User user = Auth.getUser(authorization);
         ArrayList<Contact> contacts = contactManager.getUserContacts(user.getUsername());
-        int pages=(int)Math.ceil((double)contacts.size()/itemsPage);
+        int pages = (int) Math.ceil((double) contacts.size() / itemsPage);
         System.out.println(contacts);
-        if (page != null && (int)Math.ceil((double)contacts.size()/itemsPage) >= page) {
-            List<Contact> pageList = contacts.subList((page - 1) * itemsPage, Math.min(itemsPage* page,contacts.size()));
+        if (page != null && (int) Math.ceil((double) contacts.size() / itemsPage) >= page) {
+            List<Contact> pageList = contacts.subList((page - 1) * itemsPage,
+                    Math.min(itemsPage * page, contacts.size()));
             contacts = new ArrayList<Contact>();
             for (Contact contact : pageList)
                 contacts.add(contact);
 
         }
-        return Map.of("contacts",contacts,"total",contacts.size(),"pages",pages);
+        return Map.of("contacts", contacts, "total", contacts.size(), "pages", pages);
     }
 
     @PostMapping("/contacts")
@@ -97,6 +99,6 @@ public class ContactController {
     @GetMapping("contacts/search/{name}")
     public List<Contact> searchContact(@RequestHeader String authorization, @PathVariable String name) {
         User user = Auth.getUser(authorization);
-        return ContactManager.getInstance().searchContact(name, user.getUsername());
+        return contactManager.searchContact(name, user.getUsername());
     }
 }
