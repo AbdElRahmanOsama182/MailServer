@@ -221,7 +221,7 @@ export default {
             body: this.body,
             attachments: this.attachments,
             priority: this.importance,
-            isDraft: isDraft
+            draft: !isDraft
           }, {
             headers: {
               authorization: `${localStorage.getItem('token')}`

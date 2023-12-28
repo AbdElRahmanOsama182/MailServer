@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.mail.backend.Models.Email.Email;
 import com.mail.backend.Models.Folder.DraftFolder;
 import com.mail.backend.Models.Folder.Folder;
 import com.mail.backend.Models.Folder.InboxFolder;
@@ -114,6 +114,8 @@ public class FolderManager implements ManagerInterface<Folder> {
 
     public void moveEmail(int emailId, int fromId, int toId) {
         this.removeEmail(fromId, emailId);
+        Email email = (Email) ManagerFactory.getManager("EmailManager").get(emailId);
+        email.setFolderId(toId);
         this.addEmail(toId, emailId);
         this.saveFolders();
     }

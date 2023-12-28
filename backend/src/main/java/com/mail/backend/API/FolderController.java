@@ -135,6 +135,7 @@ public class FolderController {
         User user = Auth.getUser(authorization);
         if (user == null)
             return null;
+        System.out.println("Trash email");
         FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");
         Folder trashFolder = folderManager.getUserFolderByName(user.getUsername(), "Trash");
         if (trashFolder == null)
@@ -146,7 +147,7 @@ public class FolderController {
         email.setDeleted(true);
         email.setFolderId(trashFolder.getId());
         emailManager.updateEmail(emailId, Map.of("isDeleted", true));
-
+        folderManager.addEmail(trashFolder.getId(), emailId);
         return trashFolder;
     }
 
@@ -164,12 +165,33 @@ public class FolderController {
         Email email = emailManager.get(emailId);
         // mark as deleted
         emailManager.updateEmail(emailId, Map.of("isDeleted", false));
+        folderManager.removeEmail(trashFolder.getId(), emailId);
+        if (email.isDraft()) {
+            Folder draftFolder = folderManager.getUserFolderByName(user.getUsername(), "Draft");
+            if (draftFolder == null)
+                return null;
+            email.setFolderId(draftFolder.getId());
+            folderManager.addEmail(draftFolder.getId(), emailId);
+        } else if (email.getFromUserId().equals(user.getUsername())) {
+            Folder sentFolder = folderManager.getUserFolderByName(user.getUsername(), "Sent");
+            if (sentFolder == null)
+                return null;
+            email.setFolderId(sentFolder.getId());
+            folderManager.addEmail(sentFolder.getId(), emailId);
+        } else {
+            Folder inboxFolder = folderManager.getUserFolderByName(user.getUsername(), "Inbox");
+            if (inboxFolder == null)
+                return null;
+            email.setFolderId(inboxFolder.getId());
+            folderManager.addEmail(inboxFolder.getId(), emailId);
+        }
 
         return trashFolder;
     }
 
     @GetMapping("folders/trash/emails")
     public Map<String,Object> getTrashEmails(@RequestHeader String authorization,
+
             @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String filterSubject,
             @RequestParam(required = false) Integer filterPriority,
@@ -185,9 +207,7 @@ public class FolderController {
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         for (int emailId : sentFolder.getEmails()) {
             Email email = emailManager.get(emailId);
-            if (!email.isDeleted()) {
                 emails.add(email);
-            }
         }
         
         if (filterSubject != null) {
@@ -205,12 +225,14 @@ public class FolderController {
             System.out.println("Search value: " + searchValue);
             emails = SearchContext.search(searchType, emails, searchValue);
         }
+        System.out.println("filterPriority: " + filterPriority);
 
         if (sort != null)
             emails = emailManager.sort(emails, sort);
         int pages=(int)Math.ceil((double)emails.size()/itemsPage);
         if (page != null && (int)Math.ceil((double)emails.size()/itemsPage) >= page) {
             List<Email> pageList = emails.subList((page - 1) * itemsPage, Math.min(itemsPage* page,emails.size()));
+
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
@@ -220,6 +242,7 @@ public class FolderController {
             System.out.println(email.readEmail());
         }
         return Map.of("emails",emails,"total",emails.size(),"pages",pages);
+
     }
 
     @GetMapping("folders/{id}/emails")
@@ -271,10 +294,12 @@ public class FolderController {
 
     @GetMapping("folders/draft/emails")
     public Map<String,Object> getDraftEmails(@RequestHeader String authorization,
+
             @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String filterSubject,
             @RequestParam(required = false) Integer filterPriority,
             @RequestParam(required = false) String searchType, @RequestParam(required = false) String searchValue) {
+
         User user = Auth.getUser(authorization);
         if (user == null)
             return null;
@@ -290,7 +315,7 @@ public class FolderController {
                 emails.add(email);
             }
         }
-        
+
         if (filterSubject != null) {
             EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
             emails = emailSubjectCriteria.meetCriteria(emails);
@@ -315,6 +340,7 @@ public class FolderController {
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
+
         }
         System.out.println("Final emails: ");
         for (Email email : emails) {
@@ -324,7 +350,9 @@ public class FolderController {
     }
 
     @GetMapping("folders/sent/emails")
+
     public Map<String,Object> getSentEmails(@RequestHeader String authorization,
+
             @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String filterSubject,
             @RequestParam(required = false) Integer filterPriority,
@@ -344,7 +372,7 @@ public class FolderController {
                 emails.add(email);
             }
         }
-        
+
         if (filterSubject != null) {
             EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
             emails = emailSubjectCriteria.meetCriteria(emails);
@@ -379,6 +407,7 @@ public class FolderController {
 
     @GetMapping("folders/inbox/emails")
     public Map<String,Object> getInboxEmails(@RequestHeader String authorization,
+
             @RequestParam(required = false) String sort, @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String filterSubject,
             @RequestParam(required = false) Integer filterPriority,
@@ -398,7 +427,7 @@ public class FolderController {
                 emails.add(email);
             }
         }
-        
+
         if (filterSubject != null) {
             EmailSubjectCriteria emailSubjectCriteria = new EmailSubjectCriteria(filterSubject);
             emails = emailSubjectCriteria.meetCriteria(emails);
@@ -420,6 +449,7 @@ public class FolderController {
         int pages=(int)Math.ceil((double)emails.size()/itemsPage);
         if (page != null && (int)Math.ceil((double)emails.size()/itemsPage) >= page) {
             List<Email> pageList = emails.subList((page - 1) * itemsPage, Math.min(itemsPage* page,emails.size()));
+
             emails = new ArrayList<Email>();
             for (Email email : pageList)
                 emails.add(email);
@@ -430,6 +460,7 @@ public class FolderController {
         }
         
         return Map.of("emails",emails,"total",emails.size(),"pages",pages);
+
     }
 
 }
