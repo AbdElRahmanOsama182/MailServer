@@ -46,6 +46,7 @@ public class AttachmentUtils {
         try {
             Files.createDirectories(fileLocation);
         } catch (Exception e) {
+
             System.out.println("Error Can NOT store file");
         }
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -65,17 +66,18 @@ public class AttachmentUtils {
 
             return location;
 
+
         } catch (IOException e) {
             System.out.println("can NOT strore" + fileName);
             return null;
         }
-
     }
 
     public static Resource getFile(Path path) {
         try {
             return new UrlResource(path.toUri());
         } catch (MalformedURLException e) {
+
             System.err.println(e.getMessage());
         }
 

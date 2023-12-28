@@ -7,3 +7,4 @@ backend/emails.json
 backend/folders.json
 backend/data/*
 backend/src/main/resources/static/*
+

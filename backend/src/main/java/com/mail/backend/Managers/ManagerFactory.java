@@ -13,6 +13,7 @@ public class ManagerFactory {
                 return FolderManager.getInstance();
             case "ContactManager":
                 return ContactManager.getInstance();
+
             case "AttachmentManager":
                 return AttachmentManager.getInstance();
             default:

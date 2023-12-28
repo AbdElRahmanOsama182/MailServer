@@ -33,11 +33,13 @@ import com.mail.backend.Utils.AttachmentUtils;
 public class AttachmentManager implements ManagerInterface<Afile> {
 
     private static final String AFILES_FILE_PATH = "backend\\src\\main\\data\\Afiles.json";
+
     private static AttachmentManager instance;
     public Map<Integer, Afile> afiles = new HashMap<Integer, Afile>();
     private int nextId = 0;
 
     private AttachmentManager() {
+
     }
 
     public static synchronized AttachmentManager getInstance() {
@@ -114,6 +116,7 @@ public class AttachmentManager implements ManagerInterface<Afile> {
         }
     }
 
+
     public void loadAfiles() {
         try {
             Path path = Paths.get(AFILES_FILE_PATH);
@@ -125,6 +128,7 @@ public class AttachmentManager implements ManagerInterface<Afile> {
                 this.afiles.put(afile.getId(), afile);
             }
             this.nextId = this.afiles.size();
+
         } catch (Exception e) {
             System.out.println(e);
         }

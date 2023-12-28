@@ -53,8 +53,10 @@ public class EmailCreator {
         System.out.println(outboxFolder.getEmails());
 
 
+
         // send
         Queue<Contact> contacts = new LinkedList<Contact>();
+
 
         for(Contact contact:email.getTo()){
             contacts.add(contact);
