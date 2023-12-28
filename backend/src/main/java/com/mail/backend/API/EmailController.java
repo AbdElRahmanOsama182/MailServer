@@ -1,33 +1,24 @@
 package com.mail.backend.API;
 
-import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-
-import com.mail.backend.Managers.UserManager;
-import com.mail.backend.Models.Email.Email;
-import com.mail.backend.Models.Folder.Folder;
-import com.mail.backend.Models.User.User;
-import com.mail.backend.Utils.Auth;
-
-import io.jsonwebtoken.Jwts;
-import java.util.Date;
-import java.util.Map;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.mail.backend.Managers.EmailManager;
 import com.mail.backend.Managers.EmailCreator;
+import com.mail.backend.Managers.EmailManager;
 import com.mail.backend.Managers.FolderManager;
 import com.mail.backend.Managers.ManagerFactory;
-import org.springframework.web.bind.annotation.PutMapping;
+import com.mail.backend.Models.Email.Email;
+import com.mail.backend.Models.User.User;
+import com.mail.backend.Utils.Auth;
 
 @RestController
 @CrossOrigin(origins = { "http://localhost:8081" })
@@ -43,13 +34,18 @@ public class EmailController {
             return null;
         }
         // TODO: handle draft
+        System.out.println("DRAFTTTTTTTTTTT" + email.isDraft());
         if (email.isDraft()) {
             email.setFromUserId(user.getUsername());
-            return emailManager.add(email);
+            email.setFolderId(folderManager.getUserFolderByName(user.getUsername(), "Draft").getId());
+            email.setSendDate(new Date());
+            email = emailManager.add(email);
+            folderManager.addEmail(email.getFolderId(), email.getId());
+            return email;
 
         } else {
 
-            return EmailCreator.createAndSend(email,user);
+            return EmailCreator.createAndSend(email, user);
         }
 
     }
@@ -81,6 +77,9 @@ public class EmailController {
         EmailManager emailManager = (EmailManager) ManagerFactory.getManager("EmailManager");
         User user = Auth.getUser(authorization);
         Email email = emailManager.get(id);
+        if (email == null) {
+            return;
+        }
         if (email.getFromUserId().equals(user.getUsername())) {
             // remove from its folder
             FolderManager folderManager = (FolderManager) ManagerFactory.getManager("FolderManager");

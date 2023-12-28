@@ -10,12 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mail.backend.Models.Contact.Contact;
+import com.mail.backend.Models.Sort.ContactSort;
 
-public class ContactManager {
-    private static final String CONTACTS_FILE_PATH = "backend\\src\\main\\java\\com\\mail\\backend\\data\\contacts.json";
+@Component
+public class ContactManager implements ManagerInterface<Contact> {
+    private static final String CONTACTS_FILE_PATH = "backend\\src\\main\\data\\contacts.json";
     private static ContactManager instance;
     public Map<Integer, Contact> contacts = new HashMap<Integer, Contact>();
     private int nextId = 0;
@@ -26,26 +30,47 @@ public class ContactManager {
     public static synchronized ContactManager getInstance() {
         if (instance == null) {
             instance = new ContactManager();
+            instance.loadContacts();
         }
         return instance;
     }
 
-    public int getNextId() {
-        return this.nextId;
+    public Contact get(Object id) {
+        return this.getContact((int) id);
     }
 
     public Contact getContact(int id) {
         return this.contacts.get(id);
     }
 
-    public void addContact(Contact contact) {
+    public Map<Object, Contact> getAll() {
+        return new HashMap<Object, Contact>(this.contacts);
+    }
+
+    public ArrayList<Contact> getAllContacts() {
+        printContacts();
+        return new ArrayList<Contact>(this.contacts.values());
+    }
+
+    public Contact add(Contact contact) {
+        return this.addContact(contact);
+    }
+
+    public Contact addContact(Contact contact) {
+        printContacts();
+        System.out.println(this.nextId);
         if (contact == null) {
-            return;
+            return null;
         }
         contact.setId(this.nextId);
         this.contacts.put(this.nextId, contact);
         this.nextId++;
         saveContacts();
+        return contact;
+    }
+
+    public void remove(Object id) {
+        this.removeContact((int) id);
     }
 
     public void removeContact(int id) {
@@ -69,8 +94,14 @@ public class ContactManager {
         saveContacts();
     }
 
-    public ArrayList<Contact> getAllContacts() {
-        return new ArrayList<Contact>(this.contacts.values());
+    public ArrayList<Contact> getUserContacts(String username) {
+        ArrayList<Contact> userContacts = new ArrayList<Contact>();
+        for (Contact contact : this.contacts.values()) {
+            if (contact.getUsername().equals(username)) {
+                userContacts.add(contact);
+            }
+        }
+        return userContacts;
     }
 
     public Contact jsonToContact(JsonNode jsonNode) {
@@ -90,22 +121,22 @@ public class ContactManager {
         return contact;
     }
 
-    public List<Contact> sortContacts() {
-        List<Contact> sortedContacts = new ArrayList<Contact>(this.contacts.values());
-        sortedContacts.sort(Comparator.comparing(Contact::getName));
-        return sortedContacts;
+    public List<Contact> sortContacts(String username) {
+        return new ContactSort().sort(this.getUserContacts(username));
     }
 
     public void loadContacts() {
+        System.out.println("Loading contacts");
         try {
-            Path path = Paths.get(CONTACTS_FILE_PATH);
+            // Path path = Paths.get(CONTACTS_FILE_PATH);
             ObjectMapper mapper = new ObjectMapper();
             ArrayList<Contact> contacts = mapper.readValue(new File(CONTACTS_FILE_PATH),
                     mapper.getTypeFactory().constructCollectionType(ArrayList.class, Contact.class));
+            this.nextId = 0;
             for (Contact contact : contacts) {
+                this.nextId = Math.max(this.nextId, contact.getId() + 1);
                 this.contacts.put(contact.getId(), contact);
             }
-            this.nextId = this.contacts.size();
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -117,13 +148,14 @@ public class ContactManager {
             System.out.println("ID: " + contact.getId());
             System.out.println("Name: " + contact.getName());
             System.out.println("Emails: " + contact.getEmails());
+            System.out.println("Username: " + contact.getUsername());
             System.out.println("-------------------------");
         }
     }
 
-    public ArrayList<Contact> searchContact(String name) {
+    public ArrayList<Contact> searchContact(String name, String username) {
         ArrayList<Contact> result = new ArrayList<>();
-        for (Contact contact : this.contacts.values()) {
+        for (Contact contact : this.getUserContacts(username)) {
             if (contact.getName().toLowerCase().contains(name.toLowerCase())) {
                 result.add(contact);
             }
@@ -132,14 +164,15 @@ public class ContactManager {
     }
 
     public void saveContacts() {
-    try {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(this.contacts.values());
-        Path path = Paths.get(CONTACTS_FILE_PATH);
-        System.out.println(json);
-        Files.writeString(path, json);
-    } catch (Exception e) {
-        System.out.println(e);
+        System.out.println("Saving contacts");
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(this.contacts.values());
+            Path path = Paths.get(CONTACTS_FILE_PATH);
+            System.out.println(json);
+            Files.writeString(path, json);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
-}
 }

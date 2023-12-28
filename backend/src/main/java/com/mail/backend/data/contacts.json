@@ -1,5 +1,2 @@
-{
-    "id": "0",
-    "name": "John Doe",
-    "emails": ["john.doe@example.com", "jane.smith@example.com"]
-}
+[{"id":0,"username":"aaa","name":"hasan","emails":["bb@bb.bb"]},{"id":1,"username":"aaa","name":"nasr","emails":["bb@bb.bb"]}]
+

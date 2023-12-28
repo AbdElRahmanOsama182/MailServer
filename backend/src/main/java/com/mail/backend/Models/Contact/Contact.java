@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public class Contact {
     private int id;
+    private String username;
     private String name;
     private ArrayList<String> emails;
-
 
     public Contact() {
     }
@@ -54,6 +54,19 @@ public class Contact {
         return this.emails;
     }
 
-    //updateEmails
+    public String getUsername() {
+        return this.username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String toString() {
+        return "Contact [id=" + this.id + ", username=" + this.username + ", name=" + this.name + ", emails="
+                + this.emails + "]";
+    }
+
+    // updateEmails
 
 }

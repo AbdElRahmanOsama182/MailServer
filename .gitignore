@@ -6,3 +6,5 @@ backend/src/main/java/com/mail/backend/data/folders.json
 backend/emails.json
 backend/folders.json
 backend/data/*
+backend/src/main/resources/static/*
+

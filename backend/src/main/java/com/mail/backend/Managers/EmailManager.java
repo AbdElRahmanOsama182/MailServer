@@ -5,9 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,6 @@ import org.springframework.ws.mime.Attachment;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mail.backend.Models.Contact.Contact;
 import com.mail.backend.Models.Email.Email;
 import com.mail.backend.Models.Email.EmailBuilder;
 import com.mail.backend.Models.Sort.BodySort;
@@ -35,7 +32,8 @@ import com.mail.backend.Utils.AttachmentUtils;
 @RestController
 @RequestMapping("/")
 public class EmailManager implements ManagerInterface<Email>{
-    private static final String EMAILS_FILE_PATH = "data/emails.json";
+//     private static final String EMAILS_FILE_PATH = "data/emails.json";
+    private static final String EMAILS_FILE_PATH = "backend\\src\\main\\data\\emails.json";
     private static EmailManager instance;
     public Map<Integer, Email> emails = new HashMap<Integer, Email>();
     private int nextId = 0;
@@ -127,9 +125,6 @@ public class EmailManager implements ManagerInterface<Email>{
             System.out.println(e);
         }
     }
-    
-    
-    
 
     // public Email jsonToEmail(JsonNode jsonNode) {
     // EmailBuilder builder = new EmailBuilder();
@@ -183,14 +178,15 @@ public class EmailManager implements ManagerInterface<Email>{
 
     public void loadEmails() {
         try {
-            Path path = Paths.get(EMAILS_FILE_PATH);
+            // Path path = Paths.get(EMAILS_FILE_PATH);
             ObjectMapper mapper = new ObjectMapper();
             ArrayList<Email> emails = mapper.readValue(new File(EMAILS_FILE_PATH),
                     mapper.getTypeFactory().constructCollectionType(ArrayList.class, Email.class));
+            this.nextId = 0;
             for (Email email : emails) {
+                this.nextId = Math.max(this.nextId, email.getId() + 1);
                 this.emails.put(email.getId(), email);
             }
-            this.nextId = this.emails.size();
         } catch (Exception e) {
             System.out.println(e);
         }

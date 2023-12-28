@@ -18,65 +18,66 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-
 @Service
 public class AttachmentUtils {
 
     private static Path fileLocation;
 
     @Value("${upload.base-path}")
-    private static String basePath = "uploads/";
-    
-    public static File convertMFtoFile(final MultipartFile multipartFile){
-        
+    private static String basePath = "backend\\src\\main\\resources\\static\\";
+
+    public static File convertMFtoFile(final MultipartFile multipartFile) {
+
         final File file = new File(multipartFile.getOriginalFilename());
 
-        try(final FileOutputStream outputStream = new FileOutputStream(file)){
+        try (final FileOutputStream outputStream = new FileOutputStream(file)) {
             outputStream.write(multipartFile.getBytes());
-        } catch(IOException e){
-            //("Error converting Multipart file);
+        } catch (IOException e) {
+            // ("Error converting Multipart file);
         }
 
         return file;
     }
 
-
-    public static Path storeFile(File file){
+    public static Path storeFile(File file) {
 
         fileLocation = Paths.get(basePath).toAbsolutePath().normalize();
 
-        try{
+        try {
             Files.createDirectories(fileLocation);
-        } catch (Exception e){
+        } catch (Exception e) {
+
             System.out.println("Error Can NOT store file");
         }
         String timestamp = String.valueOf(System.currentTimeMillis());
         String fileName = StringUtils.cleanPath(file.getName());
         fileName = timestamp + "_" + fileName;
 
-        try{
-            //handle file name 
-            /*if(fileName.contains("")){
-
-            }*/
+        try {
+            // handle file name
+            /*
+             * if(fileName.contains("")){
+             * 
+             * }
+             */
 
             Path location = fileLocation.resolve(fileName);
             Files.move(Paths.get(file.getPath()), location, StandardCopyOption.REPLACE_EXISTING);
-            
+
             return location;
 
+
         } catch (IOException e) {
-            System.out.println("can NOT strore"+ fileName);
+            System.out.println("can NOT strore" + fileName);
             return null;
         }
-
     }
 
-
-    public static Resource getFile(Path path){
-        try{
+    public static Resource getFile(Path path) {
+        try {
             return new UrlResource(path.toUri());
-        } catch(MalformedURLException e){
+        } catch (MalformedURLException e) {
+
             System.err.println(e.getMessage());
         }
 
