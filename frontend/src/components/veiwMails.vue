@@ -63,6 +63,12 @@
           @click="applyOperations">
           <v-icon>mdi-filter-check</v-icon>
         </v-btn>
+        <v-btn icon dark @click="BulkDelete">
+          <v-icon>{{ this.folder !== 'Trash' ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
+        </v-btn>
+        <v-btn icon dark @click="BulkMove">
+          <v-icon>mdi-cursor-move</v-icon>
+        </v-btn>
           <!-- <v-btn v-show="!hidden2" fab small dark color="#2d3142" @click="applyFilter">
             <v-icon>mdi-checkbox-marked-circle</v-icon>
           </v-btn> -->
@@ -89,6 +95,7 @@
                 <v-btn class="message-action mr-8" icon @click.stop="openMessage(i)" @click="startMove(i)">
                   <v-icon>mdi-cursor-move</v-icon>
                 </v-btn>
+                <v-checkbox class="message-action mt-8" v-model="selectedMessages[i]" hide-details @click.stop="openMessage(i)"></v-checkbox>
                 <v-dialog v-model="moveDialog" max-width="400" transition="dialog-bottom-transition">
                   <v-card color="#BFD7ED">
                     <v-card-title>Choose Destination Folder</v-card-title>
@@ -164,6 +171,7 @@ export default {
       AllFolders: [],
       selectedFolder: null,
       moveingMessage: null,
+      selectedMessages: [],
     }
   },
   mounted () {
@@ -194,6 +202,32 @@ export default {
           const Data = Response.data;
         });
         this.moveDialog = false;
+        this.refresh(this.indexFolder);
+      },
+      BulkMove(){
+        this.moveDialog = true;
+        this.selectedFolder = null;
+        this.getAllFolders();
+        console.log(this.AllFolders);
+        //reversed loop to avoid index change
+        for (let i = this.selectedMessages.length - 1; i >= 0; i--) {
+          if (this.selectedMessages[i] === true) {
+            this.moveingMessage = this.messages[i];
+            console.log(this.moveingMessage);
+            this.moveMessage();
+            this.selectedMessages[i] = false;
+          }
+        }
+        this.selectedMessages = [];
+        this.refresh(this.indexFolder);
+      },
+      BulkDelete(){
+        for (let i = 0; i < this.selectedMessages.length; i++) {
+          if (this.selectedMessages[i] === true) {
+            this.deleteOrrestore(this.messages[i]);
+          }
+        }
+        this.selectedMessages = [];
         this.refresh(this.indexFolder);
       },
       getAllFolders() {
