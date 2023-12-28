@@ -66,7 +66,7 @@
         <v-btn icon dark @click="BulkDelete">
           <v-icon>{{ this.folder !== 'Trash' ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
         </v-btn>
-        <v-btn icon dark @click="BulkMove">
+        <v-btn icon dark @click="startBulkMove">
           <v-icon>mdi-cursor-move</v-icon>
         </v-btn>
           <!-- <v-btn v-show="!hidden2" fab small dark color="#2d3142" @click="applyFilter">
@@ -113,7 +113,7 @@
                     <v-card-actions>
                       <v-btn @click="moveDialog = false" color="#071551" dark>Cancel</v-btn>
                       <v-spacer></v-spacer>
-                      <v-btn @click="moveMessage" color="#071551" dark>Move</v-btn>
+                      <v-btn @click="move" color="#071551" dark>Move</v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
@@ -172,6 +172,8 @@ export default {
       selectedFolder: null,
       moveingMessage: null,
       selectedMessages: [],
+      singleMove: false,
+      BulkMove: false,
     }
   },
   mounted () {
@@ -185,14 +187,32 @@ export default {
     ViewMail
   },
   methods : {
+      move() {
+        if (this.singleMove) {
+          this.moveMessage();
+          this.singleMove = false;
+        } else {
+          for (let i = 0; i < this.selectedMessages.length; i++) {
+            if (this.selectedMessages[i] === true) {
+              this.moveingMessage = this.messages[i];
+              this.moveMessage();
+            }
+          }
+          this.selectedMessages = [];
+          this.bulkMove = false;
+          this.refresh(this.indexFolder);
+        }
+      },
       startMove(index) {
         this.moveDialog = true;
         this.selectedFolder = null;
         this.moveingMessage = this.messages[index];
         this.getAllFolders();
         console.log(this.AllFolders);
+        this.singleMove = true;
       },
       moveMessage() {
+        console.log(this.moveingMessage);
         const folder = this.AllFolders.find(folder => folder.name === this.selectedFolder);
         axios.put('http://localhost:8080/folders/'+`${folder.id}`+'/emails/'+`${this.moveingMessage.id}`,{},{
           headers: {
@@ -204,22 +224,12 @@ export default {
         this.moveDialog = false;
         this.refresh(this.indexFolder);
       },
-      BulkMove(){
+      startBulkMove(){
         this.moveDialog = true;
         this.selectedFolder = null;
+        this.bulkMove = true;
         this.getAllFolders();
         console.log(this.AllFolders);
-        //reversed loop to avoid index change
-        for (let i = this.selectedMessages.length - 1; i >= 0; i--) {
-          if (this.selectedMessages[i] === true) {
-            this.moveingMessage = this.messages[i];
-            console.log(this.moveingMessage);
-            this.moveMessage();
-            this.selectedMessages[i] = false;
-          }
-        }
-        this.selectedMessages = [];
-        this.refresh(this.indexFolder);
       },
       BulkDelete(){
         for (let i = 0; i < this.selectedMessages.length; i++) {
