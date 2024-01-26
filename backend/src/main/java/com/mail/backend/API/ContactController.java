@@ -32,14 +32,21 @@ import com.mail.backend.Utils.Auth;
 @RestController
 @CrossOrigin(origins = { "http://localhost:8081" })
 public class ContactController {
-    int itemsPage = 5;
+    int itemsPage = 6;
     private ContactManager contactManager = (ContactManager) ManagerFactory.getManager("ContactManager");
 
     @GetMapping("/contacts")
     public Map<String, Object> getAllContacts(@RequestHeader String authorization,
-            @RequestParam(required = false) Integer page) {
+            @RequestParam(required = false) Integer page, @RequestParam(required = false) Boolean sorted,
+            @RequestParam(required = false) String search) {
         User user = Auth.getUser(authorization);
         ArrayList<Contact> contacts = contactManager.getUserContacts(user.getUsername());
+        if (search != null) {
+            contacts = contactManager.searchContact(search, user.getUsername());
+        }
+        if (sorted != null && sorted) {
+            contacts = contactManager.sortContacts(user.getUsername(), contacts);
+        }
         int pages = (int) Math.ceil((double) contacts.size() / itemsPage);
         System.out.println(contacts);
         if (page != null && (int) Math.ceil((double) contacts.size() / itemsPage) >= page) {
@@ -90,11 +97,11 @@ public class ContactController {
         return "Contact updated successfully";
     }
 
-    @GetMapping("/contacts/sort")
-    public List<Contact> sortedContacts(@RequestHeader String authorization) {
-        User user = Auth.getUser(authorization);
-        return contactManager.sortContacts(user.getUsername());
-    }
+    // @GetMapping("/contacts/sort")
+    // public List<Contact> sortedContacts(@RequestHeader String authorization) {
+    // User user = Auth.getUser(authorization);
+    // return contactManager.sortContacts(user.getUsername());
+    // }
 
     @GetMapping("contacts/search/{name}")
     public List<Contact> searchContact(@RequestHeader String authorization, @PathVariable String name) {

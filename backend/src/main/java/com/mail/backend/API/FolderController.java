@@ -31,7 +31,7 @@ import com.mail.backend.Utils.Auth;
 @CrossOrigin(origins = { "http://localhost:8081" })
 public class FolderController {
 
-    private int itemsPage = 5;
+    private int itemsPage = 4;
 
     @GetMapping("/folders/{id}")
     public Folder read(@RequestHeader String authorization, @PathVariable("id") Integer id) {

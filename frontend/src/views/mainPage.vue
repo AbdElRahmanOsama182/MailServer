@@ -1,6 +1,5 @@
 <template>
   <div class="main-container">
-    
     <div class="tab-content">
       <div v-if="currentTab === 'sendNewEmail'">
         <SendNewEmail :senderEmailAddress="emailAddress"/>
@@ -17,7 +16,7 @@
       <div v-else-if="currentTab === 'draft'">
         <ShowEmails :messages="DraftMails" folder="Draft" :numberOfPages="DraftNumPages" @refresh="refresh" @applyFilters="applyFilters" @changePage="changePage" />
       </div>
-      <div v-else-if="currentTab === 'folders'">
+      <div v-else-if="currentTab === 'Folders'">
         <ShowEmails :messages="chosenFolderEmails" folder="folders" :numberOfPages="folderNumPages" @refresh="refresh" />
       </div>
       <div v-else-if="currentTab === 'contacts'">
@@ -26,6 +25,9 @@
     </div>
     <FolderOptions class="folderOptions" :folders="folders" v-if="showFolderOptions" @view-folder="handleViewFolder" />
     <div class="tabs">
+      <div class="userTab">
+        @{{ this.username }}
+      </div>
       <div class="tab" @click="changeTab('sendNewEmail')" :class="{ active: currentTab === 'sendNewEmail' }">
         <i class="icon mdi mdi-email-plus-outline"></i>
         Send New Email
@@ -46,7 +48,7 @@
         <i class="icon mdi mdi-file-outline"></i>
         Draft
       </div>
-      <div class="tab" @click="changeTab('folders'); showFolderOptions=true" :class="{ active: currentTab === 'folders' }">
+      <div class="tab" @click="changeTab('Folders'); showFolderOptions=true" :class="{ active: currentTab === 'Folders' }">
         <i class="icon mdi mdi-folder"></i>
         {{choosenFolder}}
       </div>
@@ -59,9 +61,7 @@
         Log-Out
       </div>
     </div>
-
   </div>
-  
 </template>
 
 <script>
@@ -87,7 +87,7 @@ export default {
     DraftNumPages: 0,
     contacts: [],
     contactsNumPages: 0,
-    choosenFolder: 'folders',
+    choosenFolder: 'Folders',
     chosenFolderEmails : [],
     folderNumPages: 0,
     Folders: [],
@@ -107,14 +107,13 @@ export default {
   },
   mounted() {
     this.getFolders();
-    // this.getUserInfo();
-    // this.getInboxEmails();
+    this.getUserInfo();
   },
   methods: {
     handleViewFolder({ folder, emails, pages }) {
       this.showFolderOptions = false;
       this.choosenFolder = folder.name;
-      this.currentTab = 'folders';
+      this.currentTab = 'Folders';
       this.chosenFolderEmails = emails;
       this.inboxNumPages = pages;
       console.log('pages', pages);
@@ -134,19 +133,16 @@ export default {
       this.refresh(data.indexFolder);
     },
     async getUserInfo() {
-      try {
-        const response = await axios.get('http://localhost:8080/api/getUser');
-        this.username = response.data;
-      } catch (error) {
-        console.error('Error fetching user info', error);
+      axios.get('http://localhost:8080/info', {
+        headers: {
+          authorization: `${localStorage.getItem('token')}`,
+        },
+      }).then(Response=>{
+        const Data = Response.data;
+        this.username = Data.name;
+        this.emailAddress = Data.email;
       }
-
-      try {
-        const response = await axios.get('http://localhost:8080/api/getUseraddress');
-        this.emailAddress = response.data;
-      } catch (error) {
-        console.error('Error fetching user address', error);
-      }
+      );
     },
     getEmailsByFolderName(PageNumber=1) {
       axios.get('http://localhost:8080/folders/'+this.currentTab+'/emails', {
@@ -177,37 +173,16 @@ export default {
           this.DraftMails = Data.emails ;
           this.DraftNumPages = Data.pages ;
         }
-        
-
       }
       );
       console.log('Getting folder: ', this.currentTab);
       console.log(this.Mails);
-
-
-    },
-    async getInboxEmails() {
-      axios.get('http://localhost:8080/api/SetEmailsToShow',{
-              params: {
-                  FolderIndex : 0
-              }
-          }).then(Response=>{
-              const Data = Response.data;
-              this.inboxMails = Data ;
-              axios.get('http://localhost:8080/api/EmailsNumberOfPages',{
-                  }).then(Response=>{
-                      const Data = Response.data;
-                      this.inboxNumPages = Data ;
-              });
-          });
     },
     getSentEmails() {
       console.log("in get sent emails");
       console.log(this.filterPriority);
       console.log(`${localStorage.getItem('token')}`);
       axios.get('http://localhost:8080/folders/sent/emails', {
-        
-      // }, {
         headers: {
           authorization: `${localStorage.getItem('token')}`
         },
@@ -226,36 +201,6 @@ export default {
 
         console.log("Sent Mails")
         console.log(this.sentMails);
-    },
-    async getTrashEmails() {
-      try {
-        const response = await axios.get('http://localhost:8080/api/SetEmailsToShow', {
-          params: {
-            FolderIndex: 2,
-          },
-        });
-        this.trashMails = response.data;
-
-        const numPagesResponse = await axios.get('http://localhost:8080/api/EmailsNumberOfPages');
-        this.trashNumPages = numPagesResponse.data;
-      } catch (error) {
-        console.error('Error fetching trash emails', error);
-      }
-    },
-    async getDraftEmails() {
-      try {
-        const response = await axios.get('http://localhost:8080/api/SetEmailsToShow', {
-          params: {
-            FolderIndex: 3,
-          },
-        });
-        this.DraftMails = response.data;
-
-        const numPagesResponse = await axios.get('http://localhost:8080/api/EmailsNumberOfPages');
-        this.DraftNumPages = numPagesResponse.data;
-      } catch (error) {
-        console.error('Error fetching draft emails', error);
-      }
     },
     async getFolders() {
       try {
@@ -279,7 +224,8 @@ export default {
     },
     changeTab(tab) {
       this.showFolderOptions = false;
-      this.choosenFolder= 'folders';
+      this.choosenFolder= 'Folders';
+      this.chosenFolderEmails = [];
       this.currentTab = tab;
       if (this.currentTab !== 'sendNewEmail' && this.currentTab !== 'contacts')
         this.getEmailsByFolderName();
@@ -308,7 +254,7 @@ template {
   height: 100%;
 }
 .main-container {
-background-color: white;
+background-color: #cbcbd4;
 display: flex;
 flex-direction: column;
 align-items: center;
@@ -342,18 +288,6 @@ text-align: center;
 color: #071551;
 }
 
-.user-info {
-display: flex;
-align-items: center;
-justify-content: center;
-}
-
-.user-photo {
-width: 50px;
-height: 50px;
-margin-right: 1rem;
-}
-
 .tab-content {
 width: 100%;
 }
@@ -375,6 +309,13 @@ margin-right: 1rem;
 padding: 0.5rem 1rem;
 cursor: pointer;
 color: white;
+}
+
+.userTab {
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  color: white;
+  font-weight: 700;
 }
 
 .icon {

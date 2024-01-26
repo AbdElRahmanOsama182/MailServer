@@ -2,7 +2,7 @@
   <v-container class="py-8 px-6" fluid>
     <v-row>
       <v-app-bar app color="#071551" dark class="conBar">
-    <v-btn @click="sortContacts" dark icon>
+    <v-btn @click="toggleSort" dark icon>
       <v-icon>mdi-sort</v-icon>
     </v-btn>
     <v-btn  @click="hidden = !hidden" dark icon>
@@ -23,20 +23,20 @@
       v-show="!hidden"
       icon
       dark
-      @click="searchContact"
+      @click="getContacts"
     >
       <v-icon>mdi-magnify</v-icon>
     </v-btn>
     <!-- cancel all sort and search -->
-    <v-btn @click="getContacts" dark icon>
+    <v-btn @click="cancelFilters" dark icon>
       <v-icon>mdi-close</v-icon>
     </v-btn>
     <AddContact @addContact="addContact($event)" />
   </v-app-bar>
     </v-row>
     <v-row>
-    <v-row>
-      <v-col v-for="(contact, i) in contacts" :key="i" cols="12" sm="6" md="4" lg="4" class="contact-galery">
+    <v-row class="contact-gallery">
+      <v-col v-for="(contact, i) in contacts" :key="i" cols="12" sm="6" md="4" lg="4" >
         <v-card class="contact-card">
           <div class="contact-header">
             <div class="avatar">
@@ -84,12 +84,13 @@
         <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
       </template>
     </v-snackbar>
-    <div class="text-center mb-15">
+    <div class="text-center mb-15 cont" v-if="numberOfPages">
       <v-pagination
         v-model="page"
         :length="numberOfPages"
         :disabled="disable"
         @input="changeThePage"
+        color="#071551"
       ></v-pagination>
     </div>
   </v-container>
@@ -98,7 +99,6 @@
 
 <script>
 import AddContact from './addContact.vue';
-import EditEmail from './editEmail.vue';
 import AddEmailtoContact from './addEmailtoContact.vue';
 import EditContact from './editContact.vue';
 
@@ -118,27 +118,22 @@ export default {
     search: '',
     hidden: true,
     disable: false,
+    sorted: false,
   }),
   components: {
     AddContact,
-    EditEmail,
     AddEmailtoContact,
     EditContact,
   },
   mounted() {
-    // axios
-    //   .get('http://localhost:8080/api/GetContactPage', {
-    //     params: {
-    //       PageNumber: this.page,
-    //     },
-    //   })
-    //   .then((Response1) => {
-    //     const Data1 = Response1.data;
-    //     this.contacts = Data1;
-    //   });
     this.getContacts();
   },
   methods: {
+    cancelFilters() {
+      this.sorted = false;
+      this.search = '';
+      this.getContacts();
+    },
     removeEmail(contactIndex, emailIndex) {
       var newContact = this.contacts[contactIndex];
       newContact.emails.splice(emailIndex, 1);
@@ -151,9 +146,11 @@ export default {
         this.text = 'Email Successfully Deleted';
         this.snackbar = true;
       }      
+      this.getContacts();
     },
     getContacts() {
-      this.hidden = true;
+      if (this.search == '')
+        this.hidden = true;
       // send token in headers
       axios
         .get('http://localhost:8080/contacts', {
@@ -162,6 +159,8 @@ export default {
           },
           params: {
             page: this.page,
+            sorted: this.sorted,
+            search: this.search,
           },
         })
         .then((Response) => {
@@ -178,39 +177,6 @@ export default {
         this.snackbar = true;
         this.getContacts();
       });
-    },
-
-    editEmail(n) {
-      var i = n[0],
-        j = n[1],
-        newEmail = n[2];
-      var oldname = this.contacts[i].name,
-        newContact = JSON.parse(JSON.stringify(this.contacts[i]));
-      newContact.emailAddresses[j] = newEmail;
-
-      axios
-        .post(
-          'http://localhost:8080/api/editContact?oldName=' + newContact.name,
-          {
-            name: newContact.name,
-            emailAddresses: newContact.emailAddresses,
-          }
-        )
-        .then((Response) => {
-          const Data = Response.data;
-          this.text = Data;
-          this.snackbar = true;
-          axios
-            .get('http://localhost:8080/api/GetContactPage', {
-              params: {
-                PageNumber: this.page,
-              },
-            })
-            .then((Response1) => {
-              const Data1 = Response1.data;
-              this.contacts = Data1;
-            });
-        });
     },
 
     addContact(contact) {
@@ -242,76 +208,26 @@ export default {
     changeThePage() {
       this.getContacts();
     },
-
-    getNumberOfPages() {
-      axios
-        .get('http://localhost:8080/api/ContactsNumberOfPages')
-        .then((Response) => {
-          const Data = Response.data;
-          this.numberOfPages = Data;
-        });
+    toggleSort() {
+      this.sorted = !this.sorted;
+      this.getContacts();
     },
-
-    searchContact() {
-      axios.get('http://localhost:8080/contacts/search/' + this.search, {
-        headers: {
-          authorization: `${localStorage.getItem('token')}`,
-        },
-      }).then((Response) => {
-        const Data = Response.data;
-        this.contacts = Data;
-      });
-    },
-
-    sortContacts() {
-      this.hidden = true;
-      axios.get('http://localhost:8080/contacts/sort', {
-        headers: {
-          authorization: `${localStorage.getItem('token')}`,
-        },
-      }).then((Response) => {
-        const Data = Response.data;
-        this.contacts = Data;
-      });
-    },
-
-    editContactDialog(n){
-          //n[0] oldname of contact
-          //n[1] new contact with new email
-          console.log(n);
-          axios.post('http://localhost:8080/api/editContact?oldName=' + n[0],{
-            name : n[1].name,
-            emailAddresses : n[1].emailAddresses
-          }).then(Response=>{
-            const Data = Response.data;
-            this.text = Data ;
-            this.snackbar = true ;
-            axios.get('http://localhost:8080/api/GetContactPage',{
-                params: {
-                  //this must be varable global
-                    PageNumber : this.page
-                }
-            }).then(Response1=>{
-                const Data1 = Response1.data;
-                this.contacts = Data1 ;
-            });  
-          });
-        },
   },
 };
 </script>
 
 <style scoped>
-.contact-galery {
+.contact-gallery {
   margin-top: 80px;
 }
 .contact-card {
   max-width: 400px;
   border-radius: 10px;
-  background-color: #BFD7ED;
-  margin: 0 auto;
+  background-color: #ebf1fc;
+  margin: auto;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s;
+  padding: 15px;
 }
 
 .contact-card:hover {
@@ -351,7 +267,7 @@ export default {
 .email {
   display: flex;
   align-items: center;
-  padding: 0 12px;
+  padding: 5px 15px;
 }
 
 .email-icon {
@@ -376,9 +292,16 @@ export default {
   font-size: 14px;
 }
 
-.text-center {
-  margin-top: 20px;
+.cont {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  transform: translate(-50%, 0);
 }
+
 
 .contact-header {
   display: flex;
@@ -389,24 +312,6 @@ export default {
   margin-right: 10px;
 }
 
-.contact-details {
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-}
-
-.spacer {
-  flex-grow: 1;
-}
-
-.remove-button {
-  background-color: #ff6666;
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 12px;
-}
 
 .conBar {
   padding: 10px;

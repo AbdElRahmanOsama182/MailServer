@@ -121,8 +121,8 @@ public class ContactManager implements ManagerInterface<Contact> {
         return contact;
     }
 
-    public List<Contact> sortContacts(String username) {
-        return new ContactSort().sort(this.getUserContacts(username));
+    public ArrayList<Contact> sortContacts(String username, ArrayList<Contact> contacts) {
+        return new ContactSort().sort(contacts);
     }
 
     public void loadContacts() {
