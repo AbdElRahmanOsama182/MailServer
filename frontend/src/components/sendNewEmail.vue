@@ -1,57 +1,45 @@
 <template>
   <v-container class="py-8 px-6 sendEmail mt-10" fluid>
+    <v-row>
+      <v-app-bar app color="#071551" dark class="conBar"> 
+        <h2 style="color: white;font-weight: 400;">Crafting connections, one email at a time.</h2>  
+      </v-app-bar>
+    </v-row>
     <v-row align="center" justify="center">
       <v-col cols="10">
-        <v-card color="#BFD7ED">
+        <v-card class="px-3 mt-6" color="#ebf1fc" style="border-radius: 15px;">
           <v-card-text>
             <v-row>
               <v-col md="6">
                 <v-row>
                   <template>
-                    <!-- style the chip -->
-                    <v-select v-model="receiversNames" :items="contacts" chips label="To" multiple
-                      prepend-icon="mdi-account" solo filled dense item-text="name"></v-select>
-                  </template></v-row>
-                <!-- <v-row v-for="(receiver, r) in receiverEmailAddress" :key="r">
-                  <v-text-field
-                    v-model="receiverEmailAddress[r]"
-                    label="To"
-                    required
-                    prepend-icon="mdi-account"
-                    solo
-                    dense
-                    filled
-                  ></v-text-field>
-                  <v-btn v-if="r === 0" icon @click="addReceiver" color="#071551">
-                      <v-icon>mdi-account-plus</v-icon>
-                  </v-btn>
-                  <v-btn v-if="r === 1" icon @click="removeReceiver" color="#071551">
-                      <v-icon>mdi-account-minus</v-icon>
-                  </v-btn>
-                  <v-col v-if="r > 1" md="1"></v-col>
-                </v-row> -->
+                    <v-select v-model="receiversNames" :items="contacts" chips label="To" multiple 
+                      prepend-icon="mdi-account" outlined dense item-text="name"></v-select>
+                  </template>
+              </v-row>
               </v-col>
               <v-col md="8">
                 <v-row>
-                  <v-text-field v-model="subject" label="Subject" required prepend-icon="mdi-text-short" solo dense
-                    filled></v-text-field>
+                  <v-text-field v-model="subject" label="Subject" required prepend-icon="mdi-text-short" outlined dense
+                    ></v-text-field>
                 </v-row>
               </v-col>
               <v-col md="10">
                 <v-row>
-                  <v-textarea filled name="input-7-4" label="Message" v-model="body" prepend-icon="mdi-message-text" solo
+                  <v-textarea name="input-7-4" label="Message" v-model="body" prepend-icon="mdi-message-text" outlined
                     dense></v-textarea>
                 </v-row>
               </v-col>
               <v-row>
                 <v-col md="4">
-                  <v-file-input v-model="attachments" placeholder="Upload your documents" label="File input" multiple
-                    prepend-icon="mdi-paperclip" solo filled dense>
+                  <v-file-input v-model="files" @change="onFileChange" placeholder="Upload files" label="File input" multiple
+                    prepend-icon="mdi-paperclip" outlined dense>
                   </v-file-input>
                 </v-col>
                 <v-col md="8">
                   <v-chip v-for="fileName in attachments" :key="fileName.name" class="me-2 mt-2" color="primary">
                     {{ fileName.name }}
+                    <v-icon small @click="removeAttachment(fileName)">mdi-close</v-icon>
                   </v-chip>
                 </v-col>
               </v-row>
@@ -59,11 +47,9 @@
             <v-row>
               <v-col md="6">
                 <span class="subheading">Mail Importance</span>
-                <v-card-text>
                   <v-slider v-model="importance" append-icon="mdi-priority-high" prepend-icon="mdi-priority-low" :min="1"
                     :max="4" step="1" tick-size="4" dense hide-details color="#071551" thumb-label
                     @click:append="importance++" @click:prepend="importance--"></v-slider>
-                </v-card-text>
               </v-col>
             </v-row>
 
@@ -109,6 +95,7 @@ export default {
     subject: '',
     body: '',
     attachments: [],
+    files: [],
     file: null,
     importanceList: ['low', 'medium', 'important', 'very important'],
     importanceList2: ['low', 'medium', 'Important', 'veryImportant'],
@@ -121,6 +108,15 @@ export default {
     this.getContacts();
   },
   methods: {
+    onFileChange(e) {
+      // add the selected files to the attachments list
+      if (this.files.length > 0) {
+        for (let i = 0; i < this.files.length; i++) {
+          this.attachments.push(this.files[i]);
+        }
+      }
+      this.files = [];
+    },
     reset: function () {
       this.receiverEmailAddress = [''];
       this.subject = '';
@@ -202,6 +198,7 @@ export default {
               }
               else
                 this.text = 'Email sent';
+                this.reset();
             }
           })
       },
@@ -214,8 +211,8 @@ export default {
       addAttachment(){
           this.attachments.push('');
       },
-      removeAttachment(){
-          this.attachments.pop();
+      removeAttachment(file){
+        this.attachments.splice(this.attachments.indexOf(file), 1);
       },
       getContacts() {
         axios.get('http://localhost:8080/contacts', {
@@ -240,6 +237,11 @@ export default {
   width: 70% !important;
 }
 
+.conBar {
+  padding: 10px;
+  height: 80px !important;
+  border-radius: 0 0 30px 30px !important;
+}
 .col {
   padding: 0 15px !important;
 }

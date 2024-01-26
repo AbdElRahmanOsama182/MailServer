@@ -3,18 +3,12 @@
     <v-menu
       v-model="menu"
       :close-on-content-click="false"
-      :nudge-width="300"
       persistent
-      
     >
       <template v-slot:activator="{ on, attrs }">
-        <!-- <v-btn icon color="primary" @click="editContactDialog(contact)">
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn> -->
         <v-btn
-            icon color="primary"
-            class="mx-4"
-            background-color="green"
+            icon
+            color="primary"
             v-bind="attrs" 
             v-on="on"
         >
@@ -24,8 +18,7 @@
       </template>
 
       <v-card>
-        <!-- remove padding between list items -->
-        <v-list color="#BFD7ED" dense>
+        <v-list color="#ebf1fc" dense>
           <v-list-item>
             <v-col>
                 <v-text-field

@@ -19,8 +19,8 @@
 
       </template>
 
-      <v-card color="#BFD7ED" elevation="0">
-        <v-list color="#BFD7ED">
+      <v-card color="#ebf1fc" elevation="0">
+        <v-list color="#ebf1fc">
           <v-list-item>
             <v-col>
                 <v-text-field

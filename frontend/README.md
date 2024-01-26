@@ -1,4 +1,4 @@
-# cool
+# MailServer
 
 ## Project setup
 ```

@@ -6,14 +6,14 @@
             <button><i @click="deleteFolder(folder)" class="icon mdi mdi-trash-can-outline"></i></button>
         </div>
         <div v-if="add" class="addFolderPanel">
-            <input  type="text" v-model="addedFolderName" />
-            <button @click="addFolder"> add </button>
+            <input  type="text" v-model="addedFolderName" style="color: white;" />
+            <button @click="addFolder"> Add </button>
         </div>
         <div v-if="rename" class="addFolderPanel">
-            <input  type="text" v-model="renamedFolderName" />
-            <button @click="renameFolder(renamedFolder,renamedFolderName)"> rename </button>
+            <input  type="text" v-model="renamedFolderName" style="color: white;" />
+            <button @click="renameFolder(renamedFolder,renamedFolderName)"> Rename </button>
         </div>
-        <button class="folder" @click="addFolderPanel">add folder</button>
+        <button class="folder" @click="addFolderPanel">Add Folder</button>
     </div>
 </template>
 
@@ -27,10 +27,13 @@ export default {
             this.componentKey += 1;
         },
         addFolderPanel() {
+            this.rename = false;
             this.add = true;
         },
         renameFolderPanel(folder) {
+            this.add = false;
             this.rename = true;
+            this.renamedFolderName = folder.name;
             this.renamedFolder = folder;
         },
         async viewFolder(folder) {
@@ -119,7 +122,7 @@ export default {
 <style scoped>
 
 .panel {
-background-color: lightgray ;
+    background-color: #071551; 
     display: grid;
     justify-content: center;
     align-items: center;
@@ -127,6 +130,7 @@ background-color: lightgray ;
     border: 1px solid white;
     border-radius: 10px;
     gap: 10px;
+    transform: translate(0, -50%);
 }
 .folder {
     border: 1px solid white;
@@ -173,7 +177,7 @@ background-color: lightgray ;
 }
 
 .addFolderPanel button {
-    width: 50px;
+    width: 65px;
     height: 30px;
     border-radius: 5px;
     border: 1px solid white;

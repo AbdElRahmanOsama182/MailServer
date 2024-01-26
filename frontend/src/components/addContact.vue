@@ -1,6 +1,6 @@
 <template>
     <v-row justify="center" class="justify-center">
-      <v-dialog v-model="dialog" width="400px" color="#BFD7ED">
+      <v-dialog v-model="dialog" width="400px" color="#ebf1fc">
         <template v-slot:activator="{ on, attrs }">
           <v-spacer></v-spacer>
           <v-btn
@@ -15,7 +15,7 @@
             <v-icon>mdi-account-plus</v-icon>
           </v-btn>
         </template>
-        <v-card color="#BFD7ED">
+        <v-card color="#ebf1fc">
           <v-card-title>
             <v-img
                 src="..\assets\user.png"
@@ -98,8 +98,8 @@
   <style scoped>
   .addnewcontact {
     margin: 25px;
+    /* border-radius: 15px; */
   }
-
   .avatar-image {
   max-width: 60px;
   border-radius: 50%;

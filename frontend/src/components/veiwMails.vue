@@ -3,16 +3,11 @@
     <v-row>
       <v-app-bar app color="#071551" dark class="MailsBar">
         <v-btn @click="hidden3 = !hidden3" icon>
-            <!-- <v-icon left>
-              {{ hidden2 ? 'mdi-chevron-right' : 'mdi-chevron-left' }}
-            </v-icon> -->
-            <v-icon>mdi-email-search-outline</v-icon>
-          </v-btn>
-      
+          <v-icon>mdi-email-search-outline</v-icon>
+        </v-btn>
         <v-col md="2" v-if="!hidden3">
-            <v-combobox v-show="!hidden3" v-model="search" :items="items" label="Search by" dense hide-details></v-combobox>
+          <v-combobox v-show="!hidden3" v-model="search" :items="items" label="Search by" dense hide-details></v-combobox>
         </v-col>
-      
         <v-col md="2" v-if="!hidden3">
           <v-text-field
             v-show="!hidden3"
@@ -72,9 +67,6 @@
         <v-btn icon dark @click="cancelFilters">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-          <!-- <v-btn v-show="!hidden2" fab small dark color="#2d3142" @click="applyFilter">
-            <v-icon>mdi-checkbox-marked-circle</v-icon>
-          </v-btn> -->
       </v-app-bar>
     </v-row>
     <v-row>
@@ -85,12 +77,12 @@
               <v-card class="message-card" @click="openMessage(i)" v-bind="attrs" v-on="on">
                 <v-img class="message-image" src="..\assets\mail.png"></v-img>
                 <v-card-text class="message-info">
-                  <div class="message-info-item"><strong>From:</strong> {{ message.fromUserId }}</div>
-                  <div class="message-info-item"><strong>To:</strong> {{ message.to[0]?message.to[0].name:"" }}</div>
-                  <div class="message-info-item"><strong>Subject:</strong> {{ message.subject }}</div>
-                  <div class="message-info-item"><strong>Body:</strong> {{ message.body.substring(0, 20) }}</div>
-                  <div class="message-info-item"><strong>Date:</strong> {{ message.sendDate.substring(0,10) }}</div>
-                  <div class="message-info-item"><strong>Priority:</strong> {{ message.priority }}</div>
+                  <div class="message-info-item"><strong style="color: #071551;">From:</strong> {{ message.fromUserId }}</div>
+                  <div class="message-info-item"><strong style="color: #071551;">To:</strong> {{ message.to[0]?message.to[0].name:"" }}</div>
+                  <div class="message-info-item"><strong style="color: #071551;">Subject:</strong> {{ message.subject }}</div>
+                  <div class="message-info-item"><strong style="color: #071551;">Body:</strong> {{ message.body.substring(0, 20) }}</div>
+                  <div class="message-info-item"><strong style="color: #071551;">Date:</strong> {{ message.sendDate.substring(0,10) }}</div>
+                  <div class="message-info-item"><strong style="color: #071551;">Priority:</strong> {{ message.priority === 1 ? 'Low' : message.priority === 2 ? 'Medium' : message.priority === 3 ? 'Important' : 'Very Important' }}</div>
                 </v-card-text>
                 <v-btn class="message-action" icon @click.stop="openMessage(i)" @click="deleteOrrestore(message)">
                   <v-icon>{{ message.deleted === false ? 'mdi-delete' : 'mdi-delete-restore' }}</v-icon>
@@ -100,7 +92,7 @@
                 </v-btn>
                 <v-checkbox class="message-action mt-8" v-model="selectedMessages[i]" hide-details @click.stop="openMessage(i)"></v-checkbox>
                 <v-dialog v-model="moveDialog" max-width="400" transition="dialog-bottom-transition">
-                  <v-card color="#BFD7ED">
+                  <v-card color="#ebf1fc">
                     <v-card-title>Choose Destination Folder</v-card-title>
                     <v-card-text>
                       <v-select 
@@ -108,6 +100,7 @@
                         :items="AllFolders"
                         chips
                         solo
+                        hide-details
                         filled
                         dense
                         item-text="name"
@@ -125,14 +118,18 @@
           </v-row>
         </template>
 
-        <v-card @click="dialog=false">
-          <ViewMail :mail="mail" @reply= "reply($event)" ></ViewMail>
-        </v-card>
+        <ViewMail :mail="mail" @reply= "reply($event)" @click.native="dialog = false" 
+         ></ViewMail>
       </v-dialog>
     </v-row>
-    <v-row class="cont">
+    <v-row class="cont" v-if="numberOfPages">
       <div class="text-center mb-15">
-        <v-pagination v-model="page" :length="numberOfPages" :disabled="disable" @input="changeThePage"></v-pagination>
+        <v-pagination 
+          v-model="page" 
+          color="#071551"
+          :length="numberOfPages" 
+          :disabled="disable" 
+          @input="changeThePage"></v-pagination>
       </div>
     </v-row>
   </v-container>
@@ -180,8 +177,6 @@ export default {
       BulkMove: false,
     }
   },
-  // checkspam befre mounted
-
   mounted () {
       console.log(this.folder);
       console.log("dd");
@@ -192,9 +187,6 @@ export default {
       }
       console.log(this.messages);
       console.log("Number of pages: " +this.numberOfPages);
-      // this.checkSpam();
-      // this.checkFolder();
-      // this.sortandFilter();
   },
   components : {
     ViewMail
@@ -326,15 +318,6 @@ export default {
       },
        
       changeThePage(){
-        // console.log("okokkoko")
-        // axios.get('http://localhost:8080/api/getPage',{
-        //       params: {
-        //           PageNumber : this.page
-        //       }
-        // }).then(Response=>{
-        //       const Data = Response.data;
-        //       this.messeages = Data ;
-        // });
         this.$emit('changePage',this.page);
       },
       
@@ -390,7 +373,8 @@ export default {
   transition: transform 0.2s ease-in-out;
   margin-bottom: 16px;
   border-radius: 10px;
-  background-color: #BFD7ED;
+  background-color: #ebf1fc;
+  padding-top: 8px;
 }
 
 .message-card:hover {
@@ -399,8 +383,9 @@ export default {
 }
 
 .message-image {
+  margin-left: 8px;
   width: 50px;
-  object-fit: cover;
+  /* object-fit: cover; */
 }
 
 .message-info {
@@ -427,6 +412,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  transform: translate(-50%, 0);
 }
 
 .text-bottom {
